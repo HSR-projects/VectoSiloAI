@@ -137,8 +137,8 @@ export function Onboarding() {
         )}
 
         {step === 2 && (
-          <Step title="Choose a plan" subtitle="Upgrade is instant — no card required (demo billing).">
-            <div className="grid gap-2 sm:grid-cols-3">
+          <Step title="Choose a plan" subtitle="Upgrade is instant — no card required.">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {PLANS.map((p) => {
                 const current = user?.plan === p.id;
                 return (

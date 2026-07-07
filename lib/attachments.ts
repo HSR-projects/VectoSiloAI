@@ -189,11 +189,14 @@ export function buildAttachments(
       const truncated = (a.data?.length ?? 0) > MAX_TEXT_CHARS ? "\n…(truncated)" : "";
       textBlocks.push(`--- File: ${a.name} ---\n${body}${truncated}`);
     } else if (a.kind === "audio") {
-      notes.push(
-        caps.audio
-          ? `an audio file "${a.name}"`
-          : `an audio file "${a.name}" (the current model can't process audio — ask the user to switch to an audio-capable model)`
-      );
+      if (caps.audio) {
+        notes.push(`an audio file "${a.name}"`);
+      } else if (!query.trim() || query.trim() === "Voice message") {
+        // No transcript available — let the model know audio was attached
+        notes.push(`an audio file "${a.name}" (the current model can't process audio — ask the user to switch to an audio-capable model)`);
+      }
+      // If user provided a transcript (meaningful query text), skip the note
+      // so the model responds to what was said rather than the audio attachment.
     } else {
       notes.push(`a file "${a.name}" of an unsupported type`);
     }

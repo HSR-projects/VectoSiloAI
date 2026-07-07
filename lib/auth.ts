@@ -29,7 +29,7 @@ const AUTH_SECRET =
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "auth.json");
 
-interface StoredApiKey {
+export interface StoredApiKey {
   id: string;
   name: string;
   /** sha256 hex of the full secret — the secret itself is never stored. */
@@ -38,18 +38,25 @@ interface StoredApiKey {
   createdAt: number;
   lastUsedAt?: number;
   revoked?: boolean;
+  /** Optional max spend for this key, in US cents. */
+  creditLimitCents?: number;
+  /** Credits already spent through this key, in US cents. */
+  spentCents?: number;
 }
 
-interface StoredUser extends User {
+export interface StoredUser extends User {
   passwordHash: string; // "salthex:hashhex" — empty string for OAuth-only accounts
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
+  razorpayOrderId?: string;
+  razorpaySubscriptionId?: string;
   apiKeys?: StoredApiKey[];
-  /** Stripe checkout session IDs already credited — guards double fulfillment. */
+  /** Razorpay order/session IDs already credited — guards double fulfillment. */
   creditedSessions?: string[];
   /** Email-verification token (sha256 hex) + expiry. Cleared once verified. */
   verifyTokenHash?: string;
   verifyTokenExp?: number;
+  /** Password-reset token (sha256 hex) + expiry. */
+  resetTokenHash?: string;
+  resetTokenExp?: number;
   /** Firebase UID — set when the account was created or linked via Google Sign-In. */
   googleId?: string;
   /** URL of the user's Google profile picture (display only). */
@@ -58,7 +65,37 @@ interface StoredUser extends User {
   usageWindowStart?: number;
   /** Messages used in the current window. */
   usageCount?: number;
+  /** Personalization & memory (injected into the chat system prompt). */
+  memoryEnabled?: boolean;
+  /** Free-text "who you are / your details" the user wrote about themselves. */
+  aboutYou?: string;
+  /** Free-text "how the assistant should respond" preferences. */
+  responsePrefs?: string;
+  /** Facts the assistant saved over time (auto-memory). */
+  memories?: MemoryItem[];
+  /** Encrypted TOTP secret for two-factor authentication. */
+  twoFactorSecret?: string;
+  /** Whether two-factor authentication is enabled. */
+  twoFactorEnabled?: boolean;
+  /** Bcrypt-hashed backup codes (one-time-use). */
+  twoFactorBackupCodes?: string[];
 }
+
+export interface MemoryItem {
+  id: string;
+  text: string;
+  createdAt: number;
+}
+
+export interface UserMemory {
+  memoryEnabled: boolean;
+  aboutYou: string;
+  responsePrefs: string;
+  memories: MemoryItem[];
+}
+
+/** Cap on auto-saved memories to keep the prompt and store bounded. */
+const MEMORY_LIMIT = 100;
 
 const VERIFY_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
@@ -67,7 +104,8 @@ interface DB {
 }
 
 // ─── Storage ──────────────────────────────────────────────────
-async function readDB(): Promise<DB> {
+/** Exported for use by other stores (orgs, gifts, etc.). */
+export async function readDB(): Promise<DB> {
   try {
     const raw = await fs.readFile(DB_PATH, "utf8");
     const db = JSON.parse(raw) as DB;
@@ -78,12 +116,13 @@ async function readDB(): Promise<DB> {
   }
 }
 
-async function writeDB(db: DB): Promise<void> {
+/** Exported for use by other stores (orgs, gifts, etc.). */
+export async function writeDB(db: DB): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2), "utf8");
 }
 
-/** Whitelist the fields safe to expose — never key hashes, Stripe IDs, or password. */
+/** Whitelist the fields safe to expose — never key hashes, Razorpay IDs, or password. */
 function publicUser(u: StoredUser): User {
   return {
     id: u.id,
@@ -96,6 +135,7 @@ function publicUser(u: StoredUser): User {
     createdAt: u.createdAt,
     emailVerified: u.emailVerified ?? false,
     credits: u.credits ?? 0,
+    twoFactorEnabled: u.twoFactorEnabled ?? false,
   };
 }
 
@@ -175,6 +215,91 @@ function issueVerifyToken(user: StoredUser): string {
   return token;
 }
 
+/**
+ * Change the current user's password (requires correct current password).
+ */
+export async function changePassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  if (newPassword.length < 8) throw new AuthError("New password must be at least 8 characters.");
+
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) throw new AuthError("User not found.");
+
+  // OAuth-only accounts can't change password (they don't have one).
+  if (!user.passwordHash) throw new AuthError("This account uses Google sign-in — no password to change.");
+
+  const valid = await verifyPassword(currentPassword, user.passwordHash);
+  if (!valid) throw new AuthError("Current password is incorrect.");
+
+  user.passwordHash = await hashPassword(newPassword);
+  await writeDB(db);
+}
+
+/**
+ * Issue a password-reset token for the given email.
+ * Returns the plaintext token (to be emailed) or null if the email doesn't exist
+ * (callers should NOT reveal whether the email was found).
+ */
+export async function issuePasswordResetToken(email: string): Promise<string | null> {
+  const normEmail = email.trim().toLowerCase();
+  const db = await readDB();
+  const user = db.users.find((u) => u.email === normEmail);
+  if (!user || !user.passwordHash) return null; // no local-password account
+
+  const token = randomBytes(24).toString("hex");
+  user.resetTokenHash = hashToken(token);
+  user.resetTokenExp = Date.now() + VERIFY_TTL_MS;
+  await writeDB(db);
+  return token;
+}
+
+/**
+ * Verify a password-reset token and update the password.
+ * On success, clears the token and returns a session token so the user
+ * is signed in automatically.
+ */
+export async function resetPassword(
+  token: string,
+  newPassword: string
+): Promise<{ user: User; token: string }> {
+  if (!token) throw new AuthError("Missing reset token.");
+  if (newPassword.length < 8) throw new AuthError("New password must be at least 8 characters.");
+
+  const hash = hashToken(token);
+  const db = await readDB();
+  const user = db.users.find((u) => u.resetTokenHash === hash);
+  if (!user) throw new AuthError("Invalid or expired reset link.");
+  if (!user.resetTokenExp || user.resetTokenExp < Date.now()) {
+    user.resetTokenHash = undefined;
+    user.resetTokenExp = undefined;
+    await writeDB(db);
+    throw new AuthError("This reset link has expired. Request a new one.");
+  }
+
+  // Update password + clear the token
+  user.passwordHash = await hashPassword(newPassword);
+  user.resetTokenHash = undefined;
+  user.resetTokenExp = undefined;
+  await writeDB(db);
+
+  return { user: publicUser(user), token: createSessionToken(user.id) };
+}
+
+/**
+ * Normalise an email for uniqueness checks:
+ * - Lowercase
+ * - Strip `+tag` sub-addressing (supported by Gmail, Outlook, etc.) so
+ *   `user+spam@gmail.com` can't bypass the duplicate check vs `user@gmail.com`.
+ */
+function canonicalEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  return `${local.split("+")[0]}@${domain}`;
+}
+
 export async function registerUser(
   name: string,
   email: string,
@@ -192,7 +317,10 @@ export async function registerUser(
   if (!domainCheck.ok) throw new AuthError(domainCheck.reason ?? "Enter a valid email.");
 
   const db = await readDB();
-  if (db.users.some((u) => u.email === normEmail))
+  // Check both the raw email AND the canonical form (strips + aliases) to
+  // prevent sub-addressing tricks from creating duplicate accounts.
+  const canonical = canonicalEmail(normEmail);
+  if (db.users.some((u) => u.email === normEmail || canonicalEmail(u.email) === canonical))
     throw new AuthError("An account with that email already exists.");
 
   const user: StoredUser = {
@@ -214,11 +342,20 @@ export async function registerUser(
   return { user: publicUser(user), verifyToken };
 }
 
+export type LoginResult = { user: User; token: string; twoFactorToken?: string };
+
 export async function loginUser(
   email: string,
   password: string
-): Promise<{ user: User; token: string }> {
+): Promise<LoginResult> {
   const normEmail = email.trim().toLowerCase();
+
+  // Block sign-in from disposable / no-MX domains, even if the account already exists.
+  const domainCheck = await checkEmailDomain(normEmail);
+  if (!domainCheck.ok) {
+    throw new AuthError(domainCheck.reason ?? "This email address is not allowed.");
+  }
+
   const db = await readDB();
   const user = db.users.find((u) => u.email === normEmail);
   if (!user || !(await verifyPassword(password, user.passwordHash)))
@@ -229,6 +366,13 @@ export async function loginUser(
   if (!isBcryptHash(user.passwordHash)) {
     user.passwordHash = await hashPassword(password);
     await writeDB(db);
+  }
+
+  // If 2FA is enabled, issue a short-lived challenge token instead of a session.
+  if (user.twoFactorEnabled && user.twoFactorSecret) {
+    const { createTwoFactorToken } = await import("@/lib/twoFactor");
+    const twoFactorToken = createTwoFactorToken(user.id);
+    return { user: publicUser(user), token: "", twoFactorToken };
   }
 
   return { user: publicUser(user), token: createSessionToken(user.id) };
@@ -288,6 +432,27 @@ export async function getCurrentUser(): Promise<User | null> {
   return user ? publicUser(user) : null;
 }
 
+/** Resolve a public user by id (used by the OAuth userinfo endpoint). */
+export async function getUserById(userId: string): Promise<User | null> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  return user ? publicUser(user) : null;
+}
+
+/** Return the full StoredUser for a given user ID (includes sensitive fields). */
+export async function getStoredUserById(userId: string): Promise<StoredUser | null> {
+  const db = await readDB();
+  return db.users.find((u) => u.id === userId) ?? null;
+}
+
+/** Persist changes to a stored user after reading via getStoredUserById. */
+export async function saveStoredUser(user: StoredUser): Promise<void> {
+  const db = await readDB();
+  const idx = db.users.findIndex((u) => u.id === user.id);
+  if (idx !== -1) db.users[idx] = user;
+  await writeDB(db);
+}
+
 /** Patch the current user (onboarding flags, plan, default agent, avatar…). */
 export async function updateUser(
   userId: string,
@@ -301,7 +466,7 @@ export async function updateUser(
   return publicUser(user);
 }
 
-export const PLAN_RANK: Record<Plan, number> = { free: 0, pro: 1, max: 2 };
+export const PLAN_RANK: Record<Plan, number> = { free: 0, go: 1, pro: 2, max: 3, ultra: 4 };
 
 /** Permanently remove a user from the database. */
 export async function deleteUser(userId: string): Promise<void> {
@@ -310,28 +475,28 @@ export async function deleteUser(userId: string): Promise<void> {
   await writeDB(db);
 }
 
-/** Store Stripe customer/subscription IDs on the user record. */
-export async function updateUserStripe(
+/** Store Razorpay order/subscription IDs on the user record. */
+export async function updateUserRazorpay(
   userId: string,
-  stripe: { stripeCustomerId?: string; stripeSubscriptionId?: string }
+  data: { razorpayOrderId?: string; razorpaySubscriptionId?: string }
 ): Promise<void> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
   if (!user) throw new AuthError("User not found.");
-  if (stripe.stripeCustomerId) user.stripeCustomerId = stripe.stripeCustomerId;
-  if (stripe.stripeSubscriptionId) user.stripeSubscriptionId = stripe.stripeSubscriptionId;
+  if (data.razorpayOrderId) user.razorpayOrderId = data.razorpayOrderId;
+  if (data.razorpaySubscriptionId) user.razorpaySubscriptionId = data.razorpaySubscriptionId;
   await writeDB(db);
 }
 
-/** Read a user's stored Stripe identifiers (server-only). */
-export async function getUserStripeIds(
+/** Read a user's stored Razorpay identifiers (server-only). */
+export async function getUserRazorpayIds(
   userId: string
-): Promise<{ customerId?: string; subscriptionId?: string }> {
+): Promise<{ orderId?: string; subscriptionId?: string }> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
   return {
-    customerId: user?.stripeCustomerId,
-    subscriptionId: user?.stripeSubscriptionId,
+    orderId: user?.razorpayOrderId,
+    subscriptionId: user?.razorpaySubscriptionId,
   };
 }
 
@@ -341,18 +506,18 @@ export async function setUserFree(userId: string): Promise<User> {
   const user = db.users.find((u) => u.id === userId);
   if (!user) throw new AuthError("User not found.");
   user.plan = "free";
-  user.stripeSubscriptionId = undefined;
+  user.razorpaySubscriptionId = undefined;
   await writeDB(db);
   return publicUser(user);
 }
 
-/** Downgrade the user whose Stripe subscription ID matches to free. */
+/** Downgrade the user whose Razorpay subscription ID matches to free. */
 export async function downgradeBySubscriptionId(subscriptionId: string): Promise<void> {
   const db = await readDB();
-  const user = db.users.find((u) => u.stripeSubscriptionId === subscriptionId);
+  const user = db.users.find((u) => u.razorpaySubscriptionId === subscriptionId);
   if (user) {
     user.plan = "free";
-    user.stripeSubscriptionId = undefined;
+    user.razorpaySubscriptionId = undefined;
     await writeDB(db);
   }
 }
@@ -372,6 +537,8 @@ function maskKey(k: StoredApiKey): ApiKeyPublic {
     createdAt: k.createdAt,
     lastUsedAt: k.lastUsedAt,
     revoked: k.revoked,
+    creditLimitCents: k.creditLimitCents,
+    spentCents: k.spentCents ?? 0,
   };
 }
 
@@ -388,7 +555,8 @@ export async function listApiKeys(userId: string): Promise<ApiKeyPublic[]> {
  */
 export async function createApiKey(
   userId: string,
-  name: string
+  name: string,
+  creditLimitCents?: number
 ): Promise<{ secret: string; key: ApiKeyPublic }> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
@@ -398,12 +566,18 @@ export async function createApiKey(
   if (active.length >= 20) throw new AuthError("API key limit reached (20).");
 
   const secret = API_KEY_PREFIX + randomBytes(24).toString("hex");
+  const cleanLimit =
+    typeof creditLimitCents === "number" && Number.isFinite(creditLimitCents)
+      ? Math.max(0, Math.round(creditLimitCents))
+      : undefined;
   const record: StoredApiKey = {
     id: randomBytes(8).toString("hex"),
     name: name.trim().slice(0, 60) || "Default key",
     hash: hashApiKey(secret),
     last4: secret.slice(-4),
     createdAt: Date.now(),
+    ...(cleanLimit && cleanLimit > 0 ? { creditLimitCents: cleanLimit } : {}),
+    spentCents: 0,
   };
   user.apiKeys = [...(user.apiKeys ?? []), record];
   await writeDB(db);
@@ -423,6 +597,14 @@ export async function revokeApiKey(userId: string, keyId: string): Promise<void>
 
 /** Resolve a user from a bearer API key, updating its last-used timestamp. */
 export async function getUserByApiKey(secret: string): Promise<User | null> {
+  const auth = await getApiKeyAuth(secret);
+  return auth?.user ?? null;
+}
+
+/** Resolve a user and masked key metadata from a bearer API key. */
+export async function getApiKeyAuth(
+  secret: string
+): Promise<{ user: User; key: ApiKeyPublic } | null> {
   if (!secret?.startsWith(API_KEY_PREFIX)) return null;
   const hash = hashApiKey(secret);
   const db = await readDB();
@@ -435,11 +617,11 @@ export async function getUserByApiKey(secret: string): Promise<User | null> {
     key.lastUsedAt = Date.now();
     await writeDB(db);
   }
-  return publicUser(user);
+  return key ? { user: publicUser(user), key: maskKey(key) } : null;
 }
 
 // ─── Credits (prepaid, US cents) ──────────────────────────────
-/** Add credits to a user's balance (Stripe payment fulfillment). */
+/** Add credits to a user's balance (Razorpay payment fulfillment). */
 export async function addCredits(userId: string, cents: number): Promise<number> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
@@ -450,7 +632,7 @@ export async function addCredits(userId: string, cents: number): Promise<number>
 }
 
 /**
- * Idempotently credit a paid Stripe session. Safe to call from both the webhook
+ * Idempotently credit a paid Razorpay session. Safe to call from both the webhook
  * and the verify route — the second call for the same session is a no-op.
  * Returns the (possibly unchanged) balance.
  */
@@ -474,13 +656,26 @@ export async function fulfillCreditSession(
  * Atomically deduct credits for an API call. Returns the new balance, or null
  * if the balance is insufficient (no deduction made).
  */
-export async function deductCredits(userId: string, cents: number): Promise<number | null> {
+export async function deductCredits(
+  userId: string,
+  cents: number,
+  apiKeyId?: string
+): Promise<number | null> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
   if (!user) return null;
+  const charge = Math.max(0, Math.round(cents));
   const balance = user.credits ?? 0;
-  if (balance < cents) return null;
-  user.credits = balance - Math.round(cents);
+  if (balance < charge) return null;
+  if (apiKeyId) {
+    const key = (user.apiKeys ?? []).find((k) => k.id === apiKeyId && !k.revoked);
+    if (!key) return null;
+    const spent = key.spentCents ?? 0;
+    const limit = key.creditLimitCents;
+    if (typeof limit === "number" && spent + charge > limit) return null;
+    key.spentCents = spent + charge;
+  }
+  user.credits = balance - charge;
   await writeDB(db);
   return user.credits;
 }
@@ -490,6 +685,19 @@ export async function getCredits(userId: string): Promise<number> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
   return user?.credits ?? 0;
+}
+
+/** Maximum amount that can currently be billed, considering account and key cap. */
+export async function getBillableCredits(userId: string, apiKeyId?: string): Promise<number> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) return 0;
+  const balance = user.credits ?? 0;
+  if (!apiKeyId) return balance;
+  const key = (user.apiKeys ?? []).find((k) => k.id === apiKeyId && !k.revoked);
+  if (!key) return 0;
+  if (typeof key.creditLimitCents !== "number") return balance;
+  return Math.max(0, Math.min(balance, key.creditLimitCents - (key.spentCents ?? 0)));
 }
 
 // ─── Free-tier usage metering ─────────────────────────────────
@@ -557,6 +765,84 @@ export async function peekUsage(
     limit,
     resetAt: user.usageWindowStart + USAGE_WINDOW_MS,
   };
+}
+
+// ─── Personalization & memory ─────────────────────────────────
+
+/** Read a user's memory + personalization (defaults applied). */
+export async function getUserMemory(userId: string): Promise<UserMemory> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  return {
+    memoryEnabled: user?.memoryEnabled ?? true,
+    aboutYou: user?.aboutYou ?? "",
+    responsePrefs: user?.responsePrefs ?? "",
+    memories: user?.memories ?? [],
+  };
+}
+
+/** Update personalization fields / the memory toggle. */
+export async function updateUserMemory(
+  userId: string,
+  patch: { memoryEnabled?: boolean; aboutYou?: string; responsePrefs?: string }
+): Promise<UserMemory> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) throw new AuthError("User not found.");
+  if (typeof patch.memoryEnabled === "boolean") user.memoryEnabled = patch.memoryEnabled;
+  if (typeof patch.aboutYou === "string") user.aboutYou = patch.aboutYou.slice(0, 2000);
+  if (typeof patch.responsePrefs === "string") user.responsePrefs = patch.responsePrefs.slice(0, 2000);
+  await writeDB(db);
+  return getUserMemory(userId);
+}
+
+/** Append a saved memory (de-duped, capped). Returns the updated list. */
+export async function addMemory(userId: string, text: string): Promise<MemoryItem[]> {
+  const clean = text.trim().slice(0, 400);
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user || !clean) return user?.memories ?? [];
+  const existing = user.memories ?? [];
+  // Skip near-duplicates (case-insensitive exact match).
+  if (existing.some((m) => m.text.toLowerCase() === clean.toLowerCase())) return existing;
+  const next = [
+    ...existing,
+    { id: randomBytes(8).toString("hex"), text: clean, createdAt: Date.now() },
+  ].slice(-MEMORY_LIMIT);
+  user.memories = next;
+  await writeDB(db);
+  return next;
+}
+
+/** Delete one memory (by id) or all (id omitted). Returns the remaining list. */
+export async function deleteMemory(userId: string, id?: string): Promise<MemoryItem[]> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) return [];
+  user.memories = id ? (user.memories ?? []).filter((m) => m.id !== id) : [];
+  await writeDB(db);
+  return user.memories;
+}
+
+/** Build the system-prompt block describing the user, or "" if nothing/disabled. */
+export async function buildMemoryContext(userId: string): Promise<string> {
+  const mem = await getUserMemory(userId);
+  if (!mem.memoryEnabled) return "";
+  const parts: string[] = [];
+  if (mem.aboutYou.trim()) parts.push(`About the user:\n${mem.aboutYou.trim()}`);
+  if (mem.responsePrefs.trim()) parts.push(`How the user wants you to respond:\n${mem.responsePrefs.trim()}`);
+  if (mem.memories.length) {
+    parts.push(
+      "Things you remember about the user:\n" +
+        mem.memories.map((m) => `- ${m.text}`).join("\n")
+    );
+  }
+  if (!parts.length) return "";
+  return (
+    "The following is saved context about the user you are talking to. Use it to " +
+    "personalise your answers when relevant; do not recite it back unprompted.\n\n" +
+    parts.join("\n\n")
+  );
 }
 
 // ─── Google / OAuth ───────────────────────────────────────────

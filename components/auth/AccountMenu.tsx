@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, BadgeCheck, Settings, KeyRound } from "lucide-react";
+import { LogOut, BadgeCheck, Settings, KeyRound, Building2, UserPlus } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { formatCredits } from "@/lib/credits";
 import { planDef } from "@/lib/plans";
 import { useKodaStore } from "@/lib/store";
+import { JoinOrgModal } from "@/components/billing/JoinOrgModal";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -28,6 +30,7 @@ export function AccountMenu() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const setSettingsOpen = useKodaStore((s) => s.setSettingsOpen);
+  const [joinOrgOpen, setJoinOrgOpen] = useState(false);
   if (!user) return null;
   const plan = planDef(user.plan);
   const avatarBg = user.avatarColor ?? DEFAULT_AVATAR_COLOR;
@@ -37,7 +40,7 @@ export function AccountMenu() {
       <DropdownMenuTrigger asChild>
         <button
           aria-label="Account"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white transition-transform hover:scale-105 focus:outline-none"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold text-white transition-transform hover:scale-105 focus:outline-none"
           style={{ backgroundColor: avatarBg }}
         >
           {initials(user.name) || user.email[0]?.toUpperCase()}
@@ -73,6 +76,20 @@ export function AccountMenu() {
             <span className="text-xs text-koda-muted">{formatCredits(user.credits ?? 0)}</span>
           </span>
         </DropdownMenuItem>
+        {user.plan === "ultra" && (
+          <DropdownMenuItem onSelect={() => router.push("/pricing?tab=org")}>
+            <span className="flex items-center gap-2 text-koda-text">
+              <Building2 className="h-3.5 w-3.5" /> Manage Org
+            </span>
+          </DropdownMenuItem>
+        )}
+        {user.plan !== "ultra" && (
+          <DropdownMenuItem onSelect={() => setJoinOrgOpen(true)}>
+            <span className="flex items-center gap-2 text-koda-text">
+              <UserPlus className="h-3.5 w-3.5" /> Join Organization
+            </span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
           <span className="flex items-center gap-2 text-koda-text">
             <Settings className="h-3.5 w-3.5" /> Settings
@@ -84,6 +101,7 @@ export function AccountMenu() {
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      {joinOrgOpen && <JoinOrgModal onClose={() => setJoinOrgOpen(false)} />}
     </DropdownMenu>
   );
 }

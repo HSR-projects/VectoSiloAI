@@ -1,13 +1,13 @@
 # 🔮 KodaAI
 
-A privacy-first, Perplexity-style AI search & chat app — powered by **Ollama Cloud**.
+A privacy-first, Perplexity-style AI search & chat app — powered by **KodaAI Private Cloud**.
 No OpenAI, no Anthropic, no telemetry. Search-augmented, cited answers with a
 polished dark UI.
 
-> **This build uses Ollama _Cloud_ (`https://ollama.com`), not a local Ollama daemon.**
-> You bring your own Ollama Cloud API key; inference runs on your Ollama account.
+> **This build uses the KodaAI Private Cloud — a fully managed inference stack.**
+> You bring your own API key; inference runs on KodaAI's infrastructure.
 
-![stack](https://img.shields.io/badge/Next.js-14-black) ![stack](https://img.shields.io/badge/TypeScript-5-blue) ![stack](https://img.shields.io/badge/Ollama-Cloud-9b7cff)
+![stack](https://img.shields.io/badge/Next.js-14-black) ![stack](https://img.shields.io/badge/TypeScript-5-blue) ![stack](https://img.shields.io/badge/KodaAI-Private_Cloud-9b7cff)
 
 ---
 
@@ -18,7 +18,7 @@ polished dark UI.
 - **Inline citations** `[1]` `[2]` linked to source cards
 - **Auto follow-up questions** after every answer
 - **Thread history** persisted in `localStorage`
-- **Model switcher** — lists your Ollama Cloud models
+- **Model switcher** — lists your KodaAI Private Cloud models
 - **Focus modes** — All · No Search · Code · Academic
 - **Privacy dashboard** — shows the active model and a 0 third-party-AI-calls counter
 - **Mobile responsive**, keyboard-navigable, accessible
@@ -27,11 +27,9 @@ polished dark UI.
 
 ## Quick start
 
-### 1. Get an Ollama Cloud API key
+### 1. Get a KodaAI API key
 
-Sign in at **https://ollama.com**, then create a key under **Settings → Keys**.
-Cloud models include `gpt-oss:120b`, `gpt-oss:20b`, `qwen3-coder:480b`,
-`deepseek-v3.1:671b`, and more.
+Sign in to your KodaAI dashboard and generate an API key under **Settings → API Keys**.
 
 ### 2. Configure environment
 
@@ -42,9 +40,9 @@ cp .env.example .env.local
 Edit `.env.local`:
 
 ```env
-OLLAMA_BASE_URL=https://ollama.com
-OLLAMA_API_KEY=sk-...your-key...
-OLLAMA_DEFAULT_MODEL=gpt-oss:120b
+KODA_CLOUD_BASE_URL=https://cloud.kodaai.com
+KODA_CLOUD_API_KEY=sk-...your-key...
+KODA_DEFAULT_MODEL=koda-1
 SEARXNG_BASE_URL=http://localhost:8080
 ```
 
@@ -63,15 +61,14 @@ Open **http://localhost:3000**.
 
 ## Web search (for "All" / "Academic" modes)
 
-Web search runs through the **Ollama Cloud Web Search API**, authenticated with
-the same `OLLAMA_API_KEY` — **no separate search key or server required.** Results
+Web search runs through the **KodaAI Private Cloud Search API**, authenticated with
+the same `KODA_CLOUD_API_KEY` — **no separate search key or server required.** Results
 already include page content, so no scraping step is needed. If search fails for
 any reason, KodaAI degrades to "No Search" mode with a banner.
 
-Backend priority: **Ollama Cloud Web Search → SearXNG → Brave**.
+Backend priority: **KodaAI Private Cloud Search → SearXNG → Brave**.
 
-**SearXNG fallback (only needed if you run a _local_ Ollama daemon, which has no
-web search):**
+**SearXNG fallback (only needed for local-only setups that have no web search):**
 
 ```bash
 docker run -d --name searxng -p 8080:8080 \
@@ -86,17 +83,12 @@ docker run -d --name searxng -p 8080:8080 \
 
 ## Want to run fully local instead of cloud?
 
-The Ollama client is endpoint-agnostic. Point it at a local daemon:
+KodaAI can also be pointed at a local inference server:
 
 ```env
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_API_KEY=
-OLLAMA_DEFAULT_MODEL=llama3.2
-```
-
-```bash
-ollama serve
-ollama pull llama3.2
+KODA_CLOUD_BASE_URL=http://localhost:11434
+KODA_CLOUD_API_KEY=
+KODA_DEFAULT_MODEL=llama3.2
 ```
 
 ---
@@ -105,19 +97,19 @@ ollama pull llama3.2
 
 ```
 User query
-  └─ /api/search  → Ollama Cloud Web Search (top 5 + page content)
+  └─ /api/search  → KodaAI Private Cloud search (top 5 + page content)
        └─ /api/scrape → cheerio fallback, only for results lacking content
-            └─ /api/chat → Ollama Cloud (streamed SSE)
+             └─ /api/chat → KodaAI Private Cloud inference (streamed SSE)
                  └─ follow-up questions (second, non-streaming call)
 ```
 
 | Path | Purpose |
 |---|---|
 | `app/api/chat` | Streaming chat (SSE) + follow-up generation |
-| `app/api/search` | Ollama Cloud web search (SearXNG / Brave fallback) |
+| `app/api/search` | KodaAI Private Cloud web search (SearXNG / Brave fallback) |
 | `app/api/scrape` | URL → readable text (fallback only) |
-| `app/api/ollama/models` | Lists Ollama Cloud models |
-| `lib/ollama.ts` | Cloud client (bearer auth, streaming) |
+| `app/api/cloud/models` | Lists available KodaAI models |
+| `lib/cloud.ts` | Cloud client (bearer auth, streaming) |
 | `lib/store.ts` | Zustand state (threads, model, focus mode) |
 | `hooks/useChat.ts` | Orchestrates search → scrape → stream |
 
@@ -127,7 +119,7 @@ User query
 
 Next.js 14 (App Router) · TypeScript · Tailwind CSS v3 · Radix UI primitives ·
 Framer Motion · Zustand · react-markdown + remark-gfm + rehype-highlight ·
-Lucide icons · Ollama Cloud.
+Lucide icons · KodaAI Own Private Models.
 
 ---
 
@@ -144,7 +136,7 @@ npm run lint    # eslint
 
 ## Privacy notes
 
-- Inference runs on **your** Ollama Cloud account — not on OpenAI/Anthropic.
+- Inference runs on **KodaAI's own private models** — not on OpenAI/Anthropic.
 - Web search (when enabled) goes to **your** SearXNG instance.
 - Threads live in your browser's `localStorage`; nothing is uploaded by KodaAI.
 - The privacy badge tracks third-party AI calls (always `0` by design).

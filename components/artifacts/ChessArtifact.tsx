@@ -110,7 +110,18 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
   const setPendingChessMove = useKodaStore((s) => s.setPendingChessMove);
   const setChessFen = useKodaStore((s) => s.setChessFen);
 
-  const gameRef = useRef(new Chess());
+  const savedFen = useKodaStore((s) => s.chessFen);
+
+  // Lazy-init: restore from persisted FEN if available, otherwise start fresh.
+  const gameRef = useRef<Chess>(null!);
+  if (!gameRef.current) {
+    const g = new Chess();
+    if (savedFen) {
+      try { g.load(savedFen); } catch { /* invalid FEN — start fresh */ }
+    }
+    gameRef.current = g;
+  }
+
   const busyRef = useRef(false);
   const endedRef = useRef(false);
 
@@ -174,6 +185,10 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
     else if (g.isCheck()) setStatus("Check!");
     else setStatus(g.turn() === "w" ? "White to move." : "Black to move.");
   }, [setChessFen]);
+
+  // Sync UI state on mount (sets correct status / game-over flag when restoring from FEN).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { sync(); }, []);
 
   const afterMove = useCallback(
     (move: Move) => {

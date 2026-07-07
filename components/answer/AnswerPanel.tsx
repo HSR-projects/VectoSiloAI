@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useMemo, type ReactNode } from "react";
+import React, { useMemo, useState, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { motion } from "framer-motion";
-import { AlertTriangle, Download, Package, Loader2, MonitorPlay, Presentation, FileSpreadsheet, Globe, Crown, ChevronRight } from "lucide-react";
+import { AlertTriangle, Download, Package, Loader2, MonitorPlay, Presentation, FileSpreadsheet, Globe, FileText, Crown, ChevronRight, ChevronDown, Brain } from "lucide-react";
 import type { GeneratedImage, Message } from "@/types";
 import { useKodaStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { parseCitations } from "@/lib/citations";
 import { CitationBadge } from "./CitationBadge";
 import { CodeBlock } from "./CodeBlock";
 import { StreamingCursor } from "./StreamingCursor";
+import { ComputerDiffCard } from "./ComputerDiffCard";
+import { VoiceMessageBubble } from "@/components/voice/VoiceMessageBubble";
 
 interface CodeFile {
   lang: string;
@@ -187,7 +190,15 @@ function injectCitations(
   });
 }
 
-export function AnswerPanel({ message }: { message: Message }) {
+interface AnswerPanelProps {
+  message: Message;
+  /** Auto-play the voice bubble when present (voice mode). */
+  voiceAutoPlay?: boolean;
+  /** Called when voice playback ends. */
+  onVoiceEnd?: () => void;
+}
+
+export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelProps) {
   const sources = message.sources ?? [];
 
   return (
@@ -206,6 +217,13 @@ export function AnswerPanel({ message }: { message: Message }) {
         </div>
       ) : (
         <>
+          {message.thinking && (
+            <ThinkingBlock
+              thinking={message.thinking}
+              ms={message.thinkingMs}
+              streaming={!!message.streaming && !message.content}
+            />
+          )}
           <div className="prose prose-invert max-w-none prose-headings:text-koda-text prose-p:text-koda-text/90 prose-li:text-koda-text/90 prose-strong:text-koda-text prose-a:text-koda-accent-soft prose-code:text-koda-accent-soft prose-code:before:content-none prose-code:after:content-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
@@ -223,13 +241,36 @@ export function AnswerPanel({ message }: { message: Message }) {
                     {children}
                   </a>
                 ),
+                img: ({ src, alt }) => (
+                  <img
+                    src={src}
+                    alt={alt || ""}
+                    className="max-h-64 w-auto rounded-lg border border-koda-border object-cover shadow-sm"
+                    loading="lazy"
+                  />
+                ),
               }}
             >
               {message.content || (message.streaming ? "" : "")}
             </ReactMarkdown>
             {message.streaming && <StreamingCursor />}
+            {message.voiceUrl && !message.streaming && (
+              <div className="mt-4 max-w-sm">
+                <VoiceMessageBubble
+                  url={message.voiceUrl}
+                  duration={message.voiceDuration}
+                  autoPlay={voiceAutoPlay}
+                  onPlaybackEnd={onVoiceEnd}
+                />
+              </div>
+            )}
           </div>
-          {message.computer && <ComputerCard snapshot={message.computer} />}
+          {message.memorySaved && !message.streaming && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-koda-border bg-koda-surface/60 px-2.5 py-1 text-[11px] text-koda-muted">
+              <Brain className="h-3 w-3 text-amber-400" /> Memory updated
+            </div>
+          )}
+          {message.computer && <ComputerDiffCard snapshot={message.computer} />}
           {message.slides && message.slides.slides.length > 0 && (
             <SlidesCard snapshot={message.slides} />
           )}
@@ -238,6 +279,9 @@ export function AnswerPanel({ message }: { message: Message }) {
           )}
           {message.website && message.website.files.length > 0 && (
             <WebsiteCard snapshot={message.website} />
+          )}
+          {message.doc && message.doc.content.length > 0 && (
+            <DocCard snapshot={message.doc} />
           )}
           {message.chess && <ChessCard playerColor={message.chess.playerColor} />}
           {message.generatedImages && message.generatedImages.length > 0 && (
@@ -249,39 +293,6 @@ export function AnswerPanel({ message }: { message: Message }) {
         </>
       )}
     </motion.div>
-  );
-}
-
-/**
- * Inline card for a Koda's Computer build. Clicking restores the sandbox from
- * the snapshot saved on the message — so it works even after the panel was
- * closed, the page reloaded, or the chat was revisited, with no re-generation.
- */
-function ComputerCard({
-  snapshot,
-}: {
-  snapshot: NonNullable<Message["computer"]>;
-}) {
-  const loadComputer = useKodaStore((s) => s.loadComputer);
-  const fileCount = snapshot.files?.length ?? 0;
-
-  return (
-    <button
-      type="button"
-      onClick={() => loadComputer(snapshot)}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-koda-border bg-koda-surface/60 px-3.5 py-3 text-left transition-colors hover:border-koda-accent/40 hover:bg-koda-surface-2"
-    >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-koda-accent/15 text-koda-accent">
-        <MonitorPlay className="h-[18px] w-[18px]" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-koda-text">{snapshot.title}</span>
-        <span className="block text-xs text-koda-muted">
-          Koda&apos;s Computer · {fileCount} file{fileCount === 1 ? "" : "s"} · click to open
-        </span>
-      </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-koda-muted transition-transform group-hover:translate-x-0.5" />
-    </button>
   );
 }
 
@@ -362,6 +373,85 @@ function WebsiteCard({
         <span className="block truncate text-sm font-medium text-koda-text">{snapshot.title}</span>
         <span className="block text-xs text-koda-muted">
           Website · {n} file{n === 1 ? "" : "s"} · click to preview &amp; download
+        </span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-koda-muted transition-transform group-hover:translate-x-0.5" />
+    </button>
+  );
+}
+
+/**
+ * Collapsible "Thought for Ns" panel (Think mode). Auto-expands while the model
+ * is still reasoning, then collapses once the answer starts streaming.
+ */
+function ThinkingBlock({
+  thinking,
+  ms,
+  streaming,
+}: {
+  thinking: string;
+  ms?: number;
+  streaming: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const expanded = open || streaming;
+  const label = streaming
+    ? "Thinking…"
+    : ms && ms >= 1000
+    ? `Thought for ${Math.round(ms / 1000)}s`
+    : "Thought process";
+
+  return (
+    <div className="mb-3 overflow-hidden rounded-xl border border-koda-border bg-koda-surface/50">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-xs font-medium text-koda-muted transition-colors hover:text-koda-text"
+      >
+        <Brain className={cn("h-3.5 w-3.5", streaming && "animate-pulse text-amber-400")} />
+        <span className="flex-1">{label}</span>
+        {streaming ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : expanded ? (
+          <ChevronDown className="h-3.5 w-3.5" />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5" />
+        )}
+      </button>
+      {expanded && (
+        <div className="border-t border-koda-border px-3.5 py-3">
+          <div className="prose prose-invert prose-sm max-w-none text-[13px] leading-relaxed text-koda-muted prose-headings:text-koda-text/90 prose-strong:text-koda-text prose-code:text-koda-accent-soft prose-code:before:content-none prose-code:after:content-none prose-a:text-koda-accent-soft">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+              {thinking}
+            </ReactMarkdown>
+            {streaming && <StreamingCursor />}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Inline card to re-open a generated Markdown document from the saved snapshot. */
+function DocCard({
+  snapshot,
+}: {
+  snapshot: NonNullable<Message["doc"]>;
+}) {
+  const loadDoc = useKodaStore((s) => s.loadDoc);
+  return (
+    <button
+      type="button"
+      onClick={() => loadDoc(snapshot)}
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-koda-border bg-koda-surface/60 px-3.5 py-3 text-left transition-colors hover:border-koda-accent/40 hover:bg-koda-surface-2"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-koda-accent/15 text-koda-accent">
+        <FileText className="h-[18px] w-[18px]" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium text-koda-text">{snapshot.title}</span>
+        <span className="block text-xs text-koda-muted">
+          Document · Markdown · click to open, copy &amp; share
         </span>
       </span>
       <ChevronRight className="h-4 w-4 shrink-0 text-koda-muted transition-transform group-hover:translate-x-0.5" />

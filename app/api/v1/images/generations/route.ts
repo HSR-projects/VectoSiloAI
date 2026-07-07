@@ -1,5 +1,5 @@
-import { getUserByApiKey, deductCredits, getCredits } from "@/lib/auth";
-import { CAPS } from "@/lib/plans";
+import { getApiKeyAuth, deductCredits, getBillableCredits } from "@/lib/auth";
+import { effectiveCaps } from "@/lib/plans";
 import { IMAGE_COST_CENTS } from "@/lib/credits";
 import { imageUrl, generateImageB64 } from "@/lib/imageServer";
 
@@ -50,13 +50,14 @@ export async function POST(req: Request) {
   if (!secret) {
     return json({ error: { message: "Missing API key.", type: "invalid_request_error" } }, 401);
   }
-  const user = await getUserByApiKey(secret);
-  if (!user) {
+  const authContext = await getApiKeyAuth(secret);
+  if (!authContext) {
     return json({ error: { message: "Invalid or revoked API key.", type: "invalid_request_error" } }, 401);
   }
+  const { user, key } = authContext;
 
   // ── Plan gate — image generation is Pro/Max only ──
-  if (!CAPS[user.plan].imageGen) {
+  if (!effectiveCaps(user.plan).imageGen) {
     return json(
       {
         error: {
@@ -88,7 +89,7 @@ export async function POST(req: Request) {
 
   // ── Credits — require the full cost up front ──
   const cost = n * IMAGE_COST_CENTS;
-  const balance = await getCredits(user.id);
+  const balance = await getBillableCredits(user.id, key.id);
   if (balance < cost) {
     return json(
       {
@@ -118,10 +119,10 @@ export async function POST(req: Request) {
 
   // ── Bill (never go negative) ──
   let charged = cost;
-  let remaining = await deductCredits(user.id, cost);
+  let remaining = await deductCredits(user.id, cost, key.id);
   if (remaining === null) {
-    const left = await getCredits(user.id);
-    remaining = (await deductCredits(user.id, left)) ?? 0;
+    const left = await getBillableCredits(user.id, key.id);
+    remaining = left > 0 ? (await deductCredits(user.id, left, key.id)) ?? 0 : 0;
     charged = left;
   }
 

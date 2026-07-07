@@ -14,6 +14,8 @@ interface PuterAI {
   txt2img: (prompt: string, ...args: unknown[]) => Promise<HTMLImageElement | string>;
   /** Image-to-image, when the SDK build exposes it. */
   img2img?: (...args: unknown[]) => Promise<HTMLImageElement | string>;
+  /** Neural text-to-speech (Amazon Polly under the hood) → playable audio. */
+  txt2speech?: (text: string, ...args: unknown[]) => Promise<HTMLAudioElement>;
 }
 interface Puter {
   ai: PuterAI;
@@ -36,7 +38,7 @@ const MODEL_CANDIDATES = Array.from(
 let loadPromise: Promise<void> | null = null;
 
 /** Inject the Puter.js script once and resolve when `window.puter` is ready. */
-function loadPuter(): Promise<void> {
+export function loadPuter(): Promise<void> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Image generation only runs in the browser."));
   }

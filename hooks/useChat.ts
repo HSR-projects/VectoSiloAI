@@ -6,11 +6,15 @@ import { uid, modelLabel } from "@/lib/utils";
 import { AUTO_MODEL, pickAutoModel } from "@/lib/autoModel";
 import { buildAttachments, toDisplayAttachment } from "@/lib/attachments";
 import { supportsAudio, supportsVision } from "@/lib/modelCapabilities";
-import { generateImage, editImage } from "@/lib/puter";
+import { generateImage, editImage } from "@/lib/nvidia";
 import { stripComputerSyntax, stripWebsiteSyntax } from "@/lib/computerParser";
 import { isReactProject } from "@/lib/computerPreview";
 import { stripSlidesSyntax } from "@/lib/slidesParser";
 import { stripSheetSyntax } from "@/lib/sheetsParser";
+import { stripDocSyntax } from "@/lib/docParser";
+import { parseGithubDirective, stripGithubSyntax } from "@/lib/githubDirective";
+import { parseMemoryDirectives, stripMemorySyntax } from "@/lib/memoryDirective";
+import { PAGE_OPEN_RE } from "@/lib/prompts";
 import { makeBuildState, detectBuilds, finalizeBuilds } from "@/lib/artifactDirectives";
 import type { ProjectFile } from "@/types";
 import type {
@@ -53,6 +57,12 @@ interface SendOptions {
   slidesMax?: number;
   /** Use Computer Swarm: parallel Architect/UI Dev/Stylist agents (Pro/Max). */
   computerSwarm?: boolean;
+  /** Use Coding Swarm: sequential research → architect → develop → integrate (Pro/Max). */
+  codingSwarm?: boolean;
+  /** Map of agent role → model name for multi-model swarm. */
+  agentModels?: Record<string, string>;
+  /** Think mode — model reasons in a <think> block, shown collapsibly. */
+  think?: boolean;
 }
 
 /**
@@ -103,6 +113,15 @@ export function useChat(threadId: string | null) {
       const chessHint = detectChessIntent(query);
       if (chessHint?.difficulty) s.setChessDifficulty(chessHint.difficulty);
 
+      // GitHub app: when connected and the user explicitly invokes GitHub
+      // (@github, or a clear repos/profile/Actions request), skip web search and
+      // send a focused GitHub-only turn so the model reliably emits the
+      // [[github:…]] directive instead of guessing or searching the web.
+      const githubInvoke =
+        !opts.swarm &&
+        (/@github\b/i.test(query) || (s.githubConnected && isGithubInvoke(query)));
+      const modelQuery = githubInvoke ? query.replace(/@github\b/gi, "").trim() : query;
+
       // Existing Koda's Computer project in THIS chat (if any). When present, we
       // feed its files back to the model and merge edits into it, so follow-ups
       // modify the project instead of recreating it from scratch.
@@ -144,6 +163,15 @@ export function useChat(threadId: string | null) {
 
       const update = (patch: Partial<Message>) =>
         store.getState().updateMessage(threadId, assistantId, patch);
+
+      // Persist an auto-memory fact the model asked to remember (fire-and-forget).
+      const saveMemory = (text: string) => {
+        fetch("/api/account/memory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        }).catch(() => {});
+      };
 
       // ── Agent step tracking ─────────────────────────────────
       const steps: AgentStep[] = [];
@@ -200,10 +228,11 @@ export function useChat(threadId: string | null) {
             body: JSON.stringify({
               query: swarmBuilt.query,
               model,
+              agentModels: opts.agentModels || undefined,
               targetUrl: opts.targetUrl || undefined,
               images: swarmBuilt.images.length ? swarmBuilt.images : undefined,
-              // Auto-enable computer swarm when swarm + computer plan + build-intent query
-              computerSwarm: opts.computerSwarm ?? (opts.computer ? detectBuildIntent(query) : false),
+              computerSwarm: opts.computerSwarm ?? (opts.computer && !opts.codingSwarm ? detectBuildIntent(query) : false),
+              codingSwarm: opts.codingSwarm ?? (opts.computer ? false : undefined),
             }),
             signal: controller.signal,
           });
@@ -252,7 +281,11 @@ export function useChat(threadId: string | null) {
           // Persist any artifacts the synthesizer built + run the sandbox terminal.
           const swarmArtifacts = finalizeBuilds(synthAcc, swarmBuild, existingProject?.commands);
           if (Object.keys(swarmArtifacts.patch).length) update(swarmArtifacts.patch);
-          if (swarmArtifacts.computer) void runComputerTerminal(swarmArtifacts.computer.files, swarmArtifacts.computer.commands);
+          if (swarmArtifacts.computer && swarmArtifacts.computer.files.length > 0) {
+            void runComputerTerminal(swarmArtifacts.computer.files, swarmArtifacts.computer.commands);
+          } else if (swarmArtifacts.computer) {
+            useKodaStore.getState().setComputerStatus("ready");
+          }
 
           update({ streaming: false });
           syncThread(threadId);
@@ -273,7 +306,7 @@ export function useChat(threadId: string | null) {
       //   Priority: targetUrl → agent multi-step → auto search/nosearch
       let sources: Source[] = [];
       let pageImages: string[] = []; // base64 images crawled from scraped pages
-      const grounded = focusMode === "all" || focusMode === "academic";
+      const grounded = !githubInvoke && (focusMode === "all" || focusMode === "academic");
 
       // If the user typed a bare URL as their query (e.g. pasted a YouTube link
       // directly into the search bar), treat it like URL-focus mode so we scrape
@@ -281,7 +314,10 @@ export function useChat(threadId: string | null) {
       const implicitUrl = !opts.targetUrl ? extractBareUrl(query.trim()) : null;
       const effectiveTargetUrl = opts.targetUrl || implicitUrl || undefined;
 
-      if (effectiveTargetUrl) {
+      if (githubInvoke) {
+        // GitHub invoke: no web search — go straight to the focused chat turn.
+        pushStep("Connecting to GitHub", "done");
+      } else if (effectiveTargetUrl) {
         // URL focus mode: scrape the given page, skip web search entirely.
         const isYT = /youtube\.com|youtu\.be/.test(effectiveTargetUrl);
         const label = isYT ? "Analyzing YouTube video" : `Reading ${urlDomain_(effectiveTargetUrl)}`;
@@ -383,8 +419,8 @@ export function useChat(threadId: string | null) {
       // Augment query with board state when a chess game is active so the
       // model knows the current position before emitting a move directive.
       const baseQuery = isChessOpen
-        ? `[Chess board FEN: ${chessFen}]\n${query}`
-        : query;
+        ? `[Chess board FEN: ${chessFen}]\n${modelQuery}`
+        : modelQuery;
 
       // Fold attachments in: inline text files, collect images for vision
       // models, and note anything the chosen model can't consume.
@@ -403,7 +439,8 @@ export function useChat(threadId: string | null) {
             query: effectiveQuery,
             threadHistory: history,
             model,
-            focusMode,
+            focusMode: githubInvoke ? "nosearch" : focusMode,
+            githubInvoke,
             sources,
             images: (() => {
               // Merge user-uploaded images with images crawled from pages.
@@ -413,6 +450,9 @@ export function useChat(threadId: string | null) {
                 : built.images;
               return all.length ? all : undefined;
             })(),
+            provider: store.getState().provider,
+            providerApiKey: store.getState().providerApiKey,
+            providerBaseUrl: store.getState().providerBaseUrl,
           }),
           signal: controller.signal,
         });
@@ -425,7 +465,7 @@ export function useChat(threadId: string | null) {
               streaming: false,
               error: data?.error || "You've reached your free usage limit. Upgrade to continue.",
             });
-            store.getState().setPricingOpen(true);
+            if (typeof window !== "undefined") window.location.href = "/pricing";
             return;
           }
           const text = await res.text().catch(() => "");
@@ -441,7 +481,9 @@ export function useChat(threadId: string | null) {
           : null;
 
         // Kick off image generation for an emitted [[image: …]] prompt.
-        const startImage = (prompt: string) => {
+        // If a savePath is given and Koda's Computer is open, the image is
+        // injected as a file in the project.
+        const startImage = (prompt: string, savePath?: string) => {
           const imgId = uid();
           const cur =
             store.getState().getThread(threadId)?.messages.find((m) => m.id === assistantId)
@@ -467,6 +509,11 @@ export function useChat(threadId: string | null) {
             .then((url) => {
               patch((g) => ({ ...g, url, status: "done" }));
               syncThread(threadId);
+              // If Koda's Computer is active and a save path was given,
+              // inject the image into the project files.
+              if (savePath) {
+                injectImageIntoComputer(savePath, url);
+              }
             })
             .catch((e) => {
               patch((g) => ({ ...g, status: "error", error: (e as Error).message }));
@@ -479,10 +526,21 @@ export function useChat(threadId: string | null) {
         let chessColor: PlayerColor | null = null;
         let chessMoveDispatched = false;
         let dispatchedImages = 0;
+        let savedMemories = 0;
+        // Native reasoning (Think mode): accumulate the model's thinking tokens
+        // and time them so we can show "Thought for Ns".
+        let thinkingAcc = "";
+        let thinkStart = 0;
+        let thinkDoneAt = 0;
         // Builder artifacts (Computer/Website/Slides/Spreadsheet) — shared logic.
         const buildState = makeBuildState(opts, existingProject);
         await readSse(res.body, (evt) => {
-          if (evt.type === "token") {
+          if (evt.type === "thinking") {
+            if (!thinkStart) thinkStart = Date.now();
+            thinkingAcc += evt.content;
+            update({ thinking: thinkingAcc });
+          } else if (evt.type === "token") {
+            if (thinkingAcc && !thinkDoneAt) thinkDoneAt = Date.now();
             acc += evt.content;
 
             // Detect & stream Computer/Website/Slides/Spreadsheet artifacts.
@@ -513,11 +571,30 @@ export function useChat(threadId: string | null) {
             // it completes. Free-tier callers can't generate, so any stray
             // directive is just stripped from the visible text below.
             if (opts.imageGen) {
-              const imgPrompts = parseImageDirectives(acc);
-              for (let i = dispatchedImages; i < imgPrompts.length; i++) {
-                startImage(imgPrompts[i]);
+              const imgDirectives = parseImageDirectives(acc);
+              for (let i = dispatchedImages; i < imgDirectives.length; i++) {
+                startImage(imgDirectives[i].prompt, imgDirectives[i].path);
               }
-              dispatchedImages = Math.max(dispatchedImages, imgPrompts.length);
+              dispatchedImages = Math.max(dispatchedImages, imgDirectives.length);
+            }
+
+            // Page navigation: [[page: /path]] → open that platform page.
+            const pageMatch = acc.match(/\[\[page:\s*(\/[^\]]*)\]\]/i);
+            if (pageMatch) {
+              const pageUrl = pageMatch[1].trim();
+              if (pageUrl && typeof window !== "undefined") {
+                window.location.href = pageUrl;
+              }
+            }
+
+            // Auto-memory: persist each new [[memory: …]] fact the model emits.
+            const facts = parseMemoryDirectives(acc);
+            for (let i = savedMemories; i < facts.length; i++) {
+              saveMemory(facts[i]);
+            }
+            if (facts.length > savedMemories) {
+              savedMemories = facts.length;
+              update({ memorySaved: true });
             }
 
             update({ content: stripDirectives(acc) });
@@ -528,6 +605,11 @@ export function useChat(threadId: string | null) {
           }
         });
 
+        // Record how long the model spent reasoning, for the "Thought for Ns" label.
+        if (thinkingAcc) {
+          update({ thinkingMs: (thinkDoneAt || Date.now()) - (thinkStart || Date.now()) });
+        }
+
         if (!artifactOpened && chessHint) {
           chessColor = chessHint.playerColor;
           store.getState().openArtifact({
@@ -537,8 +619,80 @@ export function useChat(threadId: string | null) {
           });
         }
 
+        // GitHub action loop: if the model emitted a [[github:…]] directive,
+        // run it against the user's account, then make a second "plain" pass so
+        // the model turns the JSON result into a natural reply (streamed in).
+        const gh = parseGithubDirective(acc);
+        if (gh) {
+          const ghStep = pushStep(`GitHub · ${gh.action.replace(/_/g, " ")}`, "active");
+          update({ content: "" });
+          let resultText = "";
+          try {
+            const r = await fetch("/api/apps/github/action", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: gh.action, args: gh.args }),
+              signal: controller.signal,
+            });
+            const data = await r.json().catch(() => ({ ok: false, error: "Bad response." }));
+            setStep(ghStep, data?.ok ? "done" : "error", gh.action.replace(/_/g, " "));
+            resultText = JSON.stringify(data).slice(0, 14000);
+          } catch {
+            setStep(ghStep, "error", "request failed");
+            resultText = JSON.stringify({ ok: false, error: "Could not reach GitHub." });
+          }
+
+          const summaryPrompt =
+            `The user asked: "${query}"\n\n` +
+            `I performed the GitHub action "${gh.action}" and got this JSON result:\n` +
+            `${resultText}\n\n` +
+            `Write a clear, friendly reply to the user based on this result. If it ` +
+            `succeeded, summarise what happened (use a markdown table or list for ` +
+            `repos/files/runs, and include links when present). If it failed, explain ` +
+            `the error plainly and suggest how to fix it. Do not mention directives or raw JSON.`;
+
+          let acc2 = "";
+          try {
+            const res2 = await fetch("/api/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                query: summaryPrompt,
+                threadHistory: [],
+                model,
+                focusMode: "nosearch",
+                plain: true,
+                internal: true,
+              }),
+              signal: controller.signal,
+            });
+            if (res2.ok && res2.body) {
+              await readSse(res2.body, (evt) => {
+                if (evt.type === "token") {
+                  acc2 += evt.content;
+                  update({ content: acc2 });
+                } else if (evt.type === "followups") {
+                  update({ followups: evt.questions });
+                }
+              });
+            }
+          } catch {
+            /* fall through to whatever we have */
+          }
+          // Persist the natural-language summary as the message content.
+          acc = acc2 || "I ran the GitHub action, but couldn't format the result.";
+          update({ content: acc });
+        }
+
         setStep(writeStep, "done");
         update({ streaming: false });
+
+        // Generate TTS audio for the response and attach as voice bubble.
+        if (acc && acc.length < 4000) {
+          generateTts(acc).then((voiceUrl) => {
+            if (voiceUrl) update({ voiceUrl });
+          }).catch(() => {});
+        }
 
         // Leave a resume card on the message when a chess game was opened.
         if (chessColor) update({ chess: { playerColor: chessColor } });
@@ -547,7 +701,12 @@ export function useChat(threadId: string | null) {
         // snapshots on the message and run the sandbox terminal if one was built.
         const artifacts = finalizeBuilds(acc, buildState, existingProject?.commands);
         if (Object.keys(artifacts.patch).length) update(artifacts.patch);
-        if (artifacts.computer) void runComputerTerminal(artifacts.computer.files, artifacts.computer.commands);
+        if (artifacts.computer && artifacts.computer.files.length > 0) {
+          void runComputerTerminal(artifacts.computer.files, artifacts.computer.commands, artifacts.computer.isEdit);
+        } else if (artifacts.computer) {
+          // No files — skip fake terminal, let sandbox handle it
+          useKodaStore.getState().setComputerStatus("ready");
+        }
 
         // Generate a smart AI title after the very first response in a thread.
         const finishedThread = store.getState().getThread(threadId);
@@ -631,16 +790,16 @@ function detectChessIntent(query: string): ChessIntent | null {
 
 const ARTIFACT_RE = /\[\[artifact:chess:(white|black)\]\]/i;
 const CHESS_MOVE_RE = /\[\[chess:move:([a-h][1-8][a-h][1-8][qrbn]?)\]\]/i;
-const IMAGE_RE = /\[\[image:\s*([\s\S]+?)\]\]/i;
+const IMAGE_RE = /\[\[image:\s*([^→]+?)(?:\s*→\s*([^\]]+?))?\]\]/i;
 
-/** Extract every completed image directive's prompt, in order. */
-function parseImageDirectives(text: string): string[] {
+/** Extract every completed image directive's prompt and optional save path, in order. */
+function parseImageDirectives(text: string): { prompt: string; path?: string }[] {
   const re = new RegExp(IMAGE_RE.source, "gi");
-  const out: string[] = [];
+  const out: { prompt: string; path?: string }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
     const p = m[1].trim();
-    if (p) out.push(p);
+    if (p) out.push({ prompt: p, path: m[2]?.trim() || undefined });
   }
   return out;
 }
@@ -661,18 +820,23 @@ function parseChessMoveDirective(text: string): string | null {
 
 /** Remove all directives (and any partial still-streaming ones) from visible text. */
 function stripDirectives(text: string): string {
-  return stripWebsiteSyntax(
-    stripSheetSyntax(
-      stripSlidesSyntax(
-        stripComputerSyntax(
-          text
-            .replace(new RegExp(ARTIFACT_RE.source, "gi"), "")
-            .replace(new RegExp(CHESS_MOVE_RE.source, "gi"), "")
-            .replace(new RegExp(IMAGE_RE.source, "gi"), "")
+  return stripMemorySyntax(
+    stripGithubSyntax(
+    stripDocSyntax(
+    stripWebsiteSyntax(
+      stripSheetSyntax(
+        stripSlidesSyntax(
+          stripComputerSyntax(
+            text
+              .replace(new RegExp(ARTIFACT_RE.source, "gi"), "")
+              .replace(new RegExp(CHESS_MOVE_RE.source, "gi"), "")
+              .replace(new RegExp(IMAGE_RE.source, "gi"), "")
+              .replace(PAGE_OPEN_RE, "")
+          )
         )
       )
     )
-  )
+  )))
     .replace(/\[\[[^\]]*$/i, "") // trailing partial directive mid-stream
     .replace(/^\s+/, "");
 }
@@ -787,7 +951,9 @@ function buildSources(results: SearchResult[], scraped: Source[]): Source[] {
 }
 
 function syncThread(threadId: string) {
-  const thread = useKodaStore.getState().getThread(threadId);
+  const state = useKodaStore.getState();
+  if (state.incognito) return;
+  const thread = state.getThread(threadId);
   if (!thread) return;
   fetch("/api/threads", {
     method: "POST",
@@ -827,12 +993,28 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * of realistic output so the user sees the project "execute", then flip to the
  * live preview. Purely cosmetic — the actual preview runs in the iframe.
  */
-async function runComputerTerminal(files: ProjectFile[], commands: string[]) {
+async function runComputerTerminal(files: ProjectFile[], commands: string[], isEdit = false) {
   const st = useKodaStore.getState();
   if (!st.computer) return;
   const term = (line: string) => useKodaStore.getState().appendComputerTerminal(line);
   const status = (s: Parameters<typeof st.setComputerStatus>[0]) =>
     useKodaStore.getState().setComputerStatus(s);
+
+  if (isEdit) {
+    term(`\nkoda@sandbox:~/project$ applying edits (${files.length} file${files.length === 1 ? "" : "s"})…`);
+    await sleep(200);
+    const changed = files.length > (st.computer?.files.length ?? 0)
+      ? files
+      : files.slice(0, Math.min(5, files.length));
+    for (const f of changed) {
+      term(`  ✎ updated   ${f.path}`);
+      await sleep(80);
+    }
+    term("✓ hot-reloading…");
+    await sleep(300);
+    status("ready");
+    return;
+  }
 
   const react = isReactProject(files);
   const cmds = commands.length
@@ -841,7 +1023,19 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[]) {
     ? ["npm install", "npm run dev"]
     : ["open index.html"];
 
-  term(`koda@sandbox:~/${slug(st.computer.title)}$ ls`);
+  // Scaffold: show each file being written, one by one, so the build feels live.
+  const dir = slug(st.computer.title);
+  term(`koda@sandbox:~/${dir}$ scaffolding project (${files.length} file${files.length === 1 ? "" : "s"})…`);
+  await sleep(150);
+  for (const f of files) {
+    term(`  ✎ creating  ${f.path}`);
+    await sleep(110);
+    term(`  ✓ created   ${f.path}`);
+    await sleep(40);
+  }
+  term(`✓ wrote ${files.length} file${files.length === 1 ? "" : "s"}`);
+  await sleep(150);
+  term(`koda@sandbox:~/${dir}$ ls`);
   term(files.map((f) => f.path.split("/")[0]).filter((v, i, a) => a.indexOf(v) === i).join("  "));
   await sleep(250);
 
@@ -874,6 +1068,23 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[]) {
 
 function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "project";
+}
+
+/**
+ * True when a (GitHub-connected) user is explicitly invoking the GitHub app:
+ * an `@github` mention, or a clear request about their repos/profile/Actions.
+ * Used to bypass web search and send a focused GitHub-only turn.
+ */
+function isGithubInvoke(q0: string): boolean {
+  const q = q0.toLowerCase();
+  if (/@github\b/.test(q)) return true;
+  const ghWord = /\bgithub\b/.test(q);
+  const action =
+    /\b(repos?|repositor(?:y|ies)|commit|commits|push|workflow|workflows|actions?|pull request|\bprs?\b|branch|branches|fork|gist|profile|readme)\b/.test(q);
+  const personal = /\b(my|mine|i have|do i have|i've)\b/.test(q);
+  if (ghWord && action) return true;
+  if (action && personal && /\brepo|\bprofile|\bworkflow|\bgist/.test(q)) return true;
+  return false;
 }
 
 /** True when the query is clearly asking to BUILD/CREATE a software project. */
@@ -953,5 +1164,43 @@ async function readSse(
         }
       }
     }
+  }
+}
+
+/**
+ * Inject a generated image into the Koda's Computer project files.
+ * Converts the data URL to base64 content and adds it as a project file.
+ */
+function injectImageIntoComputer(savePath: string, dataUrl: string) {
+  const store = useKodaStore.getState();
+  const comp = store.computer;
+  if (!comp) return;
+
+  // Convert data URL to just the base64 content wrapped as a data URI the
+  // browser can serve directly from the file.
+  const content = dataUrl.startsWith("data:")
+    ? dataUrl  // already a data URL — keep as-is for the sandbox
+    : dataUrl;
+
+  const existing = comp.files.find((f) => f.path === savePath);
+  if (existing) return; // already injected
+
+  const newFiles = [...comp.files, { path: savePath, content }];
+  store.setComputerFiles(newFiles);
+}
+
+/** Generate TTS audio for a text and return a blob URL, or null on failure. */
+async function generateTts(text: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+  } catch {
+    return null;
   }
 }

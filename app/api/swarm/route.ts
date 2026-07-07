@@ -1,29 +1,90 @@
 import { getCurrentUser } from "@/lib/auth";
-import { CAPS } from "@/lib/plans";
+import { effectiveCaps } from "@/lib/plans";
 import { chatStream, DEFAULT_MODEL } from "@/lib/ollama";
 import { searchWeb } from "@/lib/searxng";
 import { scrapeUrls } from "@/lib/scraper";
 import {
+  BEHAVIORAL_INSTRUCTIONS,
   buildSourceContext,
   COMPUTER_INSTRUCTIONS,
   WEBSITE_INSTRUCTIONS,
   SHEETS_INSTRUCTIONS,
+  DOC_INSTRUCTIONS,
   slidesInstructions,
 } from "@/lib/prompts";
-import type { Source, SwarmAgentRun, SwarmAgentRole, SwarmStreamEvent } from "@/types";
+import type { Source, SwarmAgentRun, SwarmAgentRole, AgentModelMap, SwarmStreamEvent } from "@/types";
 
-// ── Computer Swarm specialists ────────────────────────────────
-// When the user asks to BUILD something, these agents divide up the codebase:
-// Architect writes project config, UI Dev writes components, Stylist writes CSS.
-// The Synthesizer merges all <koda-file> outputs into one [[computer:]] directive.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-interface ComputerSpecialistDef {
+interface CodingSpecialistDef {
   role: Exclude<SwarmAgentRole, "synthesizer">;
   label: string;
   systemPrompt: (query: string) => string;
+  recommendedModel?: string;
 }
 
-const COMPUTER_SPECIALISTS: ComputerSpecialistDef[] = [
+const CODING_SPECIALISTS: CodingSpecialistDef[] = [
+  {
+    role: "researcher",
+    label: "Researcher",
+    recommendedModel: "gpt-oss:20b",
+    systemPrompt: (q) =>
+      `You are the Researcher in a KodaAI Coding Swarm building: "${q}".\n` +
+      "Your job: search the web for relevant documentation, examples, and best practices " +
+      "for this project. Read the provided source materials carefully. " +
+      "Identify the programming language, key libraries/algorithms, and build system needed. " +
+      "Write a concise research brief (200-300 words) covering:\n" +
+      "• Language(s) and key libraries/frameworks needed\n" +
+      "• Core algorithms or data structures involved\n" +
+      "• Architecture patterns to follow\n" +
+      "• Any gotchas or important caveats\n" +
+      "• Alternative approaches to consider\n" +
+      "Output ONLY the research brief — no code, no file blocks.",
+  },
+  {
+    role: "analyst",
+    label: "Architect",
+    recommendedModel: "nemotron3-ultra",
+    systemPrompt: (q) =>
+      `You are the Architect in a KodaAI Coding Swarm building: "${q}".\n` +
+      "Based on the researcher's findings, design the project structure.\n" +
+      "Output ONLY <koda-file> blocks for the project skeleton:\n" +
+      "  • For C: Makefile or CMakeLists.txt, main.c, header files\n" +
+      "  • For Python: requirements.txt, main.py, module files\n" +
+      "  • For Node.js: package.json, entry point files\n" +
+      "  • For other languages: the appropriate build config + entry point\n" +
+      "Output ONLY the raw file blocks — no prose, no explanation, no fences.",
+  },
+  {
+    role: "critic",
+    label: "Developer",
+    recommendedModel: "nemotron3-ultra",
+    systemPrompt: (q) =>
+      `You are the Developer in a KodaAI Coding Swarm building: "${q}".\n` +
+      "Your job: write the actual implementation files — all the logic, functions, and modules. " +
+      "Output ONLY <koda-file path=\"...\">...</koda-file> blocks with complete, " +
+      "working code. Make it production-quality: proper error handling, clean code, " +
+      "good comments. Use standard library functions where possible; avoid unnecessary dependencies.\n" +
+      "Output ONLY the raw file blocks — no prose, no fences.",
+  },
+];
+
+const CODING_SYNTH_SYSTEM =
+  "You are the Integrator in a KodaAI Coding Swarm. " +
+  "A Researcher, an Architect, and a Developer have each contributed to a coding project. " +
+  "Your job: merge everything into one complete, working project.\n" +
+  "Rules:\n" +
+  "1. Emit `[[computer:Project Title]]` as the VERY FIRST characters.\n" +
+  "2. Output every file from all three specialists using <koda-file path=\"...\">...</koda-file> tags. " +
+  "If files overlap, use the most complete version.\n" +
+  "3. After the files, emit the shell commands needed to build and run the project as " +
+  "<koda-cmd>command</koda-cmd> tags, in order. You decide the commands based on the project " +
+  "type and language — the sandbox supports gcc, g++, python3, node, npm, make, pip, and standard Unix tools.\n" +
+  "4. End with 1-2 short sentences describing what was built.\n" +
+  "Never show, mention, or explain the directive or koda tags.";
+
+const COMPUTER_SPECIALISTS: CodingSpecialistDef[] = [
   {
     role: "researcher",
     label: "Architect",
@@ -76,15 +137,9 @@ const COMPUTER_SYNTH_SYSTEM =
   "4. End with 1-2 short sentences describing what was built.\n" +
   "Never show, mention, or explain the directive or koda tags.";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-// ── Specialist definitions ────────────────────────────────────
-
 interface SpecialistDef {
   role: Exclude<SwarmAgentRole, "synthesizer">;
   label: string;
-  /** Transforms the user query into a focused search query for this role. */
   searchQuery: (q: string) => string;
   systemPrompt: string;
 }
@@ -100,7 +155,7 @@ const SPECIALISTS: SpecialistDef[] = [
       "numbers, dates, names, studies, statistics, direct quotes from primary sources. " +
       "Do NOT editorialize — stick to verifiable information. " +
       "Cite sources inline as [1], [2] etc. when provided. " +
-      "Write a dense, information-rich report of 300–400 words. Every sentence should add a new fact.",
+      "Write a dense, information-rich report of 300-400 words. Every sentence should add a new fact.",
   },
   {
     role: "analyst",
@@ -111,7 +166,7 @@ const SPECIALISTS: SpecialistDef[] = [
       "You think in first principles and logical chains. Do NOT just restate facts — explain the WHY behind them. " +
       "Break down root causes, trace cause-and-effect chains, identify hidden assumptions, and reason step by step to conclusions. " +
       "Use structured thinking: hypothesis → evidence → conclusion. Challenge surface-level narratives. " +
-      "Write a rigorous analytical report of 300–400 words. Show your reasoning process, not just results.",
+      "Write a rigorous analytical report of 300-400 words. Show your reasoning process, not just results.",
   },
   {
     role: "critic",
@@ -124,7 +179,7 @@ const SPECIALISTS: SpecialistDef[] = [
       "What is underreported or sensationalized? What do different audiences believe? " +
       "Analyze the media and public-opinion landscape around this topic critically. " +
       "Cite sources inline as [1], [2] etc. when provided. " +
-      "Write a sharp media-intelligence report of 300–400 words.",
+      "Write a sharp media-intelligence report of 300-400 words.",
   },
 ];
 
@@ -138,8 +193,6 @@ const SYNTH_SYSTEM =
   "but only when it matters, not mechanically. " +
   "The result should feel like a single expert wrote it after consulting three specialists. " +
   "Use headers, bullet points, or tables when they genuinely help — don't force structure on simple answers.";
-
-// ── Helpers ───────────────────────────────────────────────────
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -157,11 +210,17 @@ function synthUserMsg(query: string, reports: { label: string; output: string }[
   return `Specialist agent reports for: "${query}"\n\n${sections}\n\nSynthesize these into a complete, well-structured answer.`;
 }
 
-// ── Route ─────────────────────────────────────────────────────
+function resolveAgentModel(
+  agentRole: string,
+  agentModels: AgentModelMap | undefined,
+  fallback: string
+): string {
+  return agentModels?.[agentRole as SwarmAgentRole] || fallback;
+}
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
-  const caps = CAPS[user?.plan ?? "free"];
+  const caps = effectiveCaps(user?.plan ?? "free");
 
   if (!caps.swarm) {
     return new Response(
@@ -170,32 +229,50 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { query?: string; model?: string; targetUrl?: string; images?: string[]; computerSwarm?: boolean };
+  let body: {
+    query?: string;
+    model?: string;
+    agentModels?: AgentModelMap;
+    targetUrl?: string;
+    images?: string[];
+    computerSwarm?: boolean;
+    codingSwarm?: boolean;
+  };
   try {
     body = await req.json();
   } catch {
     return new Response("Invalid body.", { status: 400 });
   }
 
-  const { query, model = DEFAULT_MODEL, targetUrl, images = [], computerSwarm = false } = body;
+  const { query, model = DEFAULT_MODEL, agentModels, targetUrl, images = [], computerSwarm = false, codingSwarm = false } = body;
   if (!query?.trim()) {
     return new Response("Missing query.", { status: 400 });
   }
   const imagePayload = Array.isArray(images) && images.length ? images : undefined;
 
-  // Computer swarm: code-writing specialists (Architect, UI Dev, Stylist).
-  // Research swarm: research specialists (Researcher, Reasoner, Media Scout).
   const specialistCount = Math.min(caps.swarmAgents - 1, SPECIALISTS.length);
 
-  const agentList: SwarmAgentRun[] = computerSwarm
+  const agentList: SwarmAgentRun[] = codingSwarm
+    ? [
+        ...CODING_SPECIALISTS.map((s) => ({
+          id: uid(),
+          role: s.role as SwarmAgentRole,
+          label: s.label,
+          status: "pending" as const,
+          model: resolveAgentModel(s.role, agentModels, s.recommendedModel || model),
+        })),
+        { id: uid(), role: "synthesizer" as const, label: "Integrator", status: "pending" as const, model: resolveAgentModel("synthesizer", agentModels, model) },
+      ]
+    : computerSwarm
     ? [
         ...COMPUTER_SPECIALISTS.map((s) => ({
           id: uid(),
           role: s.role as SwarmAgentRole,
           label: s.label,
           status: "pending" as const,
+          model: resolveAgentModel(s.role, agentModels, model),
         })),
-        { id: uid(), role: "synthesizer" as const, label: "Integrator", status: "pending" as const },
+        { id: uid(), role: "synthesizer" as const, label: "Integrator", status: "pending" as const, model: resolveAgentModel("synthesizer", agentModels, model) },
       ]
     : [
         ...SPECIALISTS.slice(0, specialistCount).map((s) => ({
@@ -203,8 +280,9 @@ export async function POST(req: Request) {
           role: s.role as SwarmAgentRole,
           label: s.label,
           status: "pending" as const,
+          model: resolveAgentModel(s.role, agentModels, model),
         })),
-        { id: uid(), role: "synthesizer" as const, label: "Synthesizer", status: "pending" as const },
+        { id: uid(), role: "synthesizer" as const, label: "Synthesizer", status: "pending" as const, model: resolveAgentModel("synthesizer", agentModels, model) },
       ];
 
   const encoder = new TextEncoder();
@@ -214,15 +292,81 @@ export async function POST(req: Request) {
       const push = (evt: SwarmStreamEvent) => {
         try {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(evt)}\n\n`));
-        } catch { /* stream closed */ }
+        } catch { }
       };
 
       push({ type: "init", agents: agentList });
 
       const reports: { label: string; output: string }[] = [];
 
-      if (computerSwarm) {
-        // ── Computer Swarm: specialists write code files in parallel ──
+      if (codingSwarm) {
+        // ── Coding Swarm: research → architect → develop → integrate ──
+        for (let i = 0; i < CODING_SPECIALISTS.length; i++) {
+          const spec = CODING_SPECIALISTS[i];
+          const agent = agentList[i];
+          push({ type: "agent_update", agentId: agent.id, status: "thinking" });
+          try {
+            let messages: { role: string; content: string; images?: string[] }[] = [
+              { role: "system", content: spec.systemPrompt(query) },
+            ];
+
+            // Researcher searches the web; others get the research context
+            if (i === 0) {
+              const results = await searchWeb(query, 5).catch(() => []);
+              const missingUrls = results.filter((r) => !r.content).map((r) => r.url);
+              const scraped = missingUrls.length ? await scrapeUrls(missingUrls).catch(() => []) : [];
+              const byUrl = new Map(scraped.map((s) => [s.url, s]));
+              const sources = results.map((r) => ({
+                url: r.url,
+                title: r.title,
+                content: r.content || byUrl.get(r.url)?.content || r.snippet || "",
+                snippet: r.snippet,
+              }));
+              messages.push({ role: "user", content: agentUserMsg(query, sources) });
+            } else {
+              const prevReports = reports.map((r) => r.output).join("\n\n");
+              messages.push({ role: "user", content: `Research findings:\n\n${prevReports}\n\nNow do your part for: ${query}` });
+            }
+
+            let output = "";
+            for await (const token of chatStream({
+              model: agent.model || model,
+              messages: messages as any,
+              options: { temperature: i === 0 ? 0.3 : 0.2 },
+            })) {
+              output += token;
+              push({ type: "specialist_token", agentId: agent.id, content: token });
+            }
+            reports.push({ label: spec.label, output });
+            const fileCount = (output.match(/<koda-file/g) || []).length;
+            push({ type: "agent_update", agentId: agent.id, status: "done", output, sourceCount: fileCount || 1 });
+          } catch {
+            push({ type: "agent_update", agentId: agent.id, status: "error" });
+          }
+        }
+
+        // Integrator: merge all into [[computer:]] directive
+        const synthAgent = agentList[agentList.length - 1];
+        push({ type: "agent_update", agentId: synthAgent.id, status: "thinking" });
+        const integratorMsg =
+          `Project: "${query}"\n\n` +
+          reports.map((r) => `=== ${r.label} ===\n${r.output}`).join("\n\n") +
+          `\n\nMerge all the above into one complete [[computer:${query.slice(0, 40)}]] project. Output the directive + all files + commands.`;
+        try {
+          for await (const token of chatStream({
+            model: synthAgent.model || model,
+            messages: [
+              { role: "system", content: CODING_SYNTH_SYSTEM },
+              { role: "user", content: integratorMsg },
+            ],
+          })) {
+            push({ type: "synthesis_token", content: token });
+          }
+          push({ type: "agent_update", agentId: synthAgent.id, status: "done" });
+        } catch {
+          push({ type: "agent_update", agentId: synthAgent.id, status: "error" });
+        }
+      } else if (computerSwarm) {
         await Promise.allSettled(
           COMPUTER_SPECIALISTS.map(async (spec, i) => {
             const agent = agentList[i];
@@ -230,7 +374,7 @@ export async function POST(req: Request) {
             try {
               let output = "";
               for await (const token of chatStream({
-                model,
+                model: agent.model || model,
                 messages: [
                   { role: "system", content: spec.systemPrompt(query) },
                   { role: "user", content: `Build this project: ${query}` },
@@ -249,7 +393,6 @@ export async function POST(req: Request) {
           })
         );
 
-        // Integrator: merge all files into a single [[computer:]] directive
         const synthAgent = agentList[agentList.length - 1];
         push({ type: "agent_update", agentId: synthAgent.id, status: "thinking" });
         const integratorMsg =
@@ -258,7 +401,7 @@ export async function POST(req: Request) {
           `\n\nMerge all the above <koda-file> blocks into one complete [[computer:${query.slice(0, 40)}]] project. Output the directive + all files + commands.`;
         try {
           for await (const token of chatStream({
-            model,
+            model: synthAgent.model || model,
             messages: [
               { role: "system", content: COMPUTER_SYNTH_SYSTEM },
               { role: "user", content: integratorMsg },
@@ -271,7 +414,6 @@ export async function POST(req: Request) {
           push({ type: "agent_update", agentId: synthAgent.id, status: "error" });
         }
       } else {
-        // ── Research Swarm: original parallel research + synthesis ──
         const specialists = SPECIALISTS.slice(0, specialistCount);
 
         let sharedSources: Source[] = [];
@@ -302,14 +444,14 @@ export async function POST(req: Request) {
 
               let output = "";
               for await (const token of chatStream({
-                model,
+                model: agent.model || model,
                 messages: [
                   { role: "system", content: spec.systemPrompt },
                   {
                     role: "user",
                     content: agentUserMsg(query, sources),
                     ...(imagePayload ? { images: imagePayload } : {}),
-                  },
+                  } as any,
                 ],
                 options: { temperature: 0.3 },
               })) {
@@ -327,10 +469,10 @@ export async function POST(req: Request) {
 
         const synthAgent = agentList[agentList.length - 1];
         push({ type: "agent_update", agentId: synthAgent.id, status: "thinking" });
-        const synthSystem = `${SYNTH_SYSTEM}\n\n${COMPUTER_INSTRUCTIONS}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesInstructions(caps.slidesMax)}\n\n${SHEETS_INSTRUCTIONS}`;
+        const synthSystem = `${SYNTH_SYSTEM}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${COMPUTER_INSTRUCTIONS}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesInstructions(caps.slidesMax)}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}`;
         try {
           for await (const token of chatStream({
-            model,
+            model: synthAgent.model || model,
             messages: [
               { role: "system", content: synthSystem },
               { role: "user", content: synthUserMsg(query, reports) },

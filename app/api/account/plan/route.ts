@@ -5,7 +5,7 @@ import type { Plan } from "@/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VALID: Plan[] = ["free", "pro", "max"];
+const VALID: Plan[] = ["free", "pro", "max", "ultra"];
 
 /**
  * DUMMY billing. Applies the requested plan to the signed-in user instantly,

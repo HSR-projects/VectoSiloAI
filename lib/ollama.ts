@@ -1,4 +1,5 @@
 import type { OllamaMessage, OllamaModel } from "@/types";
+import { recordIncident } from "@/lib/incidentStore";
 
 /**
  * Ollama Cloud client.
@@ -31,7 +32,7 @@ export const FORCE_MODEL = process.env.OLLAMA_FORCE_MODEL || "";
  * Configurable via OLLAMA_BLOCKED_MODELS (comma-separated); falls back to a
  * sane default that excludes known data-retaining preview models.
  */
-const DEFAULT_BLOCKED = ["gemini"];
+const DEFAULT_BLOCKED = ["gemini", "glm", "deepseek", "rnj" , "kimi", "mistral"];
 const BLOCK_LIST = (process.env.OLLAMA_BLOCKED_MODELS || "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
@@ -71,6 +72,37 @@ function connectionHint(): string {
   return "Could not reach the KodaAI model service. Check your connection and try again in a moment.";
 }
 
+/** Replace upstream Ollama errors with user-friendly messages and record incidents where needed. */
+function sanitizeError(raw: string): string {
+  const lower = raw.toLowerCase();
+
+  // Session / rate-limit exhaustion — temporary, clears after a few hours.
+  if (
+    lower.includes("session usage") ||
+    lower.includes("usage limit") ||
+    lower.includes("rate limit") ||
+    lower.includes("quota") ||
+    lower.includes("upgrade for higher limits")
+  ) {
+    const friendly = "Our server is currently exhausted. Please wait about 3 hours to continue.";
+    recordIncident("AI Model Service", friendly, 3 * 60 * 60 * 1000);
+    return friendly;
+  }
+
+  // Subscription / plan required for this model — not a temporary rate limit.
+  if (
+    lower.includes("subscription") ||
+    lower.includes("not available on your plan") ||
+    lower.includes("model requires") ||
+    lower.includes("access denied") ||
+    (lower.includes("upgrade") && !lower.includes("upgrade for higher limits"))
+  ) {
+    return "This model requires a subscription. Please contact support or switch to a different model.";
+  }
+
+  return raw;
+}
+
 interface ChatOptions {
   model: string;
   messages: OllamaMessage[];
@@ -78,6 +110,89 @@ interface ChatOptions {
   signal?: AbortSignal;
   /** Sampling temperature, etc. */
   options?: Record<string, unknown>;
+  /** Enable the model's native reasoning ("thinking"). */
+  think?: boolean;
+}
+
+/** A streamed delta: reasoning tokens and/or answer tokens. */
+export interface RichDelta {
+  content?: string;
+  thinking?: string;
+}
+
+/**
+ * Streaming chat that surfaces the model's native reasoning. Yields
+ * `{ thinking }` for reasoning tokens and `{ content }` for answer tokens.
+ * If the chosen model doesn't support `think`, it transparently retries
+ * without it (so callers just get content and no reasoning).
+ */
+export async function* chatStreamRich(
+  opts: ChatOptions
+): AsyncGenerator<RichDelta, void, unknown> {
+  const doFetch = (think: boolean) =>
+    fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        model: resolveModel(opts.model),
+        messages: opts.messages,
+        stream: true,
+        think: think || undefined,
+        options: opts.options,
+      }),
+      signal: opts.signal,
+    });
+
+  let res: Response;
+  try {
+    res = await doFetch(!!opts.think);
+  } catch {
+    throw new OllamaError(connectionHint());
+  }
+  // Model may not support thinking — retry once without it.
+  if (!res.ok && opts.think) {
+    try {
+      res = await doFetch(false);
+    } catch {
+      throw new OllamaError(connectionHint());
+    }
+  }
+
+  if (!res.ok || !res.body) {
+    const text = await res.text().catch(() => "");
+    throw new OllamaError(
+      sanitizeError(text || `Ollama request failed (${res.status}). ${connectionHint()}`),
+      res.status
+    );
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let nl: number;
+    while ((nl = buffer.indexOf("\n")) !== -1) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (!line) continue;
+      try {
+        const json = JSON.parse(line);
+        const thinking: string = json?.message?.thinking ?? "";
+        const content: string = json?.message?.content ?? "";
+        if (thinking) yield { thinking };
+        if (content) yield { content };
+        if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
+      } catch (e) {
+        if (e instanceof OllamaError) throw e;
+        // Ignore partial/non-JSON lines.
+      }
+    }
+  }
 }
 
 /**
@@ -107,7 +222,7 @@ export async function* chatStream(
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => "");
     throw new OllamaError(
-      text || `Ollama request failed (${res.status}). ${connectionHint()}`,
+      sanitizeError(text || `Ollama request failed (${res.status}). ${connectionHint()}`),
       res.status
     );
   }
@@ -130,7 +245,7 @@ export async function* chatStream(
         const json = JSON.parse(line);
         const delta: string = json?.message?.content ?? "";
         if (delta) yield delta;
-        if (json?.error) throw new OllamaError(String(json.error));
+        if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
       } catch (e) {
         if (e instanceof OllamaError) throw e;
         // Ignore partial/non-JSON lines.
@@ -161,7 +276,7 @@ export async function chat(opts: ChatOptions): Promise<string> {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new OllamaError(
-      text || `Ollama request failed (${res.status}). ${connectionHint()}`,
+      sanitizeError(text || `Ollama request failed (${res.status}). ${connectionHint()}`),
       res.status
     );
   }

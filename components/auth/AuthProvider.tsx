@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Plan, User } from "@/types";
-import { CAPS, type PlanCaps } from "@/lib/plans";
+import { CAPS, effectiveCaps, type PlanCaps } from "@/lib/plans";
 import { useKodaStore } from "@/lib/store";
 
 interface AuthContextValue {
@@ -28,17 +28,21 @@ interface AuthContextValue {
     defaultAgent?: string;
     avatarColor?: string;
   }) => Promise<void>;
-  /** Opens Stripe Checkout for the given paid plan. Navigates away. */
+  /** Opens Razorpay Checkout for the given paid plan. Navigates away. */
   upgrade: (plan: Plan) => Promise<void>;
   /** Cancel the subscription + refund the latest payment, returning to Free. */
   downgrade: () => Promise<{ refunded: boolean; canceled: boolean }>;
   deleteAccount: () => Promise<void>;
+  /** Second step of login: verify 2FA code with the temporary token. */
+  verify2FA: (twoFactorToken: string, code: string) => Promise<void>;
 }
 
-/** Outcome of a login/register attempt — signals when email verification is pending. */
+/** Outcome of a login/register attempt — signals when email verification or 2FA is pending. */
 export interface AuthResult {
   needsVerification?: boolean;
   email?: string;
+  needs2FA?: boolean;
+  twoFactorToken?: string;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -106,12 +110,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.status === 403 && data?.needsVerification) {
         return { needsVerification: true, email: data.email ?? email };
       }
+      if (data?.needs2FA && data?.twoFactorToken) {
+        return { needs2FA: true, twoFactorToken: data.twoFactorToken };
+      }
       if (!res.ok) throw new Error(data?.error || "Could not sign in.");
       setUser(data.user);
       await loadServerThreads();
       return {};
     },
     []
+  );
+
+  const verify2FA = useCallback(
+    async (twoFactorToken: string, code: string): Promise<void> => {
+      const res = await fetch("/api/auth/2fa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twoFactorToken, code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Invalid code.");
+      // Session cookie is now set — refresh user state
+      await refresh();
+    },
+    [refresh]
   );
 
   const register = useCallback(
@@ -155,12 +177,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const upgrade = useCallback(async (plan: Plan) => {
     if (plan === "free") return;
-    const { url } = await postJSON("/api/stripe/checkout", { plan });
-    if (url) window.location.href = url;
+    const order = await postJSON("/api/razorpay/checkout", { plan });
+    if (order.id) {
+      const params = new URLSearchParams({
+        order_id: order.id,
+        key: order.key,
+        amount: String(order.amount),
+        currency: order.currency || "INR",
+        name: order.name || "Koda AI",
+        description: order.description || `${plan} plan`,
+        email: order.prefill?.email || "",
+        callback: `${window.location.origin}/razorpay/success?order_id=${order.id}&plan=${plan}`,
+      });
+      window.location.href = `/razorpay/checkout?${params}`;
+    }
   }, []);
 
   const downgrade = useCallback(async () => {
-    const data = await postJSON("/api/stripe/downgrade");
+    const data = await postJSON("/api/razorpay/downgrade");
     setUser(data.user);
     return { refunded: !!data.refunded, canceled: !!data.canceled };
   }, []);
@@ -179,7 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       loading,
-      caps: CAPS[user?.plan ?? "free"],
+      caps: effectiveCaps(user?.plan ?? "free"),
       refresh,
       login,
       register,
@@ -189,8 +223,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       upgrade,
       downgrade,
       deleteAccount,
+      verify2FA,
     }),
-    [user, loading, refresh, login, register, loginWithGoogle, logout, updateAccount, upgrade, downgrade, deleteAccount]
+    [user, loading, refresh, login, register, loginWithGoogle, logout, updateAccount, upgrade, downgrade, deleteAccount, verify2FA]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

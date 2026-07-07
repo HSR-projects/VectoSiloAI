@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Copy, Pencil } from "lucide-react";
 import type { Message } from "@/types";
 import { cn } from "@/lib/utils";
+import { VoiceMessageBubble } from "@/components/voice/VoiceMessageBubble";
 
 /**
  * A user chat bubble with ChatGPT-style hover actions: copy and edit. Editing
@@ -108,10 +109,17 @@ export function UserMessage({
     <div className="group flex flex-col items-end">
       <div className="max-w-[78%] rounded-2xl rounded-tr-sm border border-koda-border bg-koda-surface-2 px-4 py-2.5 text-sm leading-relaxed text-koda-text shadow-sm">
         {attachmentsSlot}
-        <span className="whitespace-pre-wrap">{message.content}</span>
+        {message.voiceUrl ? (
+          <div className="min-w-[220px]">
+            <VoiceMessageBubble url={message.voiceUrl} duration={message.voiceDuration} align="right" />
+            {message.content && (
+              <p className="mt-2 whitespace-pre-wrap text-sm text-koda-text">{message.content}</p>
+            )}
+          </div>
+        ) : (
+          <span className="whitespace-pre-wrap">{message.content}</span>
+        )}
       </div>
-      {/* Actions are hover-revealed on desktop but always visible on touch
-          devices (no hover), so mobile users can copy/edit. */}
       <div className="mt-1 flex items-center gap-0.5 text-koda-muted opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
         <Btn label={copied ? "Copied" : "Copy"} onClick={copy}>
           {copied ? <Check className="h-4 w-4 text-koda-accent" /> : <Copy className="h-4 w-4" />}

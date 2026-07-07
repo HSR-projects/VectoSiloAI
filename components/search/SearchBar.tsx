@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUp, Search, Loader2, Bot, Lock, Network, Link, X, Square, Mic,
-  Paperclip, FileText, Music, Image as ImageIcon,
+  Paperclip, FileText, Music, Image as ImageIcon, Brain,
 } from "lucide-react";
 import type { Attachment, FocusMode } from "@/types";
 import { FocusModes } from "./FocusModes";
@@ -63,6 +63,14 @@ interface SearchBarProps {
   agentLocked?: boolean;
   onAgentToggle?: () => void;
 
+  /** Show voice record button (inline voice recording in chat). */
+  showVoiceRecord?: boolean;
+  onVoiceRecord?: () => void;
+
+  /** Voice mode active state — shows active pulse + ends on click. */
+  voiceMode?: boolean;
+  onVoiceModeToggle?: () => void;
+
   /** Show the Agent Swarm toggle. */
   showSwarm?: boolean;
   swarmMode?: boolean;
@@ -112,6 +120,10 @@ export function SearchBar({
   onSwarmToggle,
   targetUrl = "",
   onTargetUrlChange,
+  showVoiceRecord,
+  onVoiceRecord,
+  voiceMode,
+  onVoiceModeToggle,
 }: SearchBarProps) {
   const [value, setValue] = useState("");
   const [urlOpen, setUrlOpen] = useState(false);
@@ -143,6 +155,8 @@ export function SearchBar({
   const composerDraft = useKodaStore((s) => s.composerDraft);
   const clearDraft = useKodaStore((s) => s.setComposerDraft);
   const dictationEnabled = useKodaStore((s) => s.dictationEnabled);
+  const thinkMode = useKodaStore((s) => s.thinkMode);
+  const setThinkMode = useKodaStore((s) => s.setThinkMode);
   useEffect(() => {
     if (!composerDraft) return;
     setValue((v) => (v ? v + "\n\n" : "") + composerDraft);
@@ -174,7 +188,30 @@ export function SearchBar({
     setAttachError(null);
   };
 
+  const onChange = (val: string) => {
+    setValue(val);
+    onSlashChange(val);
+  };
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (slashOpen) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        slashIdxRef.current = Math.min(slashIdxRef.current + 1, filteredSlash.length - 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        slashIdxRef.current = Math.max(slashIdxRef.current - 1, 0);
+      } else if (e.key === "Enter" || e.key === "Tab") {
+        if (filteredSlash[slashIdxRef.current]) {
+          e.preventDefault();
+          execSlash(filteredSlash[slashIdxRef.current]);
+        }
+      } else if (e.key === "Escape") {
+        setSlashOpen(false);
+        setSlashQuery("");
+      }
+      return;
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       submit();
@@ -204,6 +241,62 @@ export function SearchBar({
 
   const removeAttachment = (id: string) =>
     setAttachments((prev) => prev.filter((a) => a.id !== id));
+
+  // ── Slash command menu ─────────────────────────────────────
+  type SlashCmd = {
+    id: string; label: string; desc: string; icon: string;
+    action: () => void;
+  };
+
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [slashQuery, setSlashQuery] = useState("");
+  const slashIdxRef = useRef(0);
+  const slashRef = useRef<HTMLDivElement>(null);
+
+  const slashCommands: SlashCmd[] = [
+    { id: "agent", label: "/agent", desc: "Multi-step autonomous research", icon: "🤖",
+      action: () => { onAgentToggle?.(); } },
+    { id: "swarm", label: "/swarm", desc: "Parallel specialist agents", icon: "🧠",
+      action: () => { onSwarmToggle?.(); } },
+    { id: "think", label: "/think", desc: "Reason inside a think block", icon: "💭",
+      action: () => { setThinkMode(!thinkMode); } },
+    { id: "search", label: "/search", desc: "Web search focus", icon: "🌐",
+      action: () => { onFocusChange("all"); } },
+    { id: "academic", label: "/academic", desc: "Academic research focus", icon: "📚",
+      action: () => { onFocusChange("academic"); } },
+    { id: "code", label: "/code", desc: "Code generation focus", icon: "💻",
+      action: () => { onFocusChange("code"); } },
+    { id: "image", label: "/image", desc: "Generate an image with FLUX", icon: "🎨",
+      action: () => { setValue("/image "); ref.current?.focus(); } },
+    { id: "website", label: "/website", desc: "Build a website", icon: "🌍",
+      action: () => { onFocusChange("code"); setValue((v) => "Build a website: " + v.replace(/^\/\w+\s*/, "")); } },
+    { id: "slides", label: "/slides", desc: "Create a presentation", icon: "📊",
+      action: () => { setValue((v) => "Create a slide deck about " + v.replace(/^\/\w+\s*/, "")); } },
+  ];
+
+  const filteredSlash = slashQuery
+    ? slashCommands.filter((c) => c.id.includes(slashQuery.toLowerCase()))
+    : slashCommands;
+
+  const execSlash = (cmd: SlashCmd) => {
+    setSlashOpen(false);
+    setSlashQuery("");
+    setValue((v) => v.replace(/^\/\w*(\s|$)/, "").trimStart());
+    cmd.action();
+  };
+
+  // Detect "/" at start or after space
+  const onSlashChange = (val: string) => {
+    const match = val.match(/(?:^|\s)\/(\w*)$/);
+    if (match) {
+      setSlashOpen(true);
+      setSlashQuery(match[1] || "");
+      slashIdxRef.current = 0;
+    } else if (slashOpen) {
+      setSlashOpen(false);
+      setSlashQuery("");
+    }
+  };
 
   // ── Dictation (Web Speech API) ──────────────────────────────
   useEffect(() => {
@@ -341,13 +434,42 @@ export function SearchBar({
           </div>
         )}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-2 relative">
           <Search className="mb-1.5 h-5 w-5 shrink-0 text-koda-muted" />
+
+          {slashOpen && filteredSlash.length > 0 && (
+            <div
+              ref={slashRef}
+              className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-koda-border bg-koda-surface shadow-xl"
+            >
+              {filteredSlash.map((cmd, i) => (
+                <button
+                  key={cmd.id}
+                  type="button"
+                  className={cn(
+                    "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors",
+                    i === slashIdxRef.current
+                      ? "bg-koda-accent/15 text-koda-accent"
+                      : "text-koda-text hover:bg-koda-surface-2"
+                  )}
+                  onMouseEnter={() => { slashIdxRef.current = i; }}
+                  onMouseDown={(e) => { e.preventDefault(); execSlash(cmd); }}
+                >
+                  <span className="text-lg">{cmd.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{cmd.label}</div>
+                    <div className="text-xs text-koda-muted truncate">{cmd.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
           <textarea
             ref={ref}
             rows={1}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => onChange(e.target.value)}
             onKeyDown={onKeyDown}
             onPaste={onPaste}
             placeholder={placeholder}
@@ -374,28 +496,39 @@ export function SearchBar({
                 disabled={loading}
                 aria-label="Attach files"
                 title="Attach images, text, or audio"
-                className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text disabled:opacity-50"
+                className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text disabled:opacity-50"
               >
                 <Paperclip className="h-[18px] w-[18px]" />
               </button>
             </>
           )}
 
-          {dictateSupported && dictationEnabled && (
+          {showVoiceRecord && (
             <button
               type="button"
-              onClick={toggleDictation}
-              aria-label={listening ? "Stop dictation" : "Dictate"}
-              title={listening ? "Stop dictation" : "Dictate"}
-              aria-pressed={listening}
+              onClick={onVoiceRecord}
+              aria-label="Voice record"
+              title="Record voice message"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+            >
+              <Mic className="h-[18px] w-[18px]" />
+            </button>
+          )}
+
+          {onVoiceModeToggle && (
+            <button
+              type="button"
+              onClick={onVoiceModeToggle}
+              aria-label={voiceMode ? "End voice mode" : "Start voice mode"}
+              title={voiceMode ? "End voice mode" : "Start voice mode"}
               className={cn(
-                "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors",
-                listening
-                  ? "bg-red-500/15 text-red-400"
+                "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
+                voiceMode
+                  ? "bg-koda-accent/20 text-koda-accent animate-pulse shadow-[0_0_12px_rgba(167,139,250,0.5)]"
                   : "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
               )}
             >
-              <Mic className={cn("h-[18px] w-[18px]", listening && "animate-pulse")} />
+              <Mic className="h-[18px] w-[18px]" />
             </button>
           )}
 
@@ -405,7 +538,7 @@ export function SearchBar({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop"
-              className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-koda-text text-koda-bg transition-all hover:opacity-90"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-koda-text text-koda-bg transition-all hover:opacity-90"
             >
               <Square className="h-3.5 w-3.5 fill-current" />
             </button>
@@ -416,7 +549,7 @@ export function SearchBar({
               disabled={(!value.trim() && attachments.length === 0) || loading}
               aria-label="Send"
               className={cn(
-                "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all",
+                "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all",
                 (value.trim() || attachments.length > 0) && !loading
                   ? "bg-koda-accent text-black hover:bg-koda-accent-soft hover:shadow-glow"
                   : "bg-koda-surface-2 text-koda-muted"
@@ -463,7 +596,7 @@ export function SearchBar({
       )}
 
       {showToolbar && (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {showFocusModes && (
             <FocusModes value={focusMode} onChange={onFocusChange} />
           )}
@@ -542,6 +675,24 @@ export function SearchBar({
               ) : null}
             </button>
           )}
+
+          {/* Think toggle — model reasons first, shown in a "Thought for" block */}
+          <button
+            type="button"
+            onClick={() => setThinkMode(!thinkMode)}
+            title="Think first — show the model's reasoning"
+            aria-pressed={thinkMode}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+              thinkMode
+                ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
+                : "border-koda-border bg-koda-surface text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+            )}
+          >
+            <Brain className="h-3.5 w-3.5" />
+            Think
+            {thinkMode && <span className="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden />}
+          </button>
         </div>
       )}
     </div>

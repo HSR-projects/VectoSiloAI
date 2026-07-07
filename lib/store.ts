@@ -13,6 +13,7 @@ import type {
   SheetTable,
   Workbook,
   WebsiteProject,
+  DocArtifactProject,
   Thread,
 } from "@/types";
 import { uid, titleFromQuery } from "@/lib/utils";
@@ -69,10 +70,25 @@ interface KodaState {
   /** Chess engine strength, 1 (easy) … 10 (hard). */
   chessDifficulty: number;
   setChessDifficulty: (n: number) => void;
+  /** Selected AI provider (defaults to KodaAI Cloud). */
+  provider: string;
+  setProvider: (id: string) => void;
+  /** API key for the selected provider (empty for KodaAI Cloud / local). */
+  providerApiKey: string;
+  setProviderApiKey: (key: string) => void;
+  /** Custom base URL override for the selected provider. */
+  providerBaseUrl: string;
+  setProviderBaseUrl: (url: string) => void;
   settingsOpen: boolean;
   setSettingsOpen: (v: boolean) => void;
+  /** Tab to highlight when settings opens (e.g. "integrations"). */
+  settingsTab: string;
+  setSettingsTab: (v: string) => void;
   pricingOpen: boolean;
   setPricingOpen: (v: boolean) => void;
+  /** Which tab to show in the pricing modal: "plans" or "org". */
+  pricingTab: "plans" | "org";
+  setPricingTab: (v: "plans" | "org") => void;
 
   /** Show the dictation (mic) button in the composer. */
   dictationEnabled: boolean;
@@ -81,6 +97,13 @@ interface KodaState {
   dictationLang: string;
   setDictationLang: (v: string) => void;
 
+  /** Hands-free voice conversation overlay. */
+  voiceOpen: boolean;
+  setVoiceOpen: (v: boolean) => void;
+  /** Require a "Hey Koda" wake phrase before acting on speech. */
+  wakeWordEnabled: boolean;
+  setWakeWordEnabled: (v: boolean) => void;
+
   /** Spotlight-style thread search palette. */
   searchOpen: boolean;
   setSearchOpen: (v: boolean) => void;
@@ -88,6 +111,16 @@ interface KodaState {
   /** Library modal — upload history across chats. */
   libraryOpen: boolean;
   setLibraryOpen: (v: boolean) => void;
+
+  /** Apps modal — connected integrations (GitHub, …). */
+  appsOpen: boolean;
+  setAppsOpen: (v: boolean) => void;
+  /** Whether the user has connected GitHub (drives the @github chat path). */
+  githubConnected: boolean;
+  setGithubConnected: (v: boolean) => void;
+  /** Think mode — model reasons first, shown in a collapsible "Thought for" block. */
+  thinkMode: boolean;
+  setThinkMode: (v: boolean) => void;
 
   // ─── Artifacts (Claude-style side panel) ────────────────
   artifact: Artifact | null;
@@ -146,6 +179,15 @@ interface KodaState {
   loadWebsite: (snapshot: { title: string; files: ProjectFile[] }) => void;
   reopenWebsite: () => void;
   resetWebsite: () => void;
+
+  // ─── Doc builder (Markdown documents, e.g. generated prompts) ─
+  doc: DocArtifactProject | null;
+  openDoc: (title: string) => void;
+  setDocContent: (content: string) => void;
+  setDocStatus: (status: DocArtifactProject["status"]) => void;
+  loadDoc: (snapshot: { title: string; content: string }) => void;
+  reopenDoc: () => void;
+  resetDoc: () => void;
   setComputerFiles: (files: ProjectFile[]) => void;
   setComputerCommands: (commands: string[]) => void;
   appendComputerTerminal: (line: string) => void;
@@ -173,6 +215,10 @@ interface KodaState {
   /** Remove a message and everything after it (for edit / regenerate). */
   deleteMessagesFrom: (threadId: string, messageId: string) => void;
   getThread: (id: string) => Thread | undefined;
+
+  // ─── Incognito ──────────────────────────────────────────
+  incognito: boolean;
+  setIncognito: (v: boolean) => void;
 }
 
 export const useKodaStore = create<KodaState>()(
@@ -214,21 +260,44 @@ export const useKodaStore = create<KodaState>()(
       chessDifficulty: 5,
       setChessDifficulty: (n) =>
         set({ chessDifficulty: Math.max(1, Math.min(10, Math.round(n))) }),
+      provider: "kodaai",
+      setProvider: (id) => set({ provider: id }),
+      providerApiKey: "",
+      setProviderApiKey: (key) => set({ providerApiKey: key }),
+      providerBaseUrl: "",
+      setProviderBaseUrl: (url) => set({ providerBaseUrl: url }),
       settingsOpen: false,
       setSettingsOpen: (v) => set({ settingsOpen: v }),
+      settingsTab: "general",
+      setSettingsTab: (v) => set({ settingsTab: v }),
       pricingOpen: false,
       setPricingOpen: (v) => set({ pricingOpen: v }),
+      pricingTab: "plans",
+      setPricingTab: (v) => set({ pricingTab: v }),
 
       dictationEnabled: true,
       setDictationEnabled: (v) => set({ dictationEnabled: v }),
       dictationLang: "",
       setDictationLang: (v) => set({ dictationLang: v }),
 
+      voiceOpen: false,
+      setVoiceOpen: (v) => set({ voiceOpen: v }),
+      wakeWordEnabled: false,
+      setWakeWordEnabled: (v) => set({ wakeWordEnabled: v }),
+
       searchOpen: false,
       setSearchOpen: (v) => set({ searchOpen: v }),
 
       libraryOpen: false,
       setLibraryOpen: (v) => set({ libraryOpen: v }),
+
+      appsOpen: false,
+      setAppsOpen: (v) => set({ appsOpen: v }),
+      githubConnected: false,
+      setGithubConnected: (v) => set({ githubConnected: v }),
+
+      thinkMode: false,
+      setThinkMode: (v) => set({ thinkMode: v }),
 
       artifact: null,
       openArtifact: (a) => set({ artifact: a }),
@@ -252,6 +321,7 @@ export const useKodaStore = create<KodaState>()(
             commands: [],
             terminal: [],
             status: "building",
+            live: true,
           },
         }),
       setComputerFiles: (files) =>
@@ -287,9 +357,10 @@ export const useKodaStore = create<KodaState>()(
             title: snapshot.title,
             files: snapshot.files,
             commands: snapshot.commands,
-            terminal: ["✓ Restored sandbox from this chat — no rebuild needed."],
+            terminal: ["✓ Restored from chat history — files only, no sandbox."],
             status: "ready",
             activePath: pickActiveFile(snapshot.files),
+            live: false,
           },
         }),
       resetComputer: () => set({ computer: null, artifact: null }),
@@ -364,6 +435,25 @@ export const useKodaStore = create<KodaState>()(
         ),
       resetWebsite: () => set({ website: null }),
 
+      doc: null,
+      openDoc: (title) =>
+        set({
+          artifact: { type: "doc", title },
+          doc: { title, content: "", status: "building" },
+        }),
+      setDocContent: (content) =>
+        set((s) => (s.doc ? { doc: { ...s.doc, content } } : s)),
+      setDocStatus: (status) =>
+        set((s) => (s.doc ? { doc: { ...s.doc, status } } : s)),
+      loadDoc: (snapshot) =>
+        set({
+          artifact: { type: "doc", title: snapshot.title },
+          doc: { title: snapshot.title, content: snapshot.content, status: "ready" },
+        }),
+      reopenDoc: () =>
+        set((s) => (s.doc ? { artifact: { type: "doc", title: s.doc.title } } : s)),
+      resetDoc: () => set({ doc: null }),
+
       externalCalls: 0,
       incExternalCalls: (n = 1) =>
         set((s) => ({ externalCalls: s.externalCalls + n })),
@@ -389,6 +479,10 @@ export const useKodaStore = create<KodaState>()(
         }));
         return id;
       },
+
+      // ─── Incognito ───────────────────────────────────────
+      incognito: false,
+      setIncognito: (v) => set({ incognito: v }),
 
       updateThreadTitle: (threadId, title) =>
         set((s) => ({
@@ -459,10 +553,16 @@ export const useKodaStore = create<KodaState>()(
       partialize: (s) => ({
         selectedModel: s.selectedModel,
         focusMode: s.focusMode,
+        thinkMode: s.thinkMode,
         chessDifficulty: s.chessDifficulty,
+        provider: s.provider,
+        providerApiKey: s.providerApiKey,
+        providerBaseUrl: s.providerBaseUrl,
         externalCalls: s.externalCalls,
         dictationEnabled: s.dictationEnabled,
         dictationLang: s.dictationLang,
+        wakeWordEnabled: s.wakeWordEnabled,
+        chessFen: s.chessFen,
       }),
       // Strip any chats persisted by older builds so they can't rehydrate and
       // leak across users on a shared browser.

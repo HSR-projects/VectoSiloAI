@@ -18,15 +18,17 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
 
   let name = "Default key";
+  let creditLimitCents: number | undefined;
   try {
-    const body = (await req.json()) as { name?: string };
+    const body = (await req.json()) as { name?: string; creditLimitCents?: number };
     if (body?.name) name = body.name;
+    if (typeof body?.creditLimitCents === "number") creditLimitCents = body.creditLimitCents;
   } catch {
     /* empty body is fine */
   }
 
   try {
-    const { secret, key } = await createApiKey(user.id, name);
+    const { secret, key } = await createApiKey(user.id, name, creditLimitCents);
     return NextResponse.json({ secret, key });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });

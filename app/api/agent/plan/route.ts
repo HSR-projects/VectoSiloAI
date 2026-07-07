@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { chat, DEFAULT_MODEL, OllamaError } from "@/lib/ollama";
 import { buildAgentPlanPrompt } from "@/lib/prompts";
 import { getCurrentUser } from "@/lib/auth";
-import { CAPS } from "@/lib/plans";
+import { effectiveCaps } from "@/lib/plans";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ interface PlanRequestBody {
  */
 export async function POST(req: Request) {
   const user = await getCurrentUser();
-  const caps = CAPS[user?.plan ?? "free"];
+  const caps = effectiveCaps(user?.plan ?? "free");
   if (!caps.agent) {
     return NextResponse.json(
       { error: "Agent mode requires Pro or Max." },

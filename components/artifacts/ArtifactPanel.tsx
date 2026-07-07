@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Loader2, X, Puzzle, MonitorPlay, Presentation, FileSpreadsheet, Globe } from "lucide-react";
+import { Loader2, X, Puzzle, MonitorPlay, Presentation, FileSpreadsheet, Globe, FileText, Maximize2, Minimize2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { ArtifactType } from "@/types";
 import { useKodaStore } from "@/lib/store";
 
@@ -12,7 +13,9 @@ import { useKodaStore } from "@/lib/store";
 const sessionWidths: Partial<Record<ArtifactType, number>> = {};
 
 function defaultWidth(type: ArtifactType): number {
-  return type === "computer" || type === "website" ? 820 : 560;
+  if (type === "computer" || type === "website") return 820;
+  if (type === "doc") return 640;
+  return 560;
 }
 
 // Board library touches the DOM — load it client-side only.
@@ -80,6 +83,19 @@ const WebsiteArtifact = dynamic(
   }
 );
 
+// Markdown document panel — client-only.
+const DocArtifact = dynamic(
+  () => import("./DocArtifact").then((m) => m.DocArtifact),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center text-koda-muted">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 /**
  * Claude-style artifact side panel. Slides in from the right on desktop and
  * covers the screen on mobile. Renders whatever artifact is active in the store.
@@ -91,6 +107,7 @@ export function ArtifactPanel() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [width, setWidth] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [maximized, setMaximized] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
 
   // Track desktop breakpoint — resizing only applies on md+ (mobile is full-screen).
@@ -149,8 +166,13 @@ export function ArtifactPanel() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "100%", opacity: 0.4 }}
           transition={{ type: "spring", stiffness: 320, damping: 34 }}
-          style={isDesktop && width ? { width } : undefined}
-          className="absolute inset-0 z-30 flex w-full flex-col border-l border-koda-border bg-koda-bg md:relative md:inset-auto md:z-auto"
+          style={isDesktop && width && !maximized ? { width } : undefined}
+          className={cn(
+            "flex flex-col border-l border-koda-border bg-koda-bg",
+            maximized
+              ? "fixed inset-0 z-50 w-full"
+              : "absolute inset-0 z-30 w-full md:relative md:inset-auto md:z-auto"
+          )}
         >
           {/* Resize handle — desktop only. */}
           {isDesktop && (
@@ -184,6 +206,8 @@ export function ArtifactPanel() {
               <FileSpreadsheet className="h-4 w-4 text-koda-accent" />
             ) : artifact.type === "website" ? (
               <Globe className="h-4 w-4 text-koda-accent" />
+            ) : artifact.type === "doc" ? (
+              <FileText className="h-4 w-4 text-koda-accent" />
             ) : (
               <Puzzle className="h-4 w-4 text-koda-accent" />
             )}
@@ -202,13 +226,22 @@ export function ArtifactPanel() {
                   ? "Spreadsheet · Excel"
                   : artifact.type === "website"
                   ? "Website · Static site"
+                  : artifact.type === "doc"
+                  ? "Document · Markdown"
                   : "Artifact"}
               </p>
             </div>
             <button
+              onClick={() => setMaximized((v) => !v)}
+              aria-label={maximized ? "Exit fullscreen" : "Fullscreen"}
+              className="ml-auto rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+            >
+              {maximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </button>
+            <button
               onClick={close}
               aria-label="Close artifact"
-              className="ml-auto rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+              className="rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
             >
               <X className="h-4 w-4" />
             </button>
@@ -229,6 +262,10 @@ export function ArtifactPanel() {
           ) : artifact.type === "website" ? (
             <div className="flex-1 overflow-hidden">
               <WebsiteArtifact />
+            </div>
+          ) : artifact.type === "doc" ? (
+            <div className="flex-1 overflow-hidden">
+              <DocArtifact />
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto p-4">

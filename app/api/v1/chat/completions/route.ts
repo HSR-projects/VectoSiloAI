@@ -1,6 +1,7 @@
-import { getUserByApiKey, deductCredits, getCredits } from "@/lib/auth";
+import { getApiKeyAuth, deductCredits, getBillableCredits } from "@/lib/auth";
 import { chat, chatStream, DEFAULT_MODEL, OllamaError } from "@/lib/ollama";
 import { estimateTokens, computeCost, API_MIN_CENTS } from "@/lib/credits";
+import { recordUsage } from "@/lib/usageStore";
 import type { OllamaMessage, Role } from "@/types";
 
 export const runtime = "nodejs";
@@ -97,13 +98,14 @@ export async function POST(req: Request) {
   if (!secret) {
     return json({ error: { message: "Missing API key.", type: "invalid_request_error" } }, 401);
   }
-  const user = await getUserByApiKey(secret);
-  if (!user) {
+  const authContext = await getApiKeyAuth(secret);
+  if (!authContext) {
     return json({ error: { message: "Invalid or revoked API key.", type: "invalid_request_error" } }, 401);
   }
+  const { user, key } = authContext;
 
   // ── Credits ──
-  const balance = await getCredits(user.id);
+  const balance = await getBillableCredits(user.id, key.id);
   if (balance < API_MIN_CENTS) {
     return json({ error: { message: "Insufficient credits. Top up at /developers.", type: "insufficient_quota" } }, 402);
   }
@@ -130,12 +132,13 @@ export async function POST(req: Request) {
   // ── Bill helper (never lets the balance go negative) ──
   const bill = async (completionTokens: number) => {
     let cost = computeCost(promptTokens, completionTokens);
-    let remaining = await deductCredits(user.id, cost);
+    let remaining = await deductCredits(user.id, cost, key.id);
     if (remaining === null) {
-      const left = await getCredits(user.id);
-      remaining = (await deductCredits(user.id, left)) ?? 0;
+      const left = await getBillableCredits(user.id, key.id);
+      remaining = left > 0 ? (await deductCredits(user.id, left, key.id)) ?? 0 : 0;
       cost = left;
     }
+    await recordUsage(user.id, { promptTokens, completionTokens, costCents: cost });
     return { cost, remaining, completionTokens };
   };
 

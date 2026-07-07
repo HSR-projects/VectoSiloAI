@@ -1,0 +1,10 @@
+<resources>
+    <!-- Pure-Compose app: a minimal NoActionBar platform theme that just sets a
+         dark window background + status bar so there's no white flash on launch. -->
+    <style name="Theme.KodaAI" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/koda_bg</item>
+        <item name="android:statusBarColor">@color/koda_bg</item>
+        <item name="android:navigationBarColor">@color/koda_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

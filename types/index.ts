@@ -55,7 +55,12 @@ export interface SwarmAgentRun {
   status: SwarmAgentStatus;
   output?: string;
   sourceCount?: number;
+  /** Model assigned to this agent (for multi-model swarm). */
+  model?: string;
 }
+
+/** Map of agent role → model name for multi-model swarms. */
+export type AgentModelMap = Partial<Record<SwarmAgentRole, string>>;
 
 /** Result of the lightweight "do we need to search?" routing call. */
 export interface RouteDecision {
@@ -65,7 +70,7 @@ export interface RouteDecision {
 }
 
 // ─── Accounts & billing ───────────────────────────────────────
-export type Plan = "free" | "pro" | "max";
+export type Plan = "free" | "go" | "pro" | "max" | "ultra";
 
 /** Public user shape — never includes password material. */
 export interface User {
@@ -84,6 +89,8 @@ export interface User {
    * plan — API access is pure pay-as-you-go (see lib/credits.ts).
    */
   credits: number;
+  /** Whether two-factor authentication is enabled for this account. */
+  twoFactorEnabled?: boolean;
 }
 
 // ─── API keys & credits ───────────────────────────────────────
@@ -96,9 +103,22 @@ export interface ApiKeyPublic {
   createdAt: number;
   lastUsedAt?: number;
   revoked?: boolean;
+  /** Optional max spend for this key, in US cents. */
+  creditLimitCents?: number;
+  /** Credits already spent through this key, in US cents. */
+  spentCents: number;
 }
 
-/** A purchasable credit pack (one-time Stripe payment). */
+/** A registered "Sign in with KodaAI" OAuth application (safe to expose). */
+export interface OAuthClientPublic {
+  clientId: string;
+  name: string;
+  redirectUris: string[];
+  createdAt: number;
+  logoUrl?: string;
+}
+
+/** A purchasable credit pack (one-time Razorpay payment). */
 export interface CreditPack {
   id: string;
   label: string;
@@ -156,6 +176,11 @@ export type Artifact =
       type: "website";
       /** Site title shown in the panel header. */
       title: string;
+    }
+  | {
+      type: "doc";
+      /** Document title shown in the panel header. */
+      title: string;
     };
 
 export type ArtifactType = Artifact["type"];
@@ -196,6 +221,19 @@ export interface ProjectFile {
   content: string;
 }
 
+/** A single line in a diff, with its change type. */
+export interface DiffLine {
+  type: "add" | "del" | "same";
+  content: string;
+}
+
+/** A diff for one file. */
+export interface FileDiff {
+  path: string;
+  lines: DiffLine[];
+  type: "added" | "modified" | "deleted";
+}
+
 /**
  * Lifecycle of a sandbox build, mirrored in the terminal:
  * building (files streaming) → installing → running (dev server) → ready.
@@ -219,6 +257,18 @@ export interface WebsiteProject {
   status: "building" | "ready";
 }
 
+/**
+ * A Markdown document built by the Doc builder — e.g. a prompt the model wrote
+ * for the user to reuse elsewhere. Rendered (preview) and raw (code) in a side
+ * panel the user can copy, share, or download as a .md file.
+ */
+export interface DocArtifactProject {
+  title: string;
+  /** Raw Markdown content. */
+  content: string;
+  status: "building" | "ready";
+}
+
 export interface ComputerProject {
   title: string;
   files: ProjectFile[];
@@ -231,6 +281,8 @@ export interface ComputerProject {
   activePath?: string;
   /** Error text when status is "error". */
   error?: string;
+  /** True for a fresh project (live sandbox), false when restored from history. */
+  live?: boolean;
 }
 
 /** Engine move returned by the internal chess oracle (engine never named). */
@@ -274,7 +326,7 @@ export interface Message {
    * project without re-generating it — but it stays scoped to THIS chat and is
    * never shared into other conversations.
    */
-  computer?: { title: string; files: ProjectFile[]; commands: string[] };
+  computer?: { title: string; files: ProjectFile[]; commands: string[]; diffs?: FileDiff[] };
   /**
    * Snapshot of a slide deck built in this answer — persisted with the thread
    * so the chat's "Open slides" card can restore it without re-generating.
@@ -284,17 +336,87 @@ export interface Message {
   sheet?: { title: string; sheets: SheetTable[] };
   /** Snapshot of a static website built in this answer (persisted per-chat). */
   website?: { title: string; files: ProjectFile[] };
+  /** Snapshot of a Markdown document (e.g. a generated prompt) built in this answer. */
+  doc?: { title: string; content: string };
   /** Marker that this answer opened a chess game — shows a resume card. */
   chess?: { playerColor: PlayerColor };
+  /** True when the assistant saved something to long-term memory this turn. */
+  memorySaved?: boolean;
+  /** Model's reasoning (Think mode) — shown in a collapsible "Thought for…" block. */
+  thinking?: string;
+  /** How long the reasoning took, in ms (for the "Thought for Ns" label). */
+  thinkingMs?: number;
   /** Focus mode used to produce this message. */
   focusMode?: FocusMode;
   /** Thumbs up/down feedback the user left on an assistant answer. */
   feedback?: "up" | "down";
+  /** Blob URL for voice message audio (user recording or assistant TTS). */
+  voiceUrl?: string;
+  /** Duration of the voice message in seconds. */
+  voiceDuration?: number;
   /** True while tokens are still streaming in. */
   streaming?: boolean;
   /** Error text, if the turn failed. */
   error?: string;
   createdAt: number;
+}
+
+// ─── Organizations ────────────────────────────────────────────
+export type OrgMemberRole = "admin" | "member";
+export type OrgMemberStatus = "active" | "disabled" | "excluded";
+
+export interface OrgMember {
+  userId: string;
+  name: string;
+  email: string;
+  role: OrgMemberRole;
+  status: OrgMemberStatus;
+  joinedAt: number;
+  razorpayOrderId?: string;
+}
+
+export interface OrgRequest {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  plan?: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: number;
+  reviewedAt?: number;
+}
+
+export interface Org {
+  id: string;
+  name: string;
+  ownerId: string;
+  plan: "ultra";
+  members: OrgMember[];
+  requests: OrgRequest[];
+  createdAt: number;
+}
+
+// ─── Gifts ────────────────────────────────────────────────────
+export interface Gift {
+  id: string;
+  code: string;
+  plan: "pro" | "max";
+  fromUserId: string;
+  fromName: string;
+  toUserId?: string;
+  toEmail?: string;
+  status: "pending" | "redeemed" | "expired";
+  createdAt: number;
+  redeemedAt?: number;
+}
+
+// ─── Share links ──────────────────────────────────────────────
+export interface ShareLink {
+  id: string;
+  threadId: string;
+  userId: string;
+  createdAt: number;
+  expiresAt?: number;
 }
 
 export interface Thread {
@@ -303,6 +425,8 @@ export interface Thread {
   messages: Message[];
   createdAt: number;
   updatedAt: number;
+  /** Optional share ID for public sharing. */
+  shareId?: string;
 }
 
 // ─── API payloads ─────────────────────────────────────────────
@@ -316,10 +440,31 @@ export interface ChatRequestBody {
   images?: string[];
   /** Internal/utility call (e.g. title generation) — exempt from usage limits. */
   internal?: boolean;
+  /**
+   * Minimal-system pass: skip all builder/tool directives so the model just
+   * answers in prose. Used for the GitHub action summary turn (the result is
+   * already injected into the query) so it can't re-trigger another directive.
+   */
+  plain?: boolean;
+  /**
+   * Focused GitHub turn: the user explicitly invoked the GitHub app, so the
+   * system prompt is reduced to the GitHub instructions and the model is told to
+   * emit the action directive immediately (no web search, no other tools).
+   */
+  githubInvoke?: boolean;
+  /** Think mode — model reasons in a <think> block before answering. */
+  think?: boolean;
+  /** Selected AI provider (defaults to kodaai). */
+  provider?: string;
+  /** API key for external providers. */
+  providerApiKey?: string;
+  /** Base URL override for external providers. */
+  providerBaseUrl?: string;
 }
 
 export type ChatStreamEvent =
   | { type: "token"; content: string }
+  | { type: "thinking"; content: string }
   | { type: "followups"; questions: string[] }
   | { type: "error"; message: string }
   | { type: "done" };
@@ -338,6 +483,15 @@ export interface SearchResult {
   snippet: string;
   /** Full page extract, when the backend provides it (e.g. Ollama web search). */
   content?: string;
+}
+
+/** Result from image search (product photos, etc.). */
+export interface ImageResult {
+  title: string;
+  url: string;
+  imgSrc: string;
+  thumbnailSrc: string;
+  description: string;
 }
 
 // ─── Ollama wire types ────────────────────────────────────────

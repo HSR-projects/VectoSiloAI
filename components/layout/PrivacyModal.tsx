@@ -21,7 +21,7 @@ export function PrivacyModal() {
       <DialogTrigger asChild>
         <button
           aria-label="Privacy details"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-koda-border bg-koda-surface text-koda-accent transition-colors hover:bg-koda-surface-2"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-koda-border bg-koda-surface text-koda-accent transition-colors hover:bg-koda-surface-2"
         >
           <Lock className="h-4 w-4" />
         </button>

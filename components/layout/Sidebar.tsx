@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon } from "lucide-react";
+import { Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Blocks, ChevronRight } from "lucide-react";
 import { useKodaStore } from "@/lib/store";
 import { ThreadSearch } from "@/components/search/ThreadSearch";
 import { Library } from "@/components/layout/Library";
@@ -20,6 +20,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { threads, deleteThread, setActiveThread } = useKodaStore();
   const setSearchOpen = useKodaStore((s) => s.setSearchOpen);
   const setLibraryOpen = useKodaStore((s) => s.setLibraryOpen);
+  const setSettingsOpen = useKodaStore((s) => s.setSettingsOpen);
+  const setSettingsTab = useKodaStore((s) => s.setSettingsTab);
 
   const openThread = (id: string) => {
     setActiveThread(id);
@@ -30,6 +32,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const newSearch = () => {
     setActiveThread(null);
     router.push("/");
+    onClose();
+  };
+
+  const openIntegrations = () => {
+    setSettingsTab("integrations");
+    setSettingsOpen(true);
     onClose();
   };
 
@@ -67,7 +75,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="ml-2 inline-flex h-9 w-9 items-center justify-center rounded-lg text-koda-muted hover:bg-koda-surface-2 md:hidden"
+            className="ml-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-koda-muted hover:bg-koda-surface-2 md:hidden"
           >
             <X className="h-5 w-5" />
           </button>
@@ -89,6 +97,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           >
             <LibraryIcon className="h-4 w-4" />
             <span className="flex-1 text-left">Library</span>
+          </button>
+          <button
+            onClick={openIntegrations}
+            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-koda-border bg-koda-bg px-3 py-2 text-sm text-koda-muted transition-colors hover:border-koda-accent/40 hover:bg-koda-surface-2 hover:text-koda-text"
+          >
+            <Blocks className="h-4 w-4" />
+            <span className="flex-1 text-left">Integrations</span>
+            <ChevronRight className="h-4 w-4 text-koda-muted" />
           </button>
         </div>
 

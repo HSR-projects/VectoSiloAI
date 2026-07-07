@@ -4,6 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { WebContainer, WebContainerProcess } from "@webcontainer/api";
 import type { ProjectFile } from "@/types";
 
+// Treat "cursor to column 1" (CHA) as carriage-return so spinner frames overwrite
+// eslint-disable-next-line no-control-regex
+const CHA_RE = /\x1b\[\d*G/g;
+// eslint-disable-next-line no-control-regex
+const ANSI_RE = /\x1b(?:\[[0-9;?]*[A-Za-z]|\][^\x07\x1b]*(?:\x07|\x1b\\))/g;
+
+function cleanChunk(s: string): string {
+  return s.replace(CHA_RE, "\r").replace(ANSI_RE, "");
+}
+
 export type WCStatus = "idle" | "booting" | "installing" | "starting" | "ready" | "error";
 
 interface UseWebContainerResult {
@@ -72,8 +82,37 @@ export function useWebContainer(): UseWebContainerResult {
   const [previewUrl, setPreviewUrl] = useState<string | null>(serverUrl);
   const wcRef = useRef<WebContainer | null>(null);
 
-  const log = useCallback((line: string) => {
-    setTerminal((prev) => [...prev, line]);
+  // Terminal emulation: linesRef holds committed lines, curRef is the current line being built.
+  // Carriage returns (\r) overwrite the current line in place; \n commits it.
+  const linesRef = useRef<string[]>([]);
+  const curRef = useRef<string>("");
+
+  const writeChunk = useCallback((raw: string) => {
+    const text = cleanChunk(raw);
+    if (!text) return;
+    const parts = text.split(/(\r|\n)/);
+    const lines = linesRef.current;
+    let cur = curRef.current;
+    for (const part of parts) {
+      if (part === "\r") {
+        cur = "";
+      } else if (part === "\n") {
+        lines.push(cur);
+        cur = "";
+      } else {
+        cur += part;
+      }
+    }
+    curRef.current = cur;
+    setTerminal(cur ? [...lines, cur] : [...lines]);
+  }, []);
+
+  const log = useCallback((s: string) => writeChunk(s + "\n"), [writeChunk]);
+
+  const resetTerm = useCallback(() => {
+    linesRef.current = [];
+    curRef.current = "";
+    setTerminal([]);
   }, []);
 
   // Boot (or attach to) the singleton WebContainer. No teardown on unmount.
@@ -129,7 +168,7 @@ export function useWebContainer(): UseWebContainerResult {
     offServerReady?.();
     offServerReady = null;
     setPreviewUrl(null);
-    setTerminal([]);
+    resetTerm();
     setStatus("installing");
 
     await wc.mount(toFileTree(files) as Parameters<typeof wc.mount>[0]);
@@ -147,7 +186,7 @@ export function useWebContainer(): UseWebContainerResult {
         log(`\nkoda@sandbox:~/project$ ${cmd}`);
         const [bin, ...args] = cmd.trim().split(/\s+/);
         const proc = await wc.spawn(bin, args);
-        proc.output.pipeTo(new WritableStream({ write: (d) => log(d) }));
+        proc.output.pipeTo(new WritableStream({ write: (d) => writeChunk(d) }));
 
         if (/install|^npm i\b|pnpm|yarn/.test(cmd)) {
           setStatus("installing");
@@ -170,7 +209,7 @@ export function useWebContainer(): UseWebContainerResult {
       log(`\nError: ${(e as Error).message}`);
       setStatus("error");
     }
-  }, [log]);
+  }, [log, writeChunk, resetTerm]);
 
   const reload = useCallback(() => {
     setPreviewUrl((url) => {

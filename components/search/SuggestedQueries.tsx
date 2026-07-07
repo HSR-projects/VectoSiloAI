@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 
 const SUGGESTIONS = [
-  "Latest breakthroughs in AI",
-  "Explain RAG in simple terms",
-  "How do local LLMs compare to cloud models?",
-  "Best practices for prompt engineering",
-  "What is vector search?",
+  "Create a modern dashboard UI with charts and tables",
+  "Write a Python script to analyze CSV data",
+  "Explain quantum computing like I'm 10",
+  "Design a REST API for a todo app",
+  "Compare TypeScript vs Rust for web backends",
 ];
 
 export function SuggestedQueries({ onSelect }: { onSelect: (q: string) => void }) {

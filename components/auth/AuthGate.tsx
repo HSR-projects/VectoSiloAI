@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { AuthScreen } from "./AuthScreen";
 import { Onboarding } from "./Onboarding";
+import { PricingModal } from "@/components/billing/PricingModal";
+import { VoiceMode } from "@/components/voice/VoiceMode";
 
-/** Routes reachable without a session (email verification, payment return). */
-const PUBLIC_PATHS = ["/verify", "/stripe/success"];
+/** Routes reachable without a session (email verification, payment return, status, public pages). */
+const PUBLIC_PATHS = ["/verify", "/razorpay/success", "/status", "/pricing", "/share", "/gift"];
 
 /**
  * Gatekeeper: shows a loader, then the auth screen, then the OOBE wizard, and
@@ -34,5 +36,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!user) return <AuthScreen />;
   if (!user.onboarded) return <Onboarding />;
 
-  return <>{children}</>;
+  // The pricing dialog is mounted globally so any setPricingOpen(true) can open
+  // it, regardless of which screen the user is on.
+  return (
+    <>
+      {children}
+      <PricingModal />
+      <VoiceMode />
+    </>
+  );
 }

@@ -106,3 +106,36 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+/** Send a password-reset email containing a one-click link. */
+export async function sendPasswordResetEmail(
+  to: string,
+  link: string
+): Promise<void> {
+  const subject = "Reset your KodaAI password";
+  const text =
+    `Reset your KodaAI password:\n${link}\n\n` +
+    `This link expires in 24 hours. If you didn't request this, you can ignore this email.`;
+
+  const html = `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0b0b0d;padding:32px;color:#e7e7ea">
+    <div style="max-width:480px;margin:0 auto;background:#141416;border:1px solid #26262b;border-radius:16px;padding:32px">
+      <h1 style="margin:0 0 8px;font-size:20px;color:#fff">Reset your password</h1>
+      <p style="margin:0 0 20px;color:#a1a1aa;font-size:14px;line-height:1.6">
+        Click the button below to set a new password for your KodaAI account.
+      </p>
+      <a href="${link}" style="display:inline-block;background:#7c5cff;color:#000;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:14px">
+        Reset password
+      </a>
+      <p style="margin:22px 0 0;color:#71717a;font-size:12px;line-height:1.6">
+        Or paste this link into your browser:<br>
+        <span style="color:#a1a1aa;word-break:break-all">${link}</span>
+      </p>
+      <p style="margin:18px 0 0;color:#52525b;font-size:12px">
+        This link expires in 24 hours. If you didn't request a password reset, you can ignore this email.
+      </p>
+    </div>
+  </div>`;
+
+  await sendMail({ to, subject, html, text });
+}

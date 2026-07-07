@@ -7,7 +7,9 @@ import {
 } from "@/lib/computerParser";
 import { parseSlidesDirective, parseSlides } from "@/lib/slidesParser";
 import { parseSheetDirective, parseSheets } from "@/lib/sheetsParser";
+import { parseDocDirective, parseDocContent } from "@/lib/docParser";
 import type { Message, ProjectFile } from "@/types";
+import { computeDiffs } from "@/lib/diff";
 
 /**
  * Shared handling for the "builder" directives (Koda's Computer, Website,
@@ -27,6 +29,8 @@ export interface BuildState {
   sheetTitle: string;
   websiteOpened: boolean;
   websiteTitle: string;
+  docOpened: boolean;
+  docTitle: string;
 }
 
 export function makeBuildState(
@@ -45,6 +49,8 @@ export function makeBuildState(
     sheetTitle: "Workbook",
     websiteOpened: false,
     websiteTitle: "Website",
+    docOpened: false,
+    docTitle: "Document",
   };
 }
 
@@ -54,6 +60,11 @@ export function mergeProjectFiles(base: ProjectFile[], over: ProjectFile[]): Pro
   const map = new Map(base.map((f) => [f.path, f.content]));
   for (const f of over) map.set(f.path, f.content);
   return [...map].map(([path, content]) => ({ path, content }));
+}
+
+/** True if acc has <koda-file> blocks but NOT from the context preamble. */
+function hasNewFileBlocks(acc: string): boolean {
+  return /<koda-file\s+path=/i.test(acc);
 }
 
 /** Incrementally detect + stream builder artifacts from accumulated text. */
@@ -66,6 +77,13 @@ export function detectBuilds(acc: string, st: BuildState): void {
     if (c) {
       st.computerOpened = true;
       st.computerTitle = c.title || st.computerTitle;
+      store.openComputer(st.computerTitle);
+      if (st.baseFiles.length) store.setComputerFiles(st.baseFiles);
+    }
+    // Auto-open when the model emits <koda-file> blocks without re-emitting
+    // the [[computer:...]] directive (common on follow-up edits).
+    if (!st.computerOpened && st.baseFiles.length > 0 && hasNewFileBlocks(acc)) {
+      st.computerOpened = true;
       store.openComputer(st.computerTitle);
       if (st.baseFiles.length) store.setComputerFiles(st.baseFiles);
     }
@@ -118,13 +136,27 @@ export function detectBuilds(acc: string, st: BuildState): void {
     const wfiles = parseComputerFiles(acc);
     if (wfiles.length) store.setWebsiteFiles(wfiles);
   }
+
+  // Doc (Markdown document, e.g. a generated prompt).
+  if (!st.docOpened) {
+    const d = parseDocDirective(acc);
+    if (d) {
+      st.docOpened = true;
+      st.docTitle = d.title;
+      store.openDoc(d.title);
+    }
+  }
+  if (st.docOpened) {
+    const content = parseDocContent(acc);
+    if (content) store.setDocContent(content);
+  }
 }
 
 export interface BuildFinalizeResult {
   /** Snapshot fields to persist on the assistant message. */
-  patch: Pick<Message, "computer" | "slides" | "sheet" | "website">;
+  patch: Pick<Message, "computer" | "slides" | "sheet" | "website" | "doc">;
   /** Present when a sandbox was built — caller runs the terminal animation. */
-  computer?: { files: ProjectFile[]; commands: string[] };
+  computer?: { files: ProjectFile[]; commands: string[]; isEdit: boolean };
 }
 
 /** Finalize builder artifacts after the stream completes; returns the message snapshot. */
@@ -137,14 +169,21 @@ export function finalizeBuilds(
   const patch: BuildFinalizeResult["patch"] = {};
   let computer: BuildFinalizeResult["computer"];
 
+  // Also auto-open if streaming detection missed it (short responses, edge cases).
+  if (!st.computerOpened && st.baseFiles.length > 0 && hasNewFileBlocks(acc)) {
+    st.computerOpened = true;
+  }
+
   if (st.computerOpened) {
     const finalFiles = mergeProjectFiles(st.baseFiles, parseComputerFiles(acc));
     const parsedCmds = parseComputerCommands(acc);
     const finalCmds = parsedCmds.length ? parsedCmds : existingCommands ?? [];
     if (finalFiles.length) store.setComputerFiles(finalFiles);
     if (finalCmds.length) store.setComputerCommands(finalCmds);
-    patch.computer = { title: st.computerTitle, files: finalFiles, commands: finalCmds };
-    computer = { files: finalFiles, commands: finalCmds };
+    const isEdit = st.baseFiles.length > 0 && parsedCmds.length === 0;
+    const diffs = isEdit ? computeDiffs(st.baseFiles, finalFiles) : undefined;
+    patch.computer = { title: st.computerTitle, files: finalFiles, commands: finalCmds, diffs };
+    computer = { files: finalFiles, commands: finalCmds, isEdit };
   }
 
   if (st.slidesOpened) {
@@ -166,6 +205,13 @@ export function finalizeBuilds(
     if (finalWeb.length) store.setWebsiteFiles(finalWeb);
     store.setWebsiteStatus("ready");
     patch.website = { title: st.websiteTitle, files: finalWeb };
+  }
+
+  if (st.docOpened) {
+    const finalDoc = parseDocContent(acc);
+    if (finalDoc) store.setDocContent(finalDoc);
+    store.setDocStatus("ready");
+    patch.doc = { title: st.docTitle, content: finalDoc };
   }
 
   return { patch, computer };

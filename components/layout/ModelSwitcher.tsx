@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ChevronDown, Cpu, Loader2, Lock, Sparkles } from "lucide-react";
 import { useModels } from "@/hooks/useModels";
 import { useKodaStore } from "@/lib/store";
@@ -15,16 +16,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ModelSwitcher() {
+  const router = useRouter();
   const { loading, error } = useModels();
   const { selectedModel, availableModels, setSelectedModel } = useKodaStore();
   const { caps } = useAuth();
-  const setPricingOpen = useKodaStore((s) => s.setPricingOpen);
 
   // Free plan: locked to the auto-selected default model, no picker.
   if (!caps.allModels) {
     return (
       <button
-        onClick={() => setPricingOpen(true)}
+        onClick={() => router.push("/pricing")}
         title="Upgrade to Pro to choose any model"
         className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-sm text-koda-muted transition-colors hover:bg-koda-surface-2"
       >
@@ -33,7 +34,7 @@ export function ModelSwitcher() {
         ) : (
           <Cpu className="h-4 w-4" />
         )}
-        <span className="max-w-[120px] truncate">Auto</span>
+        <span className="hidden sm:inline">Auto</span>
         <Lock className="h-3 w-3" />
       </button>
     );
@@ -55,7 +56,7 @@ export function ModelSwitcher() {
           ) : (
             <Cpu className="h-4 w-4 text-koda-accent" />
           )}
-          <span className="max-w-[84px] truncate sm:max-w-[160px]">
+          <span className="hidden max-w-[160px] truncate sm:inline">
             {selectedModel ? modelLabel(selectedModel) : "Select model"}
           </span>
           <ChevronDown className="h-3.5 w-3.5 text-koda-muted" />

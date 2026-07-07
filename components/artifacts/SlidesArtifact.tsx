@@ -8,6 +8,13 @@ import type { Slide } from "@/types";
 import { SLIDE_TEMPLATES, getTemplate, hex, type SlideTemplate } from "@/lib/slideTemplates";
 import { cn } from "@/lib/utils";
 
+const CATEGORIES = [
+  { key: "Professional", label: "Professional", emoji: "💼" },
+  { key: "Creative", label: "Creative", emoji: "🎨" },
+  { key: "Minimal", label: "Minimal", emoji: "◻️" },
+  { key: "Dark", label: "Dark", emoji: "🌙" },
+] as const;
+
 export function SlidesArtifact() {
   const deck = useKodaStore((s) => s.slides);
   const setComposerDraft = useKodaStore((s) => s.setComposerDraft);
@@ -22,6 +29,7 @@ export function SlidesArtifact() {
   const [count, setCount] = useState(slides.length || 8);
   const [exporting, setExporting] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerCategory, setPickerCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (slides.length) setCount(slides.length);
@@ -42,23 +50,60 @@ export function SlidesArtifact() {
       p.layout = "LAYOUT_WIDE";
       p.author = "Koda AI";
       p.title = deck.title;
+
+      const bg = tpl.bgGradient
+        ? { gradient: { color1: tpl.bgGradient.colors[0], color2: tpl.bgGradient.colors[1], angle: tpl.bgGradient.angle } }
+        : { color: tpl.bg };
+
       slides.forEach((sl, i) => {
         const s = p.addSlide();
-        s.background = { color: tpl.bg };
-        // Accent rule under the title.
-        s.addShape("rect", { x: 0.5, y: i === 0 ? 1.95 : 1.45, w: 1.4, h: 0.06, fill: { color: tpl.accent } });
+        if (typeof bg === "object" && "gradient" in bg) {
+          s.background = bg;
+        } else {
+          s.background = { color: tpl.bg };
+        }
+
+        const isFirst = i === 0;
+        const titleY = isFirst ? 0.5 : 0.3;
+        const titleSize = isFirst ? 40 : 28;
+
+        if (isFirst && tpl.decorationColor) {
+          s.addShape(p.ShapeType.ellipse, {
+            x: 8.5, y: -0.8, w: 4, h: 4,
+            fill: { color: tpl.decorationColor, transparency: 85 },
+          });
+        }
+
+        if (tpl.decorationColor) {
+          s.addShape(p.ShapeType.rect, {
+            x: 0.5, y: titleY + 1.0, w: 1.5, h: 0.05,
+            fill: { color: tpl.decorationColor },
+          });
+        }
+
         s.addText(sl.title, {
-          x: 0.5, y: 0.4, w: 12.3, h: i === 0 ? 1.6 : 1,
-          fontSize: i === 0 ? 40 : 28, bold: true, color: tpl.title, align: "left", fontFace: tpl.font,
+          x: 0.5, y: titleY, w: 12.3, h: 1.2,
+          fontSize: titleSize, bold: true, color: tpl.title, align: "left", fontFace: tpl.font,
         });
+
         if (sl.bullets.length) {
+          const bulletY = isFirst ? 2.0 : 1.6;
           s.addText(
             sl.bullets.map((b) => ({ text: b, options: { bullet: { code: "2022" }, breakLine: true } })),
-            { x: 0.6, y: i === 0 ? 2.3 : 1.8, w: 12.1, h: 5, fontSize: 18, color: tpl.text, valign: "top", lineSpacingMultiple: 1.25, fontFace: tpl.font }
+            { x: 0.6, y: bulletY, w: 11.5, h: 5, fontSize: 18, color: tpl.text, valign: "top", lineSpacingMultiple: 1.3, fontFace: tpl.font }
           );
         }
+
+        if (!isFirst && tpl.decorationColor) {
+          s.addShape(p.ShapeType.rect, {
+            x: 0, y: 0, w: 0.12, h: 5.63,
+            fill: { color: tpl.decorationColor },
+          });
+        }
+
         if (sl.notes) s.addNotes(sl.notes);
       });
+
       await p.writeFile({ fileName: `${slug(deck.title)}.pptx` });
     } catch {
       /* ignore */
@@ -75,9 +120,12 @@ export function SlidesArtifact() {
 
   const slide = slides[current];
 
+  const filtered = pickerCategory
+    ? SLIDE_TEMPLATES.filter((t) => t.category === pickerCategory)
+    : SLIDE_TEMPLATES;
+
   return (
     <div className="flex h-full flex-col">
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 border-b border-koda-border px-3 py-2">
         <span className="text-xs text-koda-muted">
           {slides.length} slide{slides.length === 1 ? "" : "s"}
@@ -85,7 +133,6 @@ export function SlidesArtifact() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Template / theme picker */}
           <div className="relative">
             <button
               type="button"
@@ -100,33 +147,58 @@ export function SlidesArtifact() {
             {pickerOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
-                <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-koda-border bg-koda-surface p-1.5 shadow-xl">
-                  {SLIDE_TEMPLATES.map((t) => (
+                <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-xl border border-koda-border bg-koda-surface p-2 shadow-xl">
+                  <div className="mb-1.5 flex gap-1">
                     <button
-                      key={t.id}
-                      onClick={() => {
-                        setSlidesTemplate(t.id);
-                        setPickerOpen(false);
-                      }}
+                      onClick={() => setPickerCategory(null)}
                       className={cn(
-                        "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-koda-surface-2",
-                        t.id === tpl.id && "bg-koda-surface-2"
+                        "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
+                        !pickerCategory ? "bg-koda-accent/20 text-koda-accent" : "text-koda-muted hover:text-koda-text"
                       )}
                     >
-                      <span
-                        className="h-5 w-5 shrink-0 rounded-md border border-white/10"
-                        style={{ background: t.previewBg }}
-                      />
-                      <span className="flex-1 text-koda-text">{t.name}</span>
-                      {t.id === tpl.id && <span className="h-1.5 w-1.5 rounded-full bg-koda-accent" />}
+                      All
                     </button>
-                  ))}
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.key}
+                        onClick={() => setPickerCategory(cat.key)}
+                        className={cn(
+                          "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
+                          pickerCategory === cat.key ? "bg-koda-accent/20 text-koda-accent" : "text-koda-muted hover:text-koda-text"
+                        )}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="max-h-52 overflow-y-auto">
+                    {filtered.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setSlidesTemplate(t.id);
+                          setPickerOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-koda-surface-2",
+                          t.id === tpl.id && "bg-koda-surface-2"
+                        )}
+                      >
+                        <span
+                          className="h-6 w-8 shrink-0 rounded-md border border-white/10"
+                          style={{ background: t.previewBg }}
+                        />
+                        <span className="flex-1 text-koda-text">{t.name}</span>
+                        <span className="text-[10px] text-koda-muted">{t.category}</span>
+                        {t.id === tpl.id && <span className="h-1.5 w-1.5 rounded-full bg-koda-accent" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
           </div>
 
-          {/* "users can type" the slide count, capped by plan */}
           <div className="flex items-center gap-1 rounded-lg border border-koda-border bg-koda-surface px-2 py-1">
             <input
               type="number"
@@ -159,7 +231,6 @@ export function SlidesArtifact() {
         </div>
       </div>
 
-      {/* Slide preview */}
       <div className="flex-1 overflow-y-auto p-4">
         {slide ? (
           <SlideCard slide={slide} index={current} tpl={tpl} />
@@ -177,7 +248,6 @@ export function SlidesArtifact() {
         )}
       </div>
 
-      {/* Nav + thumbnails */}
       {slides.length > 0 && (
         <div className="flex items-center gap-2 border-t border-koda-border px-3 py-2">
           <button
@@ -225,10 +295,22 @@ export function SlidesArtifact() {
 function SlideCard({ slide, index, tpl }: { slide: Slide; index: number; tpl: SlideTemplate }) {
   return (
     <div
-      className="mx-auto flex aspect-video w-full max-w-2xl flex-col justify-start gap-4 rounded-xl border border-koda-border p-7 shadow-xl"
+      className="relative mx-auto flex aspect-video w-full max-w-2xl flex-col justify-start gap-4 overflow-hidden rounded-xl border border-koda-border p-7 shadow-xl"
       style={{ background: tpl.previewBg }}
     >
-      <div className="flex flex-col gap-2">
+      {tpl.decorationColor && index === 0 && (
+        <div
+          className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full opacity-10"
+          style={{ background: hex(tpl.decorationColor) }}
+        />
+      )}
+      {tpl.decorationColor && index > 0 && (
+        <div
+          className="pointer-events-none absolute left-0 top-0 h-full w-1 opacity-60"
+          style={{ background: hex(tpl.decorationColor) }}
+        />
+      )}
+      <div className="relative z-10 flex flex-col gap-2">
         <h2
           className={cn("font-semibold leading-tight", index === 0 ? "text-3xl" : "text-2xl")}
           style={{ color: hex(tpl.title) }}
@@ -237,7 +319,7 @@ function SlideCard({ slide, index, tpl }: { slide: Slide; index: number; tpl: Sl
         </h2>
         <span className="h-1 w-12 rounded-full" style={{ background: hex(tpl.accent) }} />
       </div>
-      <ul className="space-y-2">
+      <ul className="relative z-10 space-y-2">
         {slide.bullets.map((b, i) => (
           <li key={i} className="flex gap-2 text-[15px] leading-snug" style={{ color: hex(tpl.text) }}>
             <span

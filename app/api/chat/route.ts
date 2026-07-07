@@ -1,27 +1,39 @@
 import {
-  chatStream,
+  chatStreamRich,
   chat,
   DEFAULT_MODEL,
   OllamaError,
 } from "@/lib/ollama";
+import { streamRichFromProvider } from "@/lib/providerRouter";
+import { checkContent } from "@/lib/badWords";
 import {
   SYSTEM_PROMPTS,
+  BEHAVIORAL_INSTRUCTIONS,
   ENGINE_SECRECY,
   ARTIFACT_INSTRUCTIONS,
   COMPUTER_INSTRUCTIONS,
   COMPUTER_UPSELL,
   IMAGE_INSTRUCTIONS,
   IMAGE_UPSELL,
+  PRODUCT_SEARCH_INSTRUCTIONS,
   slidesInstructions,
   SHEETS_INSTRUCTIONS,
   SVG_INSTRUCTIONS,
   WEBSITE_INSTRUCTIONS,
+  DOC_INSTRUCTIONS,
+  GITHUB_INSTRUCTIONS,
+  MEMORY_INSTRUCTIONS,
+  PAGE_OPEN_INSTRUCTIONS,
   BRAND_IDENTITY,
+  PLATFORM_INFO,
   buildSourceContext,
   buildFollowupPrompt,
 } from "@/lib/prompts";
-import { getCurrentUser, consumeMessage } from "@/lib/auth";
-import { CAPS } from "@/lib/plans";
+import { getCurrentUser, consumeMessage, buildMemoryContext, getUserMemory } from "@/lib/auth";
+import { getGithubConnection } from "@/lib/appConnections";
+import { effectiveCaps } from "@/lib/plans";
+import { analyzeChessQuery } from "@/lib/chessEngine";
+import { searchImages } from "@/lib/searxng";
 import type {
   ChatRequestBody,
   ChatStreamEvent,
@@ -56,6 +68,16 @@ export async function POST(req: Request) {
     images = [],
     // Internal calls (title/utility generation) don't count toward usage limits.
     internal = false,
+    // Minimal-system pass (e.g. GitHub result summary) — no tool directives.
+    plain = false,
+    // Focused GitHub turn — emit a [[github:…]] directive, nothing else.
+    githubInvoke = false,
+    // Think mode — reason inside a <think> block before answering.
+    think = false,
+    // Provider routing
+    provider: rawProvider,
+    providerApiKey,
+    providerBaseUrl,
   } = body;
 
   // ── Free-tier usage limit (rolling window) ──────────────────
@@ -76,19 +98,75 @@ export async function POST(req: Request) {
   // The "auto" sentinel is resolved client-side; if it ever slips through,
   // fall back to the default model rather than sending a bogus id to Ollama.
   const safeRequested = requestedModel === "auto" ? DEFAULT_MODEL : requestedModel;
-  const model = CAPS[userPlan].allModels ? safeRequested : DEFAULT_MODEL;
+  const caps = effectiveCaps(userPlan);
+  const model = caps.allModels ? safeRequested : DEFAULT_MODEL;
+
+  const provider = rawProvider && rawProvider !== "kodaai" ? rawProvider : "kodaai";
 
   if (!query?.trim()) {
     return new Response("Missing query.", { status: 400 });
   }
 
+  // Bad-word / harmful-content pre-screen (skip for internal utility calls).
+  if (!internal) {
+    const contentCheck = checkContent(query);
+    if (!contentCheck.ok) {
+      return new Response(
+        JSON.stringify({ error: "This message is harmful and can't be shown.", blocked: true }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
   // ── Build the message list ──────────────────────────────────
   // Image generation is Pro/Max only — Free users get an upsell notice so the
   // model declines and points them to upgrade instead of emitting a directive.
-  const imageBlock = CAPS[userPlan].imageGen ? IMAGE_INSTRUCTIONS : IMAGE_UPSELL;
-  const computerBlock = CAPS[userPlan].computer ? COMPUTER_INSTRUCTIONS : COMPUTER_UPSELL;
-  const slidesBlock = slidesInstructions(CAPS[userPlan].slidesMax);
-  const systemPrompt = `${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}`;
+  const imageBlock = caps.imageGen ? IMAGE_INSTRUCTIONS : IMAGE_UPSELL;
+  const computerBlock = caps.computer ? COMPUTER_INSTRUCTIONS : COMPUTER_UPSELL;
+  const slidesBlock = slidesInstructions(caps.slidesMax);
+  // GitHub actions are offered only when the signed-in user has connected GitHub.
+  const githubConnected = currentUser ? !!(await getGithubConnection(currentUser.id)) : false;
+  const githubBlock = !plain && githubConnected ? `\n\n${GITHUB_INSTRUCTIONS}` : "";
+  // Focused GitHub turn: strip every other tool so the model just picks the
+  // right action and emits its directive (or, if not connected, says to connect).
+  let systemPrompt: string;
+  if (githubInvoke) {
+    systemPrompt = githubConnected
+      ? `${BEHAVIORAL_INSTRUCTIONS}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}\n\n${GITHUB_INSTRUCTIONS}\n\nThe user is invoking the GitHub app. Work out which SINGLE action they want and emit the matching [[github:ACTION]] directive (with its fenced JSON args) as the VERY FIRST characters of your reply, right now. Do not ask for confirmation and do not answer in prose — just emit the directive.`
+      : `${BEHAVIORAL_INSTRUCTIONS}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}\n\nThe user tried to use GitHub, but their GitHub account isn't connected. Briefly and warmly tell them to open Apps in the sidebar and connect GitHub first, then they can ask again.`;
+  } else if (plain) {
+    // The "plain" pass (e.g. summarising a GitHub result) drops every tool
+    // directive so the model just writes prose and can't re-trigger an action.
+    systemPrompt = `${SYSTEM_PROMPTS.nosearch}\n\n${ENGINE_SECRECY}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}`;
+  } else {
+    // Personalization / long-term memory (only when the user enabled it).
+    const mem = currentUser ? await getUserMemory(currentUser.id) : null;
+    const memEnabled = !!mem?.memoryEnabled && !internal;
+    const memContext = memEnabled && currentUser ? await buildMemoryContext(currentUser.id) : "";
+    const memContextBlock = memContext ? `${memContext}\n\n` : "";
+    const memoryBlock = memEnabled ? `\n\n${MEMORY_INSTRUCTIONS}` : "";
+    // Think mode uses the model's NATIVE reasoning (think:true below), so no
+    // prompt-level instruction is needed here.
+    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}`;
+  }
+
+  // ── Chess engine analysis (inject into system prompt if chess is mentioned) ──
+  if (!internal && !plain && !githubInvoke) {
+    const chessQuery = /\b(chess|checkmate|stalemate|opening|gambit|fen|e4|d5|n[fbfg]3|bc[1-5]|queens? gambit|kings? gambit|sicilian|ruy|italian|spanish|caro|pirc|scandinavian|alekhine)\b/i.test(query);
+    if (chessQuery) {
+      try {
+        const analysis = await analyzeChessQuery(query);
+        if (analysis && analysis.engineReachable && analysis.bestMove) {
+          systemPrompt += `\n\n[Chess engine analysis for the current position — you can use this to answer the user's chess question.\nFEN: ${analysis.fen}\nBest move: ${analysis.bestMove} (${analysis.from} → ${analysis.to}${analysis.promotion ? ` promoting to ${analysis.promotion}` : ""})\nYou can mention this move or suggest alternatives — you are a strong chess player and these are your own calculations.]`;
+        } else if (analysis && !analysis.engineReachable) {
+          systemPrompt += `\n\n[The user is asking about chess but the engine is unavailable. Answer from your own chess knowledge without mentioning the engine.]`;
+        }
+      } catch {
+        // Chess analysis is non-fatal — continue without it
+      }
+    }
+  }
+
   const messages: OllamaMessage[] = [{ role: "system", content: systemPrompt }];
 
   // Prior turns (trimmed to recent history).
@@ -104,9 +182,37 @@ export async function POST(req: Request) {
       ? buildSourceContext(sources)
       : "";
 
+  // Image search for product/shopping/visual queries — fetch product images
+  // and inject them as additional context so the AI can embed them inline.
+  let imageContext = "";
+  if (focusMode !== "nosearch" && !plain && !githubInvoke && query.trim().length > 3) {
+    const isProductQuery = /\b(buy|price|cost|\$|shop|product|show\s+me|what\s+does\s+.+\s+look\s+like|best\s+|cheap|affordable|review|worth|recommend|brand|model|gadget|phone|laptop|headphone|shoe|watch|camera|tv|monitor|keyboard|mouse|bag|jacket|dress|sneaker)\b/i.test(query);
+    if (isProductQuery) {
+      try {
+        const imgResults = await searchImages(query, 6);
+        if (imgResults.length) {
+          imageContext = "\n\n<Product images from image search — you can embed these in your reply using standard markdown image syntax>\n";
+          for (const img of imgResults) {
+            const label = img.title || img.description || "Product image";
+            imageContext += `- ![${label}](${encodeURI(img.imgSrc)}) — ${img.description || img.title || ""} [source](${img.url})\n`;
+          }
+          imageContext += "</Product images>";
+        }
+      } catch {
+        // Image search is non-fatal
+      }
+    }
+  }
+
+  const userContent = sourceContext
+    ? `${sourceContext}${imageContext}\n\nQuestion: ${query}`
+    : imageContext
+      ? `${imageContext}\n\nQuestion: ${query}`
+      : query;
+
   messages.push({
     role: "user",
-    content: sourceContext ? `${sourceContext}\n\nQuestion: ${query}` : query,
+    content: userContent,
     // Forward base64 images to vision-capable models (ignored by text models).
     ...(Array.isArray(images) && images.length ? { images } : {}),
   });
@@ -117,14 +223,38 @@ export async function POST(req: Request) {
     async start(controller) {
       let fullAnswer = "";
       try {
-        for await (const delta of chatStream({ model, messages, stream: true })) {
-          fullAnswer += delta;
-          controller.enqueue(encoder.encode(sse({ type: "token", content: delta })));
+        if (provider === "kodaai") {
+          // Native reasoning only on a normal turn (not the plain/GitHub passes).
+          const useThink = think && !plain && !githubInvoke;
+          for await (const delta of chatStreamRich({ model, messages, stream: true, think: useThink })) {
+            if (delta.thinking) {
+              controller.enqueue(encoder.encode(sse({ type: "thinking", content: delta.thinking })));
+            }
+            if (delta.content) {
+              fullAnswer += delta.content;
+              controller.enqueue(encoder.encode(sse({ type: "token", content: delta.content })));
+            }
+          }
+        } else {
+          for await (const delta of streamRichFromProvider(provider, {
+            provider,
+            apiKey: providerApiKey || "",
+            baseUrl: providerBaseUrl || "",
+            model,
+            messages,
+            signal: req.signal,
+          })) {
+            if (delta.content) {
+              fullAnswer += delta.content;
+              controller.enqueue(encoder.encode(sse({ type: "token", content: delta.content })));
+            }
+          }
         }
 
         // ── Generate follow-up questions (second, non-streaming call) ──
+        // Skip on the GitHub directive pass — its output is just a directive.
         let questions: string[] = [];
-        try {
+        if (!githubInvoke) try {
           const raw = await chat({
             model,
             messages: [

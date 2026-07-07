@@ -1,0 +1,21 @@
+{
+  "appId": "org.hsrprojects.kodaai",
+  "appName": "KodaAI",
+  "webDir": "www",
+  "server": {
+    "url": "https://chat.hsrprojects.org",
+    "cleartext": false,
+    "androidScheme": "https",
+    "allowNavigation": [
+      "chat.hsrprojects.org",
+      "checkout.razorpay.com",
+      "*.razorpay.com",
+      "api.razorpay.com",
+      "accounts.google.com",
+      "*.google.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

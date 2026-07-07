@@ -21,7 +21,7 @@ export function FocusModes({ value, onChange }: FocusModesProps) {
     <div
       role="tablist"
       aria-label="Focus mode"
-      className="flex flex-wrap items-center gap-1.5"
+      className="flex items-center gap-1.5"
     >
       {MODES.map(({ id, label, icon: Icon, hint }) => {
         const active = value === id;

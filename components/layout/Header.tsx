@@ -2,21 +2,27 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { PanelLeft } from "lucide-react";
+import { Eye, EyeOff, PanelLeft } from "lucide-react";
 import { ModelSwitcher } from "./ModelSwitcher";
 import { PrivacyModal } from "./PrivacyModal";
 import { SettingsModal } from "./SettingsModal";
-import { PlanBadge } from "@/components/billing/PricingModal";
 import { AccountMenu } from "@/components/auth/AccountMenu";
+import { ShareButton } from "@/components/billing/ShareButton";
+import { useKodaStore } from "@/lib/store";
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
   showMenu?: boolean;
   /** Optional thread title shown in the centre of the header. */
   title?: string;
+  /** Thread ID for the share button (shown when in a thread). */
+  threadId?: string;
 }
 
-export function Header({ onToggleSidebar, showMenu, title }: HeaderProps) {
+export function Header({ onToggleSidebar, showMenu, title, threadId }: HeaderProps) {
+  const incognito = useKodaStore((s) => s.incognito);
+  const setIncognito = useKodaStore((s) => s.setIncognito);
+
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-koda-border bg-koda-bg/80 px-4 py-3 backdrop-blur-xl">
       <div className="flex min-w-0 items-center gap-2">
@@ -25,7 +31,7 @@ export function Header({ onToggleSidebar, showMenu, title }: HeaderProps) {
             onClick={onToggleSidebar}
             aria-label="Toggle sidebar"
             title="Toggle sidebar"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
           >
             <PanelLeft className="h-5 w-5" />
           </button>
@@ -49,10 +55,21 @@ export function Header({ onToggleSidebar, showMenu, title }: HeaderProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <PlanBadge />
         <ModelSwitcher />
+        <button
+          onClick={() => setIncognito(!incognito)}
+          title={incognito ? "Incognito on — chats not saved" : "Incognito off"}
+          className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+            incognito
+              ? "bg-koda-accent/15 text-koda-accent-soft"
+              : "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+          }`}
+        >
+          {incognito ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        </button>
+        {threadId && <ShareButton threadId={threadId} />}
         <SettingsModal />
-        <div className="hidden sm:block">
+        <div className="hidden md:block">
           <PrivacyModal />
         </div>
         <AccountMenu />

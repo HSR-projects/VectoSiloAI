@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp, Volume2, Square } from "lucide-react";
 import type { Message } from "@/types";
 import { useKodaStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { speak, stopSpeaking } from "@/lib/tts";
 
 /**
  * ChatGPT-style action row shown under an assistant answer:
@@ -20,8 +21,25 @@ export function MessageActions({
   onRegenerate?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const updateMessage = useKodaStore((s) => s.updateMessage);
   const feedback = message.feedback;
+
+  // Stop any playback if this message unmounts.
+  useEffect(() => () => { if (speaking) stopSpeaking(); }, [speaking]);
+
+  const toggleSpeak = () => {
+    if (speaking) {
+      stopSpeaking();
+      setSpeaking(false);
+      return;
+    }
+    setSpeaking(true);
+    speak(message.content, {
+      onEnd: () => setSpeaking(false),
+      onError: () => setSpeaking(false),
+    });
+  };
 
   const copy = async () => {
     try {
@@ -42,6 +60,18 @@ export function MessageActions({
     <div className="mt-1 flex items-center gap-0.5 text-koda-muted">
       <ActionButton label={copied ? "Copied" : "Copy"} onClick={copy}>
         {copied ? <Check className="h-4 w-4 text-koda-accent" /> : <Copy className="h-4 w-4" />}
+      </ActionButton>
+
+      <ActionButton
+        label={speaking ? "Stop" : "Read aloud"}
+        active={speaking}
+        onClick={toggleSpeak}
+      >
+        {speaking ? (
+          <Square className="h-4 w-4 fill-current text-koda-accent" />
+        ) : (
+          <Volume2 className="h-4 w-4" />
+        )}
       </ActionButton>
 
       <ActionButton

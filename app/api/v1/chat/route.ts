@@ -1,4 +1,4 @@
-import { getUserByApiKey, deductCredits, getCredits } from "@/lib/auth";
+import { getApiKeyAuth, deductCredits, getBillableCredits } from "@/lib/auth";
 import { chat, DEFAULT_MODEL, OllamaError } from "@/lib/ollama";
 import {
   estimateTokens,
@@ -6,6 +6,7 @@ import {
   buildUsage,
   API_MIN_CENTS,
 } from "@/lib/credits";
+import { recordUsage } from "@/lib/usageStore";
 import type { OllamaMessage, Role } from "@/types";
 
 export const runtime = "nodejs";
@@ -51,13 +52,14 @@ export async function POST(req: Request) {
     return json({ error: "Missing API key. Use 'Authorization: Bearer sk-koda-...'." }, 401);
   }
 
-  const user = await getUserByApiKey(secret);
-  if (!user) {
+  const authContext = await getApiKeyAuth(secret);
+  if (!authContext) {
     return json({ error: "Invalid or revoked API key." }, 401);
   }
+  const { user, key } = authContext;
 
   // ── 2. Require a usable credit balance up front ──
-  const balance = await getCredits(user.id);
+  const balance = await getBillableCredits(user.id, key.id);
   if (balance < API_MIN_CENTS) {
     return json(
       { error: "Insufficient credits. Top up at /developers.", creditsRemaining: balance },
@@ -109,13 +111,15 @@ export async function POST(req: Request) {
   const completionTokens = estimateTokens(content);
   let cost = computeCost(promptTokens, completionTokens);
 
-  let remaining = await deductCredits(user.id, cost);
+  let remaining = await deductCredits(user.id, cost, key.id);
   if (remaining === null) {
     // Output cost exceeded the balance — drain what's left (never go negative).
-    const left = await getCredits(user.id);
-    remaining = (await deductCredits(user.id, left)) ?? 0;
+    const left = await getBillableCredits(user.id, key.id);
+    remaining = left > 0 ? (await deductCredits(user.id, left, key.id)) ?? 0 : 0;
     cost = left;
   }
+
+  await recordUsage(user.id, { promptTokens, completionTokens, costCents: cost });
 
   return json({
     id: `chatcmpl_${Date.now().toString(36)}`,

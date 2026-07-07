@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Loader2, Lock, Mail, MailCheck, User as UserIcon } from "lucide-react";
+import { Loader2, Lock, Mail, MailCheck, Shield, User as UserIcon, ArrowLeft } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 
 export function AuthScreen() {
-  const { login, register, loginWithGoogle } = useAuth();
+  const { login, register, loginWithGoogle, verify2FA } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("register");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,6 +16,13 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [pending2FA, setPending2FA] = useState<string | null>(null);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  // Forgot password
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotBusy, setForgotBusy] = useState(false);
 
   useEffect(() => {
     if (window.location.search.includes("auth_error=1")) {
@@ -36,10 +43,47 @@ export function AuthScreen() {
       if (res?.needsVerification) {
         setPendingEmail(res.email ?? email);
       }
+      if (res?.needs2FA && res.twoFactorToken) {
+        setPending2FA(res.twoFactorToken);
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const submit2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pending2FA) return;
+    setError(null);
+    setBusy(true);
+    try {
+      await verify2FA(pending2FA, twoFactorCode);
+      // verify2FA calls refresh() — AuthGate will show the app on the next render
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setForgotBusy(true);
+    try {
+      const res = await fetch("/api/auth/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
+      });
+      if (!res.ok) throw new Error("Could not send reset email.");
+      setForgotSent(true);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setForgotBusy(false);
     }
   };
 
@@ -57,6 +101,61 @@ export function AuthScreen() {
 
   if (pendingEmail) {
     return <VerifyNotice email={pendingEmail} onBack={() => { setPendingEmail(null); setMode("login"); }} />;
+  }
+
+  if (pending2FA) {
+    return (
+      <div className="koda-hero-glow flex min-h-dvh items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-sm rounded-2xl border border-koda-border bg-koda-surface/70 p-6 text-center backdrop-blur-xl"
+        >
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-koda-accent/15">
+            <Shield className="h-6 w-6 text-koda-accent" />
+          </div>
+          <h1 className="text-xl font-semibold text-koda-text">Two-factor authentication</h1>
+          <p className="mt-2 text-sm text-koda-muted">
+            Enter the 6-digit code from your authenticator app.
+          </p>
+
+          <form onSubmit={submit2FA} className="mt-5 space-y-3">
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="000 000"
+              maxLength={6}
+              value={twoFactorCode}
+              onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+              className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-2.5 text-center text-lg tracking-[0.5em] text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+            />
+
+            {error && (
+              <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={busy || twoFactorCode.length !== 6}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-koda-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-60"
+            >
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+              Verify
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setPending2FA(null); setError(null); setTwoFactorCode(""); }}
+              className="text-sm font-medium text-koda-muted hover:text-koda-text"
+            >
+              Back to sign in
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
@@ -104,6 +203,15 @@ export function AuthScreen() {
             onChange={setPassword}
             autoComplete={mode === "register" ? "new-password" : "current-password"}
           />
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={() => { setForgotMode(true); setForgotEmail(email); setError(null); }}
+              className="text-xs text-koda-muted hover:text-koda-accent-soft"
+            >
+              Forgot password?
+            </button>
+          )}
 
           {error && (
             <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
@@ -120,6 +228,45 @@ export function AuthScreen() {
             {mode === "register" ? "Create account" : "Sign in"}
           </button>
         </form>
+
+        {forgotMode && (
+          <form onSubmit={submitForgot} className="mt-4 space-y-3">
+            {forgotSent ? (
+              <div className="text-center">
+                <MailCheck className="mx-auto h-8 w-8 text-green-400" />
+                <p className="mt-2 text-sm text-koda-muted">
+                  If an account with that email exists, we&apos;ve sent a password reset link.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setForgotMode(false); setForgotSent(false); setError(null); }}
+                  className="mt-3 text-sm text-koda-muted hover:text-koda-text"
+                >
+                  Back to sign in
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-koda-muted">Enter your email to receive a password reset link.</p>
+                <button
+                  type="submit"
+                  disabled={forgotBusy || !forgotEmail.trim()}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-koda-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-60"
+                >
+                  {forgotBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Send reset link
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setForgotMode(false); setForgotSent(false); setError(null); }}
+                  className="flex w-full items-center justify-center gap-1 text-sm text-koda-muted hover:text-koda-text"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
+                </button>
+              </>
+            )}
+          </form>
+        )}
 
         {/* Divider */}
         <div className="my-4 flex items-center gap-3">

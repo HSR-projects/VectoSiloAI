@@ -12,6 +12,7 @@ import {
   FolderOpen,
   Loader2,
   Monitor,
+  MonitorPlay,
   RefreshCw,
   TerminalSquare,
   Zap,
@@ -21,9 +22,12 @@ import { buildPreviewSrcDoc, isReactProject } from "@/lib/computerPreview";
 import { downloadZip } from "@/lib/zip";
 import { cn } from "@/lib/utils";
 import { useWebContainer } from "@/hooks/useWebContainer";
+import { SandboxTerminal } from "./SandboxTerminal";
+import { SandboxDesktop } from "./SandboxDesktop";
+import { useAuth } from "@/components/auth/AuthProvider";
 import type { ComputerStatus, ProjectFile } from "@/types";
 
-type Tab = "preview" | "code" | "terminal";
+type Tab = "preview" | "code" | "terminal" | "desktop";
 
 const HLJS_LANG: Record<string, string> = {
   js: "javascript", jsx: "javascript", mjs: "javascript",
@@ -40,18 +44,132 @@ function extOf(path: string): string {
 export function ComputerArtifact() {
   const computer = useKodaStore((s) => s.computer);
   const setActive = useKodaStore((s) => s.setComputerActiveFile);
-  const [tab, setTab] = useState<Tab>("code");
+  const [tab, setTab] = useState<Tab>("terminal");
   const [runKey, setRunKey] = useState(0);
   const termRef = useRef<HTMLDivElement>(null);
 
-  // Real Node.js execution via WebContainers (React/Vite projects)
+  // User's plan capabilities
+  const { caps } = useAuth();
+  const hasRealTerminal = caps?.desktop === true; // Ultra only
+  const isUltra = hasRealTerminal;
+
+  // Real Node.js execution via WebContainers (React/Vite projects or Go/Pro/Max tiers)
   const wc = useWebContainer();
   const isReact = useMemo(() => isReactProject(computer?.files ?? []), [computer?.files]);
   const wcMountedKey = useRef<string>("");
 
+  // Docker sandbox for Ultra tier non-React projects
+  const [containerId, setContainerId] = useState<string | null>(null);
+  const [sandboxOutput, setSandboxOutput] = useState<string[]>([]);
+  const [sandboxBusy, setSandboxBusy] = useState(false);
+  const [sandboxReady, setSandboxReady] = useState(false);
+  const [sandboxAllowed, setSandboxAllowed] = useState<boolean | null>(null); // null = not checked
+  const sandboxOutputRef = useRef<HTMLDivElement>(null);
+  const provisionedSig = useRef<string>("");
+
   const files = computer?.files ?? [];
   const activePath = computer?.activePath;
   const activeFile = files.find((f) => f.path === activePath) ?? files[0];
+
+  // Use WebContainer for: React projects OR non-Ultra tiers (Go/Pro/Max)
+  // Use Docker sandbox only for: Ultra tier + non-React projects
+  const useWebContainerMode = isReact || !isUltra;
+  const useDockerSandbox = !useWebContainerMode && computer?.live;
+
+  // Docker sandbox provisioning (Ultra tier + non-React only)
+  useEffect(() => {
+    if (!useDockerSandbox) return;
+    if (sandboxAllowed === false) return;
+    if (computer?.status !== "ready" && computer?.status !== "running") return;
+
+    const sig = computer.title + "|" + files.length + "|" + (computer?.commands?.length ?? 0);
+    if (sig === provisionedSig.current) return;
+    provisionedSig.current = sig;
+
+    setSandboxOutput([]);
+    setSandboxBusy(true);
+    const out = (line: string) => setSandboxOutput((p) => [...p, line + "\n"]);
+
+    (async () => {
+      // Check sandbox availability and create container
+      if (sandboxAllowed !== true) {
+        out("Checking sandbox availability…");
+      }
+      let cid = containerId;
+      if (!cid) {
+        const res = await fetch("/api/sandbox", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "create" }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Sandbox not available" }));
+          setSandboxAllowed(false);
+          out(`✗ ${err.error}`);
+          setSandboxBusy(false);
+          return;
+        }
+        const data = await res.json();
+        cid = data.containerId;
+        setContainerId(cid);
+        setSandboxAllowed(true);
+      }
+
+      // Write files
+      out(`$ scaffolding project (${files.length} files)…`);
+      for (const f of files) {
+        try {
+          const res = await fetch("/api/sandbox", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "write",
+              containerId: cid,
+              path: `/workspace/${f.path}`,
+              content: f.content,
+            }),
+          });
+          if (res.ok) out(`  ✓ ${f.path}`);
+          else out(`  ✗ ${f.path}`);
+        } catch {
+          out(`  ✗ ${f.path}`);
+        }
+      }
+
+      // Run commands
+      const cmds = computer?.commands?.length
+        ? computer.commands
+        : ["echo 'No build commands specified'"];
+      for (const cmd of cmds) {
+        out(`$ ${cmd}`);
+        try {
+          const res = await fetch("/api/sandbox", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "exec",
+              containerId: cid,
+              command: cmd,
+              workdir: "/workspace",
+            }),
+          });
+          const data = await res.json();
+          if (data.stdout) out(data.stdout);
+          if (data.stderr) out(data.stderr);
+          if (data.exitCode !== 0) out(`exit code: ${data.exitCode}`);
+        } catch (e) {
+          out(`Error: ${(e as Error).message}`);
+        }
+      }
+
+      out("✓ Build complete. You can type commands below.");
+      setSandboxBusy(false);
+      setSandboxReady(true);
+      if (computer?.status !== "ready") {
+        useKodaStore.getState().setComputerStatus("ready");
+      }
+    })();
+  }, [useDockerSandbox, files, computer?.title, computer?.commands, computer?.status, sandboxAllowed, containerId]);
 
   // Mount files into WebContainer when the project is ready
   useEffect(() => {
@@ -64,23 +182,33 @@ export function ComputerArtifact() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, isReact]);
 
-  // Auto-jump to preview when ready
+  // Auto-jump to preview (React) or terminal (Docker sandbox) when ready
   const ranRef = useRef(false);
   useEffect(() => {
-    const wcReady = isReact && wc.status === "ready";
-    const storeReady = !isReact && (computer?.status === "running" || computer?.status === "ready");
-    if ((wcReady || storeReady) && !ranRef.current && files.length) {
+    if (ranRef.current) return;
+    if (isReact && wc.status === "ready" && files.length) {
       ranRef.current = true;
       setTab("preview");
+    } else if (sandboxReady) {
+      ranRef.current = true;
+      setTab("terminal");
     }
-  }, [wc.status, computer?.status, files.length, isReact]);
+  }, [wc.status, sandboxReady, files.length, isReact]);
 
   // Keep terminal scrolled to bottom
   useEffect(() => {
-    if (tab === "terminal" && termRef.current) {
-      termRef.current.scrollTop = termRef.current.scrollHeight;
+    if (tab === "terminal") {
+      if (useWebContainerMode && termRef.current) {
+        termRef.current.scrollTop = termRef.current.scrollHeight;
+      }
+      if (useDockerSandbox && sandboxOutputRef.current) {
+        sandboxOutputRef.current.scrollTop = sandboxOutputRef.current.scrollHeight;
+      }
     }
-  }, [wc.terminal, computer?.terminal, tab]);
+  }, [wc.terminal, computer?.terminal, sandboxOutput, tab, useWebContainerMode, useDockerSandbox]);
+
+  const sandboxActive = useDockerSandbox && sandboxAllowed === true && containerId;
+  const isSnapshot = !useWebContainerMode && computer && !computer.live;
 
   const srcDoc = useMemo(
     () => buildPreviewSrcDoc(files),
@@ -91,7 +219,7 @@ export function ComputerArtifact() {
   if (!computer) return null;
 
   const openInNewTab = () => {
-    if (isReact && wc.previewUrl) {
+    if (useWebContainerMode && wc.previewUrl) {
       window.open(wc.previewUrl, "_blank", "noopener");
       return;
     }
@@ -101,11 +229,11 @@ export function ComputerArtifact() {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
-  const effectiveStatus: ComputerStatus = isReact
+  const effectiveStatus: ComputerStatus = useWebContainerMode
     ? wcStatusToStore(wc.status)
     : computer.status ?? "building";
 
-  const termLines = isReact ? wc.terminal : computer.terminal;
+  const termLines = useWebContainerMode ? wc.terminal : computer.terminal;
 
   return (
     <div className="flex h-full flex-col">
@@ -115,6 +243,9 @@ export function ComputerArtifact() {
           <TabBtn active={tab === "preview"} onClick={() => setTab("preview")} icon={<Monitor className="h-3.5 w-3.5" />} label="Preview" />
           <TabBtn active={tab === "code"} onClick={() => setTab("code")} icon={<FileCode2 className="h-3.5 w-3.5" />} label="Code" />
           <TabBtn active={tab === "terminal"} onClick={() => setTab("terminal")} icon={<TerminalSquare className="h-3.5 w-3.5" />} label="Terminal" />
+          {hasRealTerminal && useDockerSandbox && (
+            <TabBtn active={tab === "desktop"} onClick={() => setTab("desktop")} icon={<MonitorPlay className="h-3.5 w-3.5" />} label="Desktop" />
+          )}
         </div>
 
         <StatusPill status={effectiveStatus} isReal={isReact} />
@@ -189,35 +320,76 @@ export function ComputerArtifact() {
         )}
 
         {tab === "terminal" && (
-          <div
-            ref={termRef}
-            className="h-full overflow-y-auto bg-[#0c0c0f] p-3 font-mono text-[12.5px] leading-relaxed text-koda-text/90"
-          >
-            {termLines.length === 0 ? (
-              <span className="text-koda-muted">
-                {isReact
-                  ? wc.status === "booting" ? "Booting WebContainer runtime…" : "Waiting for project files…"
-                  : "Terminal is ready — build steps will appear here."}
-              </span>
-            ) : (
-              termLines.map((line, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "whitespace-pre-wrap",
-                    typeof line === "string" && line.includes("$") && "text-koda-accent-soft",
-                    typeof line === "string" && /error|failed|ERR!/i.test(line) && "text-red-400",
-                    typeof line === "string" && /warn/i.test(line) && "text-yellow-400/80",
-                  )}
-                >
-                  {(typeof line === "string" ? line : String(line)) || " "}
-                </div>
-              ))
-            )}
-            {(effectiveStatus === "installing" || effectiveStatus === "running" || effectiveStatus === "building") && (
-              <div className="mt-1 inline-block h-3.5 w-2 animate-pulse bg-koda-accent align-middle" />
-            )}
-          </div>
+          useDockerSandbox && sandboxReady ? (
+            <SandboxTerminal
+              containerId={containerId!}
+              onConnecting={() => {}}
+              onConnected={() => {}}
+              onDisconnected={() => {}}
+              onError={() => {}}
+            />
+          ) : useDockerSandbox && sandboxActive ? (
+            <div className="flex h-full flex-col">
+              <div
+                ref={sandboxOutputRef}
+                className="flex-1 overflow-y-auto bg-[#0c0c0f] p-3 font-mono text-[12.5px] leading-relaxed text-koda-text/90 [scrollbar-width:thin]"
+              >
+                {sandboxOutput.length === 0 ? (
+                  <span className="text-koda-muted">Creating sandbox and building project…</span>
+                ) : (
+                  sandboxOutput.map((line, i) => (
+                    <div key={i} className="whitespace-pre-wrap">{line}</div>
+                  ))
+                )}
+                {(sandboxBusy || effectiveStatus === "building" || effectiveStatus === "installing" || effectiveStatus === "running") && (
+                  <div className="mt-1 inline-block h-3.5 w-2 animate-pulse bg-koda-accent align-middle" />
+                )}
+              </div>
+            </div>
+          ) : isSnapshot ? (
+            <div className="flex h-full items-center justify-center bg-[#0c0c0f] p-6">
+              <div className="max-w-sm text-center">
+                <p className="text-sm text-koda-muted">This project was restored from chat history.</p>
+                <p className="mt-1 text-xs text-koda-muted/60">Sandbox is not available for restored projects. Download the files to work with them locally.</p>
+              </div>
+            </div>
+          ) : (
+            <div
+              ref={termRef}
+              className="h-full overflow-y-auto bg-[#0c0c0f] p-3 font-mono text-[12.5px] leading-relaxed text-koda-text/90"
+            >
+              {termLines.length === 0 ? (
+                <span className="text-koda-muted">
+                  {useWebContainerMode
+                    ? wc.status === "booting" ? "Booting WebContainer runtime…" : "Waiting for project files…"
+                    : sandboxAllowed === false
+                    ? "Sandbox requires Ultra plan for real terminal. Using WebContainer instead."
+                    : "Terminal is ready — build steps will appear here."}
+                </span>
+              ) : (
+                termLines.map((line, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "whitespace-pre-wrap",
+                      typeof line === "string" && line.includes("$") && "text-koda-accent-soft",
+                      typeof line === "string" && /error|failed|ERR!/i.test(line) && "text-red-400",
+                      typeof line === "string" && /warn/i.test(line) && "text-yellow-400/80",
+                    )}
+                  >
+                    {(typeof line === "string" ? line : String(line)) || " "}
+                  </div>
+                ))
+              )}
+              {(effectiveStatus === "installing" || effectiveStatus === "running" || effectiveStatus === "building") && (
+                <div className="mt-1 inline-block h-3.5 w-2 animate-pulse bg-koda-accent align-middle" />
+              )}
+            </div>
+          )
+        )}
+
+        {tab === "desktop" && useDockerSandbox && sandboxReady && (
+          <SandboxDesktop containerId={containerId!} />
         )}
       </div>
     </div>

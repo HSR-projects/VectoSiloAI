@@ -59,7 +59,7 @@ export function SourceCards({ sources }: { sources: Source[] }) {
         Sources
         <span className="text-koda-muted/60">· {sources.length}</span>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:thin]">
+      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 [scrollbar-width:thin]">
         {sources.map((s, i) => (
           <SourceCard key={`${s.url}-${i}`} source={s} index={i} />
         ))}

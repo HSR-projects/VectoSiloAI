@@ -3,13 +3,12 @@ import type { ApiUsage, CreditPack } from "@/types";
 /**
  * Credit + metering model for the public API.
  *
- * Credits are denominated in **US cents** (1 credit = $0.01) so they map 1:1 to
- * Stripe one-time payments. API access is pure pay-as-you-go and entirely
+ * Credits are denominated in **US cents** (1 credit = $0.01). API access is pure pay-as-you-go and entirely
  * independent of the Pro/Max subscription — a Free-plan user with credits can
  * call the API; a Max subscriber with no credits cannot.
  */
 
-/** Buyable credit packs (one-time Stripe `payment` checkouts). */
+/** Buyable credit packs (one-time Razorpay payments). */
 export const CREDIT_PACKS: CreditPack[] = [
   { id: "starter", label: "Starter", usd: 5, credits: 500 },
   { id: "standard", label: "Standard", usd: 10, credits: 1000, note: "Most popular" },
