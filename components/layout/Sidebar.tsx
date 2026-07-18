@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Blocks, ChevronRight } from "lucide-react";
+import { Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Blocks, ChevronRight, Bot } from "lucide-react";
 import { useKodaStore } from "@/lib/store";
 import { ThreadSearch } from "@/components/search/ThreadSearch";
 import { Library } from "@/components/layout/Library";
@@ -22,6 +22,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const setLibraryOpen = useKodaStore((s) => s.setLibraryOpen);
   const setSettingsOpen = useKodaStore((s) => s.setSettingsOpen);
   const setSettingsTab = useKodaStore((s) => s.setSettingsTab);
+  const setCustomAIsOpen = useKodaStore((s) => s.setCustomAIsOpen);
 
   const openThread = (id: string) => {
     setActiveThread(id);
@@ -105,6 +106,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <Blocks className="h-4 w-4" />
             <span className="flex-1 text-left">Integrations</span>
             <ChevronRight className="h-4 w-4 text-koda-muted" />
+          </button>
+          <button
+            onClick={() => {
+              setCustomAIsOpen(true);
+              onClose();
+            }}
+            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-koda-border bg-koda-bg px-3 py-2 text-sm text-koda-muted transition-colors hover:border-koda-accent/40 hover:bg-koda-surface-2 hover:text-koda-text"
+          >
+            <Bot className="h-4 w-4" />
+            <span className="flex-1 text-left">My AIs</span>
           </button>
         </div>
 

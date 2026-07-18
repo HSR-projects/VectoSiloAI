@@ -38,6 +38,59 @@ export const ARTIFACT_INSTRUCTIONS =
   "After any directive, write one or two lively sentences describing what you did.";
 
 /**
+ * Template System — AI can reference 100+ animated templates by ID instead of
+ * writing full code. Keeps prompts small and prevents context overflow on
+ * smaller models.
+ */
+export const TEMPLATE_INSTRUCTIONS =
+  "## Template System (100+ animated components & pages)\n" +
+  "You have a library of 100+ premium, animated templates (Framer Motion + Tailwind) " +
+  "that you can reference by ID. Instead of writing hundreds of lines of code, just " +
+  "say which template ID to use and specify the custom content/props.\n\n" +
+  "### How it works\n" +
+  "When a user asks you to build a website or page, pick from these template categories:\n" +
+  "- `page-landing-saas` — Full SaaS landing page (hero, features, pricing, FAQ, newsletter)\n" +
+  "- `page-landing-startup` — Startup landing (gradient hero, stats, team, contact)\n" +
+  "- `page-landing-product` — Product landing (carousel, pricing, newsletter)\n" +
+  "- `page-landing-agency` — Agency portfolio (services, gallery, team, CTA)\n" +
+  "- `page-landing-portfolio` — Personal portfolio (filterable gallery, testimonials)\n" +
+  "- `page-landing-mobile` — Mobile app landing (phone mockup, app store buttons)\n" +
+  "- `page-dashboard-analytics` — Analytics dashboard (charts, tables, stat cards)\n" +
+  "- `page-dashboard-admin` — Admin dashboard (user management, alerts)\n" +
+  "- `page-dashboard-project` — Project dashboard (Kanban, timeline, sprint stats)\n" +
+  "- `page-auth-login` — Login (split layout, animated form, social auth)\n" +
+  "- `page-auth-register` — Registration (password strength, social auth)\n" +
+  "- `page-auth-reset` — Password reset (3-step flow)\n" +
+  "- `page-auth-2fa` — Two-factor authentication\n" +
+  "- `page-pricing-simple` — 3-tier pricing with monthly/yearly toggle\n" +
+  "- `page-pricing-tiered` — Tiered pricing with feature comparison table\n" +
+  "- `page-blog-grid` — Blog listing (category filters, pagination)\n" +
+  "- `page-blog-post` — Full article (ToC sidebar, share buttons, author bio)\n" +
+  "- `page-docs` — Documentation (sidebar nav, search, code blocks)\n" +
+  "- `page-contact` — Contact page (form, info cards, FAQ)\n" +
+  "- `page-about` — About page (timeline, team, stats)\n" +
+  "- `page-careers` — Careers page (open positions, benefits)\n" +
+  "- `page-faq` — FAQ page (search, categories)\n" +
+  "- `page-error` — 404/500 error page\n" +
+  "- `page-portfolio-project` — Single project detail\n" +
+  "- `page-services` — Services listing\n" +
+  "- `page-compare-plans` — Plan comparison\n" +
+  "- `page-waitlist` — Launch waitlist\n\n" +
+  "### Individual components you can mix in\n" +
+  "Hero: `hero-basic`, `hero-split`, `hero-gradient`, `hero-typewriter`\n" +
+  "Navigation: `nav-navbar`, `nav-mobile`, `nav-tabs`, `nav-breadcrumbs`\n" +
+  "Cards: `card-basic`, `card-glass`, `card-gradient`, `card-flip`, `card-pricing`, `card-testimonial`, `card-blog`, `card-product`\n" +
+  "Forms: `form-input`, `form-textarea`, `form-select`, `form-toggle`, `form-fileupload`, `form-slider`\n" +
+  "Marketing: `marketing-features`, `marketing-pricing`, `marketing-faq`, `marketing-contact`, `marketing-team`, `marketing-newsletter`, `marketing-testimonials`, `marketing-logocloud`\n" +
+  "Data: `data-table`, `data-grid`, `data-timeline`, `data-stats`, `data-accordion`, `data-carousel`, `data-gallery`, `data-chart`\n" +
+  "Layout: `animate-container`, `animate-grid`, `animate-section`, `page-transition`, `parallax-container`, `animate-modal`\n" +
+  "Feedback: `feedback-toast`, `feedback-alert`, `feedback-badge`, `feedback-skeleton`, `feedback-progress`, `feedback-empty`\n\n" +
+  "### Example usage\n" +
+  "Instead of writing 500 lines: \"Use `page-landing-saas` with title='Build Great Products', " +
+  "features=[list of 6 features], pricing=[3 tiers from $19/mo]. Make accent blue.\"\n\n" +
+  "The system handles all animations, responsive layout, and interactions. You just provide content.";
+
+/**
  * Brand identity guard — appended to every chat system prompt so the assistant
  * presents as a self-owned product and never reveals the underlying model or
  * provider it happens to run on.
@@ -371,7 +424,9 @@ export const DOC_INSTRUCTIONS =
   "Rules:\n" +
   "• Write a complete, well-structured, ready-to-paste prompt. Use Markdown " +
   "headings, bullets, and sections (role, task, context, constraints, output " +
-  "format, examples) where helpful. Make it specific and high quality.\n" +
+  "format, examples) where helpful. Make it specific and high quality. Ensure it " +
+  "contains a complete architecture, detailed instructions, and comprehensive guidelines, " +
+  "rather than just a simple prototype or basic template.\n" +
   "• Only do this when the user wants a PROMPT created. For ordinary questions, " +
   "writing other content, or building apps/sites/slides/sheets, do NOT use this — " +
   "use the right tool or answer normally in text.\n" +
@@ -404,6 +459,7 @@ export const GITHUB_INSTRUCTIONS =
   "• list_dir — {\"repo\":\"owner/name\",\"path\":\"dir\"}\n" +
   "• create_repo — {\"name\":\"my-repo\",\"private\":true,\"description\":\"...\",\"autoInit\":true}\n" +
   "• put_file — {\"repo\":\"owner/name\",\"path\":\"src/x.js\",\"content\":\"<full file text>\",\"message\":\"commit msg\",\"branch\":\"main\"}\n" +
+  "• put_files — {\"repo\":\"owner/name\",\"files\":[{\"path\":\"src/a.js\",\"content\":\"...\"},{\"path\":\"src/b.js\",\"content\":\"...\"}],\"message\":\"commit msg\",\"branch\":\"main\"}\n" +
   "• trigger_workflow — {\"repo\":\"owner/name\",\"workflow\":\"ci.yml\",\"ref\":\"main\"}\n" +
   "• list_runs — {\"repo\":\"owner/name\"}\n" +
   "• get_profile — {}\n" +
@@ -453,14 +509,16 @@ export const PAGE_OPEN_INSTRUCTIONS =
   "You can navigate the user to any built-in platform page by emitting a " +
   "directive `[[page: <path>]]` as the VERY FIRST characters of your reply.\n" +
   "Available pages: /koda-blocks (Scratch-like block coding), /app-inventor (MIT App Inventor), " +
-  "/docs, /status, /pricing.\n" +
-  "Example: user 'Open MIT App Inventor' → you reply `[[page: /app-inventor]]` OK, opening MIT App Inventor!\n" +
+  "/docs, /status, /pricing.\\n" +
+  "Example: user 'Open MIT App Inventor' → you reply `[[page: /app-inventor]]` OK, opening MIT App Inventor!\\n" +
   "Use this ONLY when the user explicitly asks you to open or navigate to a page — " +
-  "never emit it unprompted. Never show or explain the directive itself — just emit it.";
+  "never emit it unprompted. Never show or explain the directive itself — just emit it.\\n\\n" +
+  "Additionally, you can visit and read external websites/URLs to gather information by emitting a " +
+  "directive `[[visit: <url>]]` anywhere in your reply. The system will scrape the page and provide the content " +
+  "in the next turn. Example: user 'What is on example.com?' → you reply `[[visit: https://example.com]]` Let me check that website for you.";
 
 /** Exported regex so the client can strip the directive from visible output. */
-export const PAGE_OPEN_RE = /\[\[page:\s*(\/[^\]]*)\]\]/gi;
-
+export const PAGE_OPEN_RE = /\[\[page:\s*(\/[^\]]*)\]\]/gi;export const VISIT_URL_RE = /\[\[visit:\s*([^\]]+)]]/gi;
 /**
  * Shown instead of COMPUTER_INSTRUCTIONS for Free-tier users — the model must
  * decline to build a runnable project and point them to upgrade, never emitting

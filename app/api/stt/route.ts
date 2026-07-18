@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const STT_SERVER = "http://127.0.0.1:5050/transcribe";
+const STT_SERVER = process.env.STT_SERVER_URL || "http://127.0.0.1:5050/transcribe";
 
 export async function POST(req: Request) {
   const mime = req.headers.get("content-type") || "audio/webm";

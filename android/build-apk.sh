@@ -3,7 +3,7 @@
 # Pins JDK 17 + the user-local Android SDK (system default Java is 25, too new for AGP).
 set -euo pipefail
 
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export JAVA_HOME="$HOME/jdk-17.0.2"
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
 

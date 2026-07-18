@@ -24,12 +24,13 @@ import {
   GITHUB_INSTRUCTIONS,
   MEMORY_INSTRUCTIONS,
   PAGE_OPEN_INSTRUCTIONS,
+  TEMPLATE_INSTRUCTIONS,
   BRAND_IDENTITY,
   PLATFORM_INFO,
   buildSourceContext,
   buildFollowupPrompt,
 } from "@/lib/prompts";
-import { getCurrentUser, consumeMessage, buildMemoryContext, getUserMemory } from "@/lib/auth";
+import { getCurrentUser, consumeMessage, buildMemoryContext, getUserMemory, getUserById } from "@/lib/auth";
 import { getGithubConnection } from "@/lib/appConnections";
 import { effectiveCaps } from "@/lib/plans";
 import { analyzeChessQuery } from "@/lib/chessEngine";
@@ -55,8 +56,18 @@ export async function POST(req: Request) {
     return new Response("Invalid JSON body.", { status: 400 });
   }
 
-  const currentUser = await getCurrentUser();
-  const userPlan = currentUser?.plan ?? "free";
+  // Handle WhatsApp-initiated requests: whatsappUserId in body means it's from WhatsApp bridge
+  const whatsappUserId = (body as any).whatsappUserId as string | undefined;
+  let currentUser = await getCurrentUser();
+  let userPlan = currentUser?.plan ?? "free";
+
+  if (whatsappUserId && !currentUser) {
+    const waUser = await getUserById(whatsappUserId);
+    if (waUser) {
+      currentUser = waUser;
+      userPlan = waUser.plan ?? "free";
+    }
+  }
 
   const {
     query,
@@ -78,6 +89,9 @@ export async function POST(req: Request) {
     provider: rawProvider,
     providerApiKey,
     providerBaseUrl,
+    customInstructions,
+    // Web search capability
+    enableSearch = false,
   } = body;
 
   // ── Free-tier usage limit (rolling window) ──────────────────
@@ -147,7 +161,8 @@ export async function POST(req: Request) {
     const memoryBlock = memEnabled ? `\n\n${MEMORY_INSTRUCTIONS}` : "";
     // Think mode uses the model's NATIVE reasoning (think:true below), so no
     // prompt-level instruction is needed here.
-    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}`;
+    const customBlock = customInstructions ? `\n\n[Custom AI Persona/Instructions]:\n${customInstructions}` : "";
+    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${TEMPLATE_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}${customBlock}\n\n── QUICK REFERENCE (emit directives as the VERY FIRST characters, no preamble) ──\n• Build an app/game/tool → [[computer:Title]] + <koda-file> + <koda-cmd>\n• Static website/page → [[website:Title]] + <koda-file>\n• Slides/presentation → [[slides:Title]] + <koda-slide>\n• Spreadsheet/sheet → [[sheet:Title]] + <koda-table>\n• Document/doc → [[doc:Title]] + <koda-doc>\n• Generate image → [[image: prompt → path]]\n• Run terminal command → [[computer:Terminal]] + <koda-cmd>\n• Build from templates → use template IDs (page-landing-*, page-dashboard-*, page-auth-*, etc.) to compose websites without writing full code`;
   }
 
   // ── Chess engine analysis (inject into system prompt if chess is mentioned) ──
@@ -182,25 +197,27 @@ export async function POST(req: Request) {
       ? buildSourceContext(sources)
       : "";
 
-  // Image search for product/shopping/visual queries — fetch product images
-  // and inject them as additional context so the AI can embed them inline.
+  // Image search — fetch images for all search queries to display in the UI (Perplexity-like),
+  // but only inject them into the prompt for visual/shopping queries.
   let imageContext = "";
+  let fetchedSearchImages: any[] = [];
   if (focusMode !== "nosearch" && !plain && !githubInvoke && query.trim().length > 3) {
-    const isProductQuery = /\b(buy|price|cost|\$|shop|product|show\s+me|what\s+does\s+.+\s+look\s+like|best\s+|cheap|affordable|review|worth|recommend|brand|model|gadget|phone|laptop|headphone|shoe|watch|camera|tv|monitor|keyboard|mouse|bag|jacket|dress|sneaker)\b/i.test(query);
-    if (isProductQuery) {
-      try {
-        const imgResults = await searchImages(query, 6);
-        if (imgResults.length) {
-          imageContext = "\n\n<Product images from image search — you can embed these in your reply using standard markdown image syntax>\n";
+    try {
+      const imgResults = await searchImages(query, 6);
+      if (imgResults.length) {
+        fetchedSearchImages = imgResults;
+        const isVisualQuery = /\b(buy|price|cost|\$|shop|product|show\s+me|what\s+does\s+.+\s+look\s+like|best\s+|cheap|affordable|review|worth|recommend|brand|model|gadget|phone|laptop|headphone|shoe|watch|camera|tv|monitor|keyboard|mouse|bag|jacket|dress|sneaker|picture|photo|image|diagram|chart|map)\b/i.test(query);
+        if (isVisualQuery) {
+          imageContext = "\n\n<Images from image search — you can embed these in your reply using standard markdown image syntax>\n";
           for (const img of imgResults) {
-            const label = img.title || img.description || "Product image";
+            const label = img.title || img.description || "Image";
             imageContext += `- ![${label}](${encodeURI(img.imgSrc)}) — ${img.description || img.title || ""} [source](${img.url})\n`;
           }
-          imageContext += "</Product images>";
+          imageContext += "</Images>";
         }
-      } catch {
-        // Image search is non-fatal
       }
+    } catch {
+      // Image search is non-fatal
     }
   }
 
@@ -223,6 +240,10 @@ export async function POST(req: Request) {
     async start(controller) {
       let fullAnswer = "";
       try {
+        if (fetchedSearchImages.length > 0) {
+          controller.enqueue(encoder.encode(sse({ type: "search_images", images: fetchedSearchImages })));
+        }
+
         if (provider === "kodaai") {
           // Native reasoning only on a normal turn (not the plain/GitHub passes).
           const useThink = think && !plain && !githubInvoke;

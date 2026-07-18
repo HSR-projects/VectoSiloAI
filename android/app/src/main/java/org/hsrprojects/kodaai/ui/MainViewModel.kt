@@ -35,4 +35,21 @@ class MainViewModel : ViewModel() {
             _user.value = null
         }
     }
+
+    fun adoptToken(token: String) {
+        viewModelScope.launch {
+            _booting.value = true
+            if (KodaClient.adoptToken(token)) {
+                _user.value = KodaClient.me()
+            }
+            _booting.value = false
+        }
+    }
+
+    private val _showSettings = MutableStateFlow(false)
+    val showSettings: StateFlow<Boolean> = _showSettings.asStateFlow()
+
+    fun setShowSettings(show: Boolean) {
+        _showSettings.value = show
+    }
 }

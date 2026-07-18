@@ -79,6 +79,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ kind: "credits", credits: balance });
   }
 
+  // ── Save Card verification ──
+  if (order.notes?.kind === "save_card") {
+    // Credit the $1.00 verification charge to the user's balance
+    await fulfillCreditSession(userId, sessionId, 100);
+    
+    // Fetch the payment details to get the token/card details
+    const payments = await razorpayInstance.orders.fetchPayments(sessionId);
+    const payment = payments.items?.[0];
+    if (payment && payment.token_id) {
+      const { readDB, writeDB } = require("@/lib/auth");
+      const db = await readDB();
+      const user = db.users.find((u: any) => u.id === userId);
+      if (user) {
+        user.razorpayTokenId = payment.token_id;
+        await writeDB(db);
+      }
+    }
+    const balance = await getCredits(userId);
+    return NextResponse.json({ kind: "save_card", credits: balance });
+  }
+
   // ── Gift purchase ──
   if (order.notes?.kind === "gift") {
     const plan = order.notes?.plan as Plan;
@@ -95,6 +116,11 @@ export async function POST(req: Request) {
   }
 
   const user = await updateUser(userId, { plan });
+
+  // Add $1.00 (100 cents) free credit perk for Max or Ultra plans
+  if (plan === "max" || plan === "ultra") {
+    await fulfillCreditSession(userId, `perk_${sessionId}`, 100);
+  }
 
   await updateUserRazorpay(userId, {
     razorpayOrderId: sessionId,

@@ -52,7 +52,21 @@ const nextConfig = {
           { key: "Cross-Origin-Embedder-Policy", value: "unsafe-none" },
         ],
       },
+      {
+        // Published project view pages render srcDoc iframes that load
+        // cross-origin scripts (Babel CDN, esm.sh). Relax COEP so those
+        // resources aren't blocked.
+        source: "/view/:path*",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "unsafe-none" },
+          { key: "Cross-Origin-Embedder-Policy", value: "unsafe-none" },
+        ],
+      },
     ];
+  },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    return config;
   },
 };
 

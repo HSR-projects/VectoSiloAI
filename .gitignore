@@ -41,3 +41,17 @@ Thumbs.db
 
 # Claude Code local context
 .claude
+
+# Python Virtual Environments
+venv/
+.venv/
+
+# WhatsApp-web.js session state
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Backup files
+*_backup.*
+*copy.*
+*copy
+*.apk

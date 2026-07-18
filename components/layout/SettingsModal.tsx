@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   Settings, Cpu, Loader2, Swords, Check, Lock, Trash2, Palette, AlertTriangle,
   Sparkles, LogOut, Mail, Pencil, UserRound, Crown, Mic, Database, SlidersHorizontal,
-  Blocks, Shield, ShieldCheck, Copy, Download,
+  Blocks, Shield, ShieldCheck, Copy, Download, MessageSquare, Smartphone, HelpCircle,
+  ArrowRight, QrCode, AlertCircle, Zap,
 } from "lucide-react";
 import { useModels } from "@/hooks/useModels";
 import { useKodaStore } from "@/lib/store";
@@ -14,6 +15,7 @@ import { modelLabel, cn } from "@/lib/utils";
 import { AUTO_MODEL } from "@/lib/autoModel";
 import { FocusModes } from "@/components/search/FocusModes";
 import { IntegrationsPanel } from "@/components/layout/IntegrationsPanel";
+import { WhatsAppSettings } from "./WhatsAppSettings";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +53,7 @@ function difficultyLabel(n: number): string {
 
 const PLAN_LABEL: Record<string, string> = { free: "Free", pro: "Pro", max: "Max" };
 
-type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "data" | "account";
+type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "whatsapp" | "data" | "account";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "general", label: "General", icon: <SlidersHorizontal className="h-4 w-4" /> },
@@ -59,6 +61,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "model", label: "Model", icon: <Cpu className="h-4 w-4" /> },
   { id: "game", label: "Chess", icon: <Swords className="h-4 w-4" /> },
   { id: "integrations", label: "Integrations", icon: <Blocks className="h-4 w-4" /> },
+  { id: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-4 w-4" /> },
   { id: "data", label: "Data controls", icon: <Database className="h-4 w-4" /> },
   { id: "account", label: "Account", icon: <UserRound className="h-4 w-4" /> },
 ];
@@ -417,6 +420,8 @@ export function SettingsModal() {
           )}
 
           {tab === "integrations" && <IntegrationsPanel />}
+
+          {tab === "whatsapp" && <WhatsAppSettings />}
 
           {tab === "data" && user && (
             <div className="pt-2">

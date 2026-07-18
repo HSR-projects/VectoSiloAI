@@ -6,6 +6,7 @@ import { Eye, EyeOff, PanelLeft } from "lucide-react";
 import { ModelSwitcher } from "./ModelSwitcher";
 import { PrivacyModal } from "./PrivacyModal";
 import { SettingsModal } from "./SettingsModal";
+import { CustomAIsModal } from "./CustomAIsModal";
 import { AccountMenu } from "@/components/auth/AccountMenu";
 import { ShareButton } from "@/components/billing/ShareButton";
 import { useKodaStore } from "@/lib/store";
@@ -68,6 +69,7 @@ export function Header({ onToggleSidebar, showMenu, title, threadId }: HeaderPro
           {incognito ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
         {threadId && <ShareButton threadId={threadId} />}
+        <CustomAIsModal />
         <SettingsModal />
         <div className="hidden md:block">
           <PrivacyModal />

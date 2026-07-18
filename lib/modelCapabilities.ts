@@ -23,6 +23,7 @@ const VISION_PATTERNS: RegExp[] = [
   /granite.*vision/,
   /mistral-small-?3\.[12]/,
   /\bomni\b/,
+  /gemini/,
 ];
 
 const AUDIO_PATTERNS: RegExp[] = [/\bomni\b/, /audio/, /whisper/, /-asr\b/];

@@ -5,8 +5,7 @@ const SEARXNG_BASE_URL = (
   process.env.SEARXNG_BASE_URL || "http://localhost:6767"
 ).replace(/\/$/, "");
 
-const BRAVE_KEY = process.env.BRAVE_SEARCH_API_KEY || "";
-const SERPER_KEY = process.env.SERPER_API_KEY || "";
+
 
 export class SearchUnavailableError extends Error {
   constructor(message = "No search backend is available.") {
@@ -17,10 +16,9 @@ export class SearchUnavailableError extends Error {
 
 /**
  * Web search. Backend priority:
- *   1. Serper.dev (Google, if key configured)
- *   2. SearXNG via MCP multi-query parallel (self-hosted Docker, default http://localhost:6767)
- *   3. SearXNG direct HTTP fallback
- *   4. Brave Search API (if a key is configured)
+ *   1. SearXNG via MCP multi-query parallel (self-hosted Docker, primary — default http://localhost:6767)
+ *   2. SearXNG direct HTTP fallback
+ *   3. Brave Search API (if a key is configured)
  * Throws SearchUnavailableError if none respond, so callers can degrade to
  * "No Search" mode.
  */
@@ -30,15 +28,6 @@ export async function searchWeb(
 ): Promise<SearchResult[]> {
   const errors: string[] = [];
 
-  if (SERPER_KEY) {
-    try {
-      const r = await searchSerper(query, limit);
-      if (r.length) return r;
-    } catch (e) {
-      errors.push(`serper: ${(e as Error).message}`);
-    }
-  }
-
   try {
     const r = await searchSearxng(query, limit);
     if (r.length) return r;
@@ -46,17 +35,8 @@ export async function searchWeb(
     errors.push(`searxng: ${(e as Error).message}`);
   }
 
-  if (BRAVE_KEY) {
-    try {
-      const r = await searchBrave(query, limit);
-      if (r.length) return r;
-    } catch (e) {
-      errors.push(`brave: ${(e as Error).message}`);
-    }
-  }
-
   throw new SearchUnavailableError(
-    `No search results. Tried: ${errors.join("; ") || "no backends configured"}`
+    `No search results from SearXNG. Tried: ${errors.join("; ")}`
   );
 }
 
@@ -95,25 +75,6 @@ async function searchSearxng(query: string, limit: number): Promise<SearchResult
   }
 }
 
-async function searchSerper(query: string, limit: number): Promise<SearchResult[]> {
-  const res = await fetch("https://google.serper.dev/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": SERPER_KEY,
-    },
-    body: JSON.stringify({ q: query, num: limit }),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  const organic: { title?: string; link?: string; snippet?: string }[] = json?.organic ?? [];
-  return organic.slice(0, limit).map((r) => ({
-    title: r.title || r.link || "Untitled",
-    url: r.link || "",
-    snippet: r.snippet || "",
-  }));
-}
 
 /**
  * Image search via SearXNG. Returns images with URLs, titles, and source pages.
@@ -157,27 +118,3 @@ export async function searchImages(
   }
 }
 
-async function searchBrave(query: string, limit: number): Promise<SearchResult[]> {
-  const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(
-    query
-  )}&count=${limit}`;
-  const res = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      "X-Subscription-Token": BRAVE_KEY,
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  const results = json?.web?.results ?? [];
-  return results
-    .slice(0, limit)
-    .map(
-      (r: { title?: string; url?: string; description?: string }): SearchResult => ({
-        title: r.title || r.url || "Untitled",
-        url: r.url || "",
-        snippet: r.description || "",
-      })
-    );
-}

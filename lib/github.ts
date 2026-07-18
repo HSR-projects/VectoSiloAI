@@ -239,28 +239,176 @@ export async function executeGithubAction(
         const { owner, name } = splitRepo(str("repo"), login);
         const filePath = str("path");
         const apiPath = `/repos/${owner}/${name}/contents/${encodeURIComponent(filePath).replace(/%2F/g, "/")}`;
+        const branch = str("branch") || "main";
         // Need the existing blob SHA to update (omit to create).
         let sha: string | undefined;
         try {
-          const existing = await gh<Record<string, unknown>>(token, `${apiPath}?ref=${encodeURIComponent(str("branch") || "")}`);
+          const existing = await gh<Record<string, unknown>>(token, `${apiPath}?ref=${encodeURIComponent(branch)}`);
           if (existing && typeof existing.sha === "string") sha = existing.sha;
         } catch {
           /* file doesn't exist yet — creating */
         }
-        const r = await gh<Record<string, unknown>>(token, apiPath, {
-          method: "PUT",
-          body: JSON.stringify({
-            message: str("message") || `Update ${filePath} via KodaAI`,
-            content: Buffer.from(str("content"), "utf8").toString("base64"),
-            ...(sha ? { sha } : {}),
-            ...(str("branch") ? { branch: str("branch") } : {}),
-          }),
-        });
-        const commit = (r.commit as Record<string, unknown>) || {};
-        return {
-          ok: true,
-          data: { path: filePath, action: sha ? "updated" : "created", commit_url: commit.html_url },
-        };
+        try {
+          const r = await gh<Record<string, unknown>>(token, apiPath, {
+            method: "PUT",
+            body: JSON.stringify({
+              message: str("message") || `Update ${filePath} via KodaAI`,
+              content: Buffer.from(str("content"), "utf8").toString("base64"),
+              ...(sha ? { sha } : {}),
+              branch,
+              author: {
+                name: "koda-ai-agent",
+                email: "koda-support@hsrprojects.org",
+              },
+              committer: {
+                name: "koda-ai-agent",
+                email: "koda-support@hsrprojects.org",
+              },
+            }),
+          });
+          const commit = (r.commit as Record<string, unknown>) || {};
+          return {
+            ok: true,
+            data: { path: filePath, action: sha ? "updated" : "created", commit_url: commit.html_url },
+          };
+        } catch (e: any) {
+          // If 404 on branch, try to create the branch first
+          if (e.message?.includes("404") && !sha) {
+            try {
+              // Get default branch SHA
+              const repo = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}`);
+              const defaultBranch = repo.default_branch || "main";
+              const ref = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/ref/heads/${defaultBranch}`);
+              const baseSha = (ref.object as Record<string, unknown>)?.sha as string;
+              // Create the target branch
+              await gh<unknown>(token, `/repos/${owner}/${name}/git/refs`, {
+                method: "POST",
+                body: JSON.stringify({
+                  ref: `refs/heads/${branch}`,
+                  sha: baseSha,
+                }),
+              });
+              // Retry the put_file
+              const r = await gh<Record<string, unknown>>(token, apiPath, {
+                method: "PUT",
+                body: JSON.stringify({
+                  message: str("message") || `Update ${filePath} via KodaAI`,
+                  content: Buffer.from(str("content"), "utf8").toString("base64"),
+                  branch,
+                  author: {
+                    name: "koda-ai-agent",
+                    email: "koda-support@hsrprojects.org",
+                  },
+                  committer: {
+                    name: "koda-ai-agent",
+                    email: "koda-support@hsrprojects.org",
+                  },
+                }),
+              });
+              const commit = (r.commit as Record<string, unknown>) || {};
+              return {
+                ok: true,
+                data: { path: filePath, action: "created", commit_url: commit.html_url },
+              };
+            } catch (e2) {
+              return { ok: false, error: `Failed to create branch and file: ${(e2 as Error).message}` };
+            }
+          }
+          return { ok: false, error: e.message || "GitHub API error" };
+        }
+      }
+
+      // ─── Batch file operations for agentic coding ────────────────
+      case "put_files": {
+        const { owner, name } = splitRepo(str("repo"), login);
+        const files = args.files as Array<{ path: string; content: string }> | undefined;
+        const branch = str("branch") || "main";
+        const message = str("message") || "Batch update via KodaAI";
+
+        if (!files || !Array.isArray(files) || files.length === 0) {
+          return { ok: false, error: "files array required" };
+        }
+
+        try {
+          // Get repo info and default branch
+          const repo = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}`);
+          const defaultBranch = repo.default_branch || "main";
+
+          // Create target branch if needed
+          if (branch !== defaultBranch) {
+            try {
+              await gh<unknown>(token, `/repos/${owner}/${name}/git/ref/heads/${branch}`);
+            } catch {
+              const ref = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/ref/heads/${defaultBranch}`);
+              const baseSha = (ref.object as Record<string, unknown>)?.sha as string;
+              await gh<unknown>(token, `/repos/${owner}/${name}/git/refs`, {
+                method: "POST",
+                body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }),
+              });
+            }
+          }
+
+          // Create blobs for all files
+          const blobs: Array<{ sha: string }> = [];
+          for (const f of files) {
+            const blob = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/blobs`, {
+              method: "POST",
+              body: JSON.stringify({ content: f.content, encoding: "utf-8" }),
+            });
+            blobs.push({ sha: blob.sha as string });
+          }
+
+          // Get base tree
+          const baseTree = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/trees/${branch}?recursive=1`);
+          const treeItems = (baseTree.tree as Array<Record<string, unknown>>).map((t) => ({
+            path: t.path as string,
+            mode: t.mode as string,
+            type: t.type as string,
+            sha: t.sha as string,
+          }));
+
+          // Add new/updated files
+          for (let i = 0; i < files.length; i++) {
+            const f = files[i];
+            treeItems.push({
+              path: f.path,
+              mode: "100644",
+              type: "blob",
+              sha: blobs[i].sha,
+            });
+          }
+
+          // Create new tree
+          const newTree = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/trees`, {
+            method: "POST",
+            body: JSON.stringify({ base_tree: (baseTree.sha as string), tree: treeItems }),
+          });
+
+          // Create commit
+          const commit = await gh<Record<string, unknown>>(token, `/repos/${owner}/${name}/git/commits`, {
+            method: "POST",
+            body: JSON.stringify({
+              message,
+              tree: newTree.sha,
+              parents: [baseTree.sha],
+              author: { name: "koda-ai-agent", email: "koda-support@hsrprojects.org" },
+              committer: { name: "koda-ai-agent", email: "koda-support@hsrprojects.org" },
+            }),
+          });
+
+          // Update branch reference
+          await gh<unknown>(token, `/repos/${owner}/${name}/git/refs/heads/${branch}`, {
+            method: "PATCH",
+            body: JSON.stringify({ sha: commit.sha, force: true }),
+          });
+
+          return {
+            ok: true,
+            data: { committed: files.length, branch, commit_url: commit.html_url },
+          };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Batch commit failed" };
+        }
       }
 
       case "trigger_workflow": {

@@ -42,10 +42,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // ── Save Card verification ──
+    if (kind === "save_card") {
+      await fulfillCreditSession(userId, sessionId, 100);
+      
+      // Fetch payment token if available
+      const paymentToken = event.payload?.payment?.entity?.token_id;
+      if (paymentToken) {
+        const { readDB, writeDB } = require("@/lib/auth");
+        const db = await readDB();
+        const user = db.users.find((u: any) => u.id === userId);
+        if (user) {
+          user.razorpayTokenId = paymentToken;
+          await writeDB(db);
+        }
+      }
+      return NextResponse.json({ ok: true });
+    }
+
     // ── Subscription upgrade ──
     const plan = order.notes?.plan as Plan | undefined;
-    if (plan && (plan === "go" || plan === "pro" || plan === "max")) {
+    if (plan && (plan === "go" || plan === "pro" || plan === "max" || plan === "ultra")) {
       await updateUser(userId, { plan });
+      
+      // Add $1.00 (100 cents) free credit perk for Max or Ultra plans
+      if (plan === "max" || plan === "ultra") {
+        await fulfillCreditSession(userId, `perk_${sessionId}`, 100);
+      }
+
       await updateUserRazorpay(userId, {
         razorpayOrderId: sessionId,
         razorpaySubscriptionId: undefined,

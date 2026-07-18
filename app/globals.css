@@ -60,7 +60,7 @@
 .koda-hero-glow {
   background: radial-gradient(
     600px circle at 50% 0%,
-    rgba(155, 124, 255, 0.12),
+    rgba(16, 163, 127, 0.12),
     transparent 70%
   );
 }
@@ -81,5 +81,55 @@
 @media (hover: none) {
   .touch-no-hover {
     opacity: 1 !important;
+  }
+}
+
+/* Print Styles for flawless chat exports */
+@media print {
+  /* Hide UI elements not meant for printing */
+  nav, header, footer, .sidebar, [role="navigation"], [data-print-hide="true"], button {
+    display: none !important;
+  }
+
+  /* Reset colors to white background and black text to save ink and improve contrast */
+  body, html, main {
+    background-color: white !important;
+    background: white !important;
+    color: black !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: auto !important;
+  }
+
+  /* Ensure messages do not break awkwardly across pages */
+  .chat-message, [data-message="true"] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9 !important;
+    color: black !important;
+  }
+
+  /* Specific message color resets since they usually have dark mode styling */
+  .prose * {
+    color: black !important;
+  }
+  
+  pre, code {
+    background: #f1f1f1 !important;
+    color: black !important;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+    white-space: pre-wrap; /* Ensure code wraps on paper */
+  }
+
+  /* Reset absolute positioning for scrolling containers */
+  #chat-scroll-container, .flex-1.overflow-y-auto {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 }

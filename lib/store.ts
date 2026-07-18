@@ -15,6 +15,7 @@ import type {
   WebsiteProject,
   DocArtifactProject,
   Thread,
+  CustomAI,
 } from "@/types";
 import { uid, titleFromQuery } from "@/lib/utils";
 
@@ -219,6 +220,16 @@ interface KodaState {
   // ─── Incognito ──────────────────────────────────────────
   incognito: boolean;
   setIncognito: (v: boolean) => void;
+
+  // ─── Custom AIs ─────────────────────────────────────────
+  customAIs: CustomAI[];
+  activeCustomAIId: string | null;
+  customAIsOpen: boolean;
+  setCustomAIsOpen: (v: boolean) => void;
+  setActiveCustomAIId: (id: string | null) => void;
+  createCustomAI: (name: string, description: string, instructions: string, promptStarters?: string[]) => void;
+  updateCustomAI: (id: string, updates: Partial<CustomAI>) => void;
+  deleteCustomAI: (id: string) => void;
 }
 
 export const useKodaStore = create<KodaState>()(
@@ -472,6 +483,7 @@ export const useKodaStore = create<KodaState>()(
           messages: [],
           createdAt: now,
           updatedAt: now,
+          customAIId: get().activeCustomAIId || undefined,
         };
         set((s) => ({
           threads: [thread, ...s.threads],
@@ -483,6 +495,38 @@ export const useKodaStore = create<KodaState>()(
       // ─── Incognito ───────────────────────────────────────
       incognito: false,
       setIncognito: (v) => set({ incognito: v }),
+
+      // ─── Custom AIs ──────────────────────────────────────
+      customAIs: [],
+      activeCustomAIId: null,
+      customAIsOpen: false,
+      setCustomAIsOpen: (v) => set({ customAIsOpen: v }),
+      setActiveCustomAIId: (id) => set({ activeCustomAIId: id }),
+      createCustomAI: (name, description, instructions, promptStarters) =>
+        set((s) => ({
+          customAIs: [
+            ...s.customAIs,
+            {
+              id: uid(),
+              name,
+              description,
+              instructions,
+              promptStarters,
+              createdAt: Date.now(),
+            },
+          ],
+        })),
+      updateCustomAI: (id, updates) =>
+        set((s) => ({
+          customAIs: s.customAIs.map((ai) =>
+            ai.id === id ? { ...ai, ...updates } : ai
+          ),
+        })),
+      deleteCustomAI: (id) =>
+        set((s) => ({
+          customAIs: s.customAIs.filter((ai) => ai.id !== id),
+          activeCustomAIId: s.activeCustomAIId === id ? null : s.activeCustomAIId,
+        })),
 
       updateThreadTitle: (threadId, title) =>
         set((s) => ({
@@ -563,6 +607,8 @@ export const useKodaStore = create<KodaState>()(
         dictationLang: s.dictationLang,
         wakeWordEnabled: s.wakeWordEnabled,
         chessFen: s.chessFen,
+        customAIs: s.customAIs,
+        activeCustomAIId: s.activeCustomAIId,
       }),
       // Strip any chats persisted by older builds so they can't rehydrate and
       // leak across users on a shared browser.

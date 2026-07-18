@@ -224,6 +224,32 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
               streaming={!!message.streaming && !message.content}
             />
           )}
+          {message.searchImages && message.searchImages.length > 0 && (
+            <div className="mb-5 flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-koda-border [&::-webkit-scrollbar-track]:bg-transparent">
+              {message.searchImages.map((img, i) => (
+                <a
+                  key={i}
+                  href={img.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-koda-border bg-koda-surface/60 transition-all hover:border-koda-accent/50 sm:h-28 sm:w-28"
+                  title={img.title}
+                >
+                  <img
+                    src={img.thumbnailSrc || img.imgSrc}
+                    alt={img.title || "Search image"}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-2 pt-8">
+                    <p className="truncate text-[10px] font-medium text-white shadow-sm">
+                      {img.title || "View Source"}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
           <div className="prose prose-invert max-w-none prose-headings:text-koda-text prose-p:text-koda-text/90 prose-li:text-koda-text/90 prose-strong:text-koda-text prose-a:text-koda-accent-soft prose-code:text-koda-accent-soft prose-code:before:content-none prose-code:after:content-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
@@ -231,7 +257,17 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
               components={{
                 p: ({ children }) => <p>{injectCitations(children, sources)}</p>,
                 li: ({ children }) => <li>{injectCitations(children, sources)}</li>,
-                td: ({ children }) => <td>{injectCitations(children, sources)}</td>,
+                table: ({ children }) => (
+                  <div className="my-6 w-full overflow-x-auto rounded-xl border border-koda-border bg-koda-surface/20 shadow-sm">
+                    <table className="m-0 w-full border-collapse text-left text-sm">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => <thead className="bg-koda-surface-2">{children}</thead>,
+                th: ({ children }) => <th className="border-b border-koda-border px-4 py-3 font-medium text-koda-text whitespace-nowrap">{children}</th>,
+                td: ({ children }) => <td className="border-b border-koda-border/50 px-4 py-3 text-koda-muted">{injectCitations(children, sources)}</td>,
+                tr: ({ children }) => <tr className="transition-colors hover:bg-koda-surface/40 even:bg-koda-surface/20 last:border-b-0">{children}</tr>,
                 h1: ({ children }) => <h1>{injectCitations(children, sources)}</h1>,
                 h2: ({ children }) => <h2>{injectCitations(children, sources)}</h2>,
                 h3: ({ children }) => <h3>{injectCitations(children, sources)}</h3>,

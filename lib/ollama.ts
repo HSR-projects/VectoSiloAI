@@ -11,12 +11,12 @@ import { recordIncident } from "@/lib/incidentStore";
  */
 
 export const OLLAMA_BASE_URL = (
-  process.env.OLLAMA_BASE_URL || "https://ollama.com"
+  process.env.KODA_CLOUD_BASE_URL || process.env.OLLAMA_BASE_URL || "https://ollama.com"
 ).replace(/\/$/, "");
 
-export const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY || "";
+export const OLLAMA_API_KEY = process.env.KODA_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
 
-export const DEFAULT_MODEL = process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
+export const DEFAULT_MODEL = process.env.KODA_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
 
 /**
  * Optional hard override. When OLLAMA_FORCE_MODEL is set, EVERY chat call uses

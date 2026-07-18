@@ -2,6 +2,7 @@ package org.hsrprojects.kodaai.data
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -15,7 +16,10 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.hsrprojects.kodaai.BuildConfig
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 
 /**
  * The single HTTP entry point to the KodaAI backend. Holds an OkHttp client with
@@ -64,10 +68,17 @@ object KodaClient {
             .firstOrNull { it.startsWith("koda_session=") }
             ?.substringAfter("koda_session=")
             ?: return false
+        return adoptToken(value)
+    }
+
+    /**
+     * Adopt a session token directly (e.g., from a deep link OAuth flow).
+     */
+    fun adoptToken(token: String): Boolean {
         val url = base.toHttpUrlOrNull() ?: return false
         val cookie = Cookie.Builder()
             .name("koda_session")
-            .value(value)
+            .value(token)
             .domain(url.host)
             .path("/")
             .expiresAt(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
@@ -118,6 +129,10 @@ object KodaClient {
                             else -> AuthResult.Error("Unexpected response.")
                         }
                     }
+            } catch (e: SocketTimeoutException) {
+                AuthResult.Error("Connection timed out. Please check your network and try again.")
+            } catch (e: UnknownHostException) {
+                AuthResult.Error("Cannot reach the server. Please check your internet connection.")
             } catch (e: IOException) {
                 AuthResult.Error(e.message ?: "Network error. Check your connection.")
             }
@@ -129,6 +144,24 @@ object KodaClient {
                 .execute().close()
         }
         cookieJar.clear()
+    }
+
+    @kotlinx.serialization.Serializable
+    private data class AccountPatch(
+        val name: String? = null,
+        val avatarColor: String? = null,
+    )
+
+    suspend fun updateAccount(name: String? = null, avatarColor: String? = null): UserDto? = withContext(Dispatchers.IO) {
+        runCatching {
+            val payload = json.encodeToString(AccountPatch.serializer(), AccountPatch(name, avatarColor))
+            http.newCall(Request.Builder().url("$base/api/account").post(bodyOf(payload)).build())
+                .execute().use { resp ->
+                    if (!resp.isSuccessful) return@use null
+                    val text = resp.body?.string().orEmpty()
+                    json.decodeFromString<AuthResponse>(text).user
+                }
+        }.getOrNull()
     }
 
     // ─── Models ──────────────────────────────────────────────────────────────
@@ -208,11 +241,15 @@ object KodaClient {
      * Streams a chat answer. [onToken] fires for each delta, [onFollowups] once
      * (if the model produced them). Throws [IOException] on an error event or
      * transport failure so the caller can surface a message.
+     *
+     * The call is cancellation-safe: if the coroutine is cancelled, the underlying
+     * OkHttp call is cancelled immediately so the socket is cleaned up.
      */
     suspend fun chat(
         request: ChatRequest,
         onToken: (String) -> Unit,
         onFollowups: (List<String>) -> Unit,
+        onThinking: ((String) -> Unit)? = null,
     ) = withContext(Dispatchers.IO) {
         val payload = json.encodeToString(ChatRequest.serializer(), request)
         val call = http.newCall(
@@ -222,35 +259,99 @@ object KodaClient {
                 .post(bodyOf(payload))
                 .build()
         )
-        call.execute().use { resp ->
-            if (!resp.isSuccessful) {
-                val text = resp.body?.string().orEmpty()
-                val msg = runCatching {
-                    json.parseToJsonElement(text).jsonObject["error"]?.jsonPrimitive?.content
-                }.getOrNull()
-                throw IOException(msg ?: "Chat request failed (${resp.code}).")
-            }
-            val source = resp.body?.source() ?: throw IOException("Empty response.")
-            while (!source.exhausted()) {
-                val line = source.readUtf8Line() ?: break
-                if (!line.startsWith("data:")) continue
-                val data = line.substring(5).trim()
-                if (data.isEmpty()) continue
-                val obj = runCatching { json.parseToJsonElement(data).jsonObject }.getOrNull() ?: continue
-                when (obj["type"]?.jsonPrimitive?.content) {
-                    "token" -> obj["content"]?.jsonPrimitive?.content?.let(onToken)
-                    "followups" -> {
-                        val qs = obj["questions"]?.jsonArray
-                            ?.mapNotNull { it.jsonPrimitive.content }
-                            .orEmpty()
-                        if (qs.isNotEmpty()) onFollowups(qs)
+        try {
+            call.execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    val text = resp.body?.string().orEmpty()
+                    val msg = runCatching {
+                        json.parseToJsonElement(text).jsonObject["error"]?.jsonPrimitive?.content
+                    }.getOrNull()
+                    throw IOException(msg ?: "Chat request failed (${resp.code}).")
+                }
+                val source = resp.body?.source() ?: throw IOException("Empty response.")
+                while (!source.exhausted()) {
+                    // Check for coroutine cancellation between lines
+                    coroutineContext.ensureActive()
+
+                    val line = source.readUtf8Line() ?: break
+                    // Use removePrefix to safely handle both "data: {...}" and "data:{...}"
+                    if (!line.startsWith("data:")) continue
+                    val data = line.removePrefix("data:").trim()
+                    if (data.isEmpty()) continue
+                    val obj = runCatching { json.parseToJsonElement(data).jsonObject }.getOrNull() ?: continue
+                    when (obj["type"]?.jsonPrimitive?.content) {
+                        "token" -> obj["content"]?.jsonPrimitive?.content?.let(onToken)
+                        "thinking" -> obj["content"]?.jsonPrimitive?.content?.let { t ->
+                            onThinking?.invoke(t)
+                        }
+                        "followups" -> {
+                            val qs = obj["questions"]?.jsonArray
+                                ?.mapNotNull { it.jsonPrimitive.content }
+                                .orEmpty()
+                            if (qs.isNotEmpty()) onFollowups(qs)
+                        }
+                        "done" -> return@use
+                        "error" -> throw IOException(
+                            obj["message"]?.jsonPrimitive?.content ?: "Model error."
+                        )
                     }
-                    "done" -> return@use
-                    "error" -> throw IOException(
-                        obj["message"]?.jsonPrimitive?.content ?: "Model error."
-                    )
                 }
             }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // If the coroutine was cancelled (e.g. user started a new chat),
+            // cancel the underlying HTTP call to free the socket immediately.
+            call.cancel()
+            throw e
         }
     }
+
+    // ─── TTS (text-to-speech) ────────────────────────────────────────────────
+
+    /**
+     * Synthesise speech for the given text via the backend's `/api/tts` endpoint.
+     * Returns the raw audio bytes (WAV or MP3 depending on server config).
+     */
+    suspend fun textToSpeech(text: String, voice: String? = null): ByteArray =
+        withContext(Dispatchers.IO) {
+            val payload = json.encodeToString(
+                TtsRequest.serializer(), TtsRequest(text, voice)
+            )
+            val resp = http.newCall(
+                Request.Builder()
+                    .url("$base/api/tts")
+                    .post(bodyOf(payload))
+                    .build()
+            ).execute()
+            try {
+                if (!resp.isSuccessful) throw IOException("TTS failed (${resp.code}).")
+                resp.body?.bytes() ?: throw IOException("Empty TTS response.")
+            } finally {
+                resp.close()
+            }
+        }
+
+    // ─── STT (speech-to-text) ────────────────────────────────────────────────
+
+    /**
+     * Transcribe audio via the backend's `/api/stt` endpoint.
+     * [audioData] is the raw audio bytes (webm/ogg/wav), [mimeType] is the
+     * content-type (e.g. "audio/webm" or "audio/wav").
+     */
+    suspend fun speechToText(audioData: ByteArray, mimeType: String = "audio/webm"): String =
+        withContext(Dispatchers.IO) {
+            val body = audioData.toRequestBody(mimeType.toMediaType())
+            val resp = http.newCall(
+                Request.Builder()
+                    .url("$base/api/stt")
+                    .post(body)
+                    .build()
+            ).execute()
+            try {
+                if (!resp.isSuccessful) throw IOException("STT failed (${resp.code}).")
+                val text = resp.body?.string().orEmpty()
+                json.decodeFromString<SttResponse>(text).text
+            } finally {
+                resp.close()
+            }
+        }
 }

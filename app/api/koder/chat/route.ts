@@ -11,7 +11,7 @@
 import { NextResponse } from "next/server";
 import { chat, chatStream, DEFAULT_MODEL, OllamaError } from "@/lib/ollama";
 import { resolveKoderSession, consumeKoderRequest } from "@/lib/koderUsage";
-import { getUserById, deductCredits, getBillableCredits } from "@/lib/auth";
+import { getUserById, deductCredits, getBillableCredits, hasUnlimitedCredits } from "@/lib/auth";
 import { estimateTokens, computeCost, API_MIN_CENTS } from "@/lib/credits";
 import { recordUsage } from "@/lib/usageStore";
 import type { OllamaMessage } from "@/types";
@@ -66,7 +66,8 @@ export async function POST(req: Request) {
   } else {
     // API-key auth: check credits
     const credits = await getBillableCredits(user.id, session.apiKeyId);
-    if (credits < API_MIN_CENTS) {
+    const hasUnlimited = await hasUnlimitedCredits(user.id);
+    if (!hasUnlimited && credits < API_MIN_CENTS) {
       return json({ error: "Insufficient credits. Top up at chat.hsrprojects.org/developers." }, 402);
     }
   }

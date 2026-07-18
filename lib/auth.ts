@@ -79,6 +79,18 @@ export interface StoredUser extends User {
   twoFactorEnabled?: boolean;
   /** Bcrypt-hashed backup codes (one-time-use). */
   twoFactorBackupCodes?: string[];
+  /** Whether the user has unlimited credits. */
+  unlimitedCredits?: boolean;
+  /** Whether auto-recharge is enabled for this user. */
+  autoRechargeEnabled?: boolean;
+  /** The amount to auto-recharge in cents. */
+  autoRechargeAmountCents?: number;
+  /** The threshold in cents below which auto-recharge is triggered. */
+  autoRechargeThresholdCents?: number;
+  /** Razorpay customer ID for recurring charges. */
+  razorpayCustomerId?: string;
+  /** Razorpay token ID for the saved card/payment method. */
+  razorpayTokenId?: string;
 }
 
 export interface MemoryItem {
@@ -123,7 +135,7 @@ export async function writeDB(db: DB): Promise<void> {
 }
 
 /** Whitelist the fields safe to expose — never key hashes, Razorpay IDs, or password. */
-function publicUser(u: StoredUser): User {
+function publicUser(u: StoredUser): any {
   return {
     id: u.id,
     name: u.name,
@@ -136,6 +148,10 @@ function publicUser(u: StoredUser): User {
     emailVerified: u.emailVerified ?? false,
     credits: u.credits ?? 0,
     twoFactorEnabled: u.twoFactorEnabled ?? false,
+    autoRechargeEnabled: u.autoRechargeEnabled ?? false,
+    autoRechargeAmountCents: u.autoRechargeAmountCents,
+    autoRechargeThresholdCents: u.autoRechargeThresholdCents,
+    hasSavedCard: !!(u.razorpayCustomerId && u.razorpayTokenId),
   };
 }
 
@@ -159,12 +175,6 @@ function verifyLegacyScrypt(password: string, stored: string): boolean {
   const hash = Buffer.from(hashHex, "hex");
   const test = scryptSync(password, Buffer.from(saltHex, "hex"), 64);
   return hash.length === test.length && timingSafeEqual(hash, test);
-}
-
-/** Verify a password against either a bcrypt or a legacy scrypt hash. */
-async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  if (isBcryptHash(stored)) return bcrypt.compare(password, stored);
-  return verifyLegacyScrypt(password, stored);
 }
 
 // ─── Sessions (signed cookie) ─────────────────────────────────
@@ -439,6 +449,18 @@ export async function getUserById(userId: string): Promise<User | null> {
   return user ? publicUser(user) : null;
 }
 
+/** Find a user by email (used for password-based WhatsApp auth). */
+export async function getUserByEmail(email: string): Promise<StoredUser | null> {
+  const db = await readDB();
+  return db.users.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ?? null;
+}
+
+/** Verify a password against either a bcrypt or a legacy scrypt hash. */
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  if (isBcryptHash(stored)) return bcrypt.compare(password, stored);
+  return verifyLegacyScrypt(password, stored);
+}
+
 /** Return the full StoredUser for a given user ID (includes sensitive fields). */
 export async function getStoredUserById(userId: string): Promise<StoredUser | null> {
   const db = await readDB();
@@ -666,7 +688,56 @@ export async function deductCredits(
   if (!user) return null;
   const charge = Math.max(0, Math.round(cents));
   const balance = user.credits ?? 0;
-  if (balance < charge) return null;
+  
+  if (balance < charge && !user.unlimitedCredits) {
+    // Trigger auto-recharge if enabled and below threshold
+    if (user.autoRechargeEnabled && user.autoRechargeAmountCents && user.autoRechargeThresholdCents !== undefined) {
+      if (balance < user.autoRechargeThresholdCents) {
+        // Calculate the exact amount needed to cover the charge plus the auto-recharge amount
+        const deficit = charge - balance;
+        const rechargeAmount = Math.max(user.autoRechargeAmountCents, deficit);
+
+        // If they have a saved card (razorpayCustomerId & razorpayTokenId), charge it via Razorpay
+        if (user.razorpayCustomerId && user.razorpayTokenId) {
+          try {
+            const { razorpayInstance } = require("./razorpay");
+            const payment = await razorpayInstance.payments.createRecurring({
+              email: user.email,
+              contact: "", // Optional
+              customer_id: user.razorpayCustomerId,
+              token: user.razorpayTokenId,
+              amount: Math.round(rechargeAmount),
+              currency: "USD",
+              description: `Auto-recharge for KodaAI API credits`,
+              receipt: `autorecharge_${Date.now()}_${user.id.slice(0, 8)}`,
+            });
+            if (payment.status === "captured") {
+              console.log(`[Billing] Auto-recharged user ${userId} successfully via Razorpay for ${rechargeAmount} cents.`);
+              user.credits = balance + rechargeAmount;
+            } else {
+              console.error(`[Billing] Auto-recharge payment failed with status: ${payment.status}`);
+              return null;
+            }
+          } catch (err) {
+            console.error(`[Billing] Auto-recharge failed via Razorpay:`, err);
+            return null;
+          }
+        } else {
+          // Fallback to simulated recharge if no real card is attached yet (for testing/dev)
+          console.log(`[Billing] Auto-recharging user ${userId} (simulated) for ${rechargeAmount} cents.`);
+          user.credits = balance + rechargeAmount;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+  
+  const newBalance = user.credits ?? 0;
+  if (newBalance < charge && !user.unlimitedCredits) return null;
+
   if (apiKeyId) {
     const key = (user.apiKeys ?? []).find((k) => k.id === apiKeyId && !k.revoked);
     if (!key) return null;
@@ -675,7 +746,11 @@ export async function deductCredits(
     if (typeof limit === "number" && spent + charge > limit) return null;
     key.spentCents = spent + charge;
   }
-  user.credits = balance - charge;
+  
+  if (!user.unlimitedCredits) {
+    user.credits = newBalance - charge;
+  }
+  
   await writeDB(db);
   return user.credits;
 }
@@ -698,6 +773,29 @@ export async function getBillableCredits(userId: string, apiKeyId?: string): Pro
   if (!key) return 0;
   if (typeof key.creditLimitCents !== "number") return balance;
   return Math.max(0, Math.min(balance, key.creditLimitCents - (key.spentCents ?? 0)));
+}
+
+export async function hasUnlimitedCredits(userId: string): Promise<boolean> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  return user?.unlimitedCredits === true;
+}
+
+export async function updateAutoRecharge(
+  userId: string,
+  enabled: boolean,
+  amountCents?: number,
+  thresholdCents?: number
+): Promise<void> {
+  const db = await readDB();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) throw new AuthError("User not found.");
+  
+  user.autoRechargeEnabled = enabled;
+  if (amountCents !== undefined) user.autoRechargeAmountCents = amountCents;
+  if (thresholdCents !== undefined) user.autoRechargeThresholdCents = thresholdCents;
+  
+  await writeDB(db);
 }
 
 // ─── Free-tier usage metering ─────────────────────────────────

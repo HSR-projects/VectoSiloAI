@@ -19,6 +19,7 @@ data class UserDto(
     val onboarded: Boolean = false,
     val emailVerified: Boolean = false,
     val credits: Int = 0,
+    val avatarColor: String? = null,
 )
 
 @Serializable
@@ -92,6 +93,7 @@ data class ChatRequest(
     val model: String,
     val focusMode: String = "all",
     val sources: List<SourceDto> = emptyList(),
+    val images: List<String> = emptyList(),
 )
 
 // ─── Threads (saved chats) ───────────────────────────────────────────────────
@@ -135,3 +137,29 @@ sealed interface AuthResult {
     data class NeedsVerification(val email: String) : AuthResult
     data class Error(val message: String) : AuthResult
 }
+
+// ─── TTS / STT ──────────────────────────────────────────────────────────────
+
+@Serializable
+data class TtsRequest(val text: String, val voice: String? = null)
+
+@Serializable
+data class SttResponse(val text: String = "", val error: String? = null)
+
+sealed class Attachment {
+    abstract val name: String
+    abstract val size: Long
+}
+
+data class ImageAttachment(
+    override val name: String,
+    override val size: Long,
+    val base64Data: String // base64 stripped data string
+) : Attachment()
+
+data class DocumentAttachment(
+    override val name: String,
+    override val size: Long,
+    val textContent: String // extracted text
+) : Attachment()
+

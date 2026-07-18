@@ -11,15 +11,14 @@ export const MAX_ATTACHMENTS = 6;
 const MAX_TEXT_CHARS = 20_000;
 
 /** `accept` value for the file picker. */
-export const ACCEPT_ATTACHMENTS =
-  "image/*,audio/*,text/*,.txt,.md,.markdown,.csv,.json,.xml,.yaml,.yml,.html,.css,.js,.ts,.tsx,.jsx,.py,.java,.c,.cpp,.go,.rs,.rb,.php,.sh,.sql,.log";
+export const ACCEPT_ATTACHMENTS = "*/*";
 
 /** Extensions we treat as text even when the browser reports no/odd MIME. */
 const TEXT_EXTENSIONS = new Set([
   "txt", "md", "markdown", "csv", "json", "xml", "yaml", "yml", "html", "htm",
   "css", "js", "mjs", "ts", "tsx", "jsx", "py", "java", "c", "h", "cpp", "hpp",
   "cc", "go", "rs", "rb", "php", "sh", "bash", "zsh", "sql", "log", "ini", "toml",
-  "env", "conf", "cfg", "tex", "rtf",
+  "env", "conf", "cfg", "tex", "rtf", "pgn",
 ]);
 
 function ext(name: string): string {
@@ -134,6 +133,38 @@ export async function fileToAttachment(file: File): Promise<AttachResult> {
     return { attachment: { ...base, kind, data: stripDataPrefix(dataUrl) } };
   }
 
+  // Intercept PDF files and parse text client-side
+  const isPdf = file.type === "application/pdf" || ext(file.name) === "pdf";
+  if (isPdf) {
+    try {
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const loadingTask = pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) });
+      const pdf = await loadingTask.promise;
+      
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(" ");
+        fullText += `--- Page ${i} ---\n${pageText}\n\n`;
+      }
+
+      return {
+        attachment: {
+          ...base,
+          kind: "text",
+          mime: "text/plain",
+          data: fullText,
+        }
+      };
+    } catch (e: any) {
+      return { error: `Failed to parse PDF: ${e.message || e}` };
+    }
+  }
+
   if (kind === "text") {
     if (file.size > MAX_TEXT_BYTES)
       return { error: `${file.name} is too large (max ${humanSize(MAX_TEXT_BYTES)}).` };
@@ -141,7 +172,8 @@ export async function fileToAttachment(file: File): Promise<AttachResult> {
     return { attachment: { ...base, kind, data: text } };
   }
 
-  return { error: `${file.name}: unsupported file type.` };
+  // Gracefully attach unsupported files so the AI knows they are present
+  return { attachment: { ...base, kind: "other" } };
 }
 
 /** Lightweight copy stored on a message — drops heavy payloads, keeps thumbnails. */

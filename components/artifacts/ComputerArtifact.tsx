@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import hljs from "highlight.js";
 import {
   ChevronRight,
@@ -71,10 +71,12 @@ export function ComputerArtifact() {
   const activePath = computer?.activePath;
   const activeFile = files.find((f) => f.path === activePath) ?? files[0];
 
+  const [wcFailed, setWcFailed] = useState(false);
+
   // Use WebContainer for: React projects OR non-Ultra tiers (Go/Pro/Max)
   // Use Docker sandbox only for: Ultra tier + non-React projects
-  const useWebContainerMode = isReact || !isUltra;
-  const useDockerSandbox = !useWebContainerMode && computer?.live;
+  const useWebContainerMode = (isReact || !isUltra) && !wcFailed;
+  const useDockerSandbox = !useWebContainerMode && !isReact && isUltra && computer?.live;
 
   // Docker sandbox provisioning (Ultra tier + non-React only)
   useEffect(() => {
@@ -173,14 +175,15 @@ export function ComputerArtifact() {
 
   // Mount files into WebContainer when the project is ready
   useEffect(() => {
-    if (!isReact || !files.length) return;
+    if (!isReact || !files.length || wcFailed) return;
+    if (wc.status === "error") { setWcFailed(true); return; }
     if (wc.status === "booting" || wc.status === "installing" || wc.status === "starting") return;
     const key = files.map((f) => f.path + f.content.length).join("|");
     if (key === wcMountedKey.current) return;
     wcMountedKey.current = key;
     void wc.mount(files, computer?.commands ?? []);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files, isReact]);
+  }, [files, isReact, wc.status, wcFailed]);
 
   // Auto-jump to preview (React) or terminal (Docker sandbox) when ready
   const ranRef = useRef(false);
@@ -229,6 +232,35 @@ export function ComputerArtifact() {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishSlug, setPublishSlug] = useState("");
+  const [publishStatus, setPublishStatus] = useState<"idle" | "checking" | "ok" | "error" | "taken">("idle");
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+
+  const handlePublish = useCallback(async () => {
+    if (!publishSlug || !files.length) return;
+    setPublishStatus("checking");
+    try {
+      const res = await fetch("/api/published", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: publishSlug,
+          title: computer?.title ?? "Untitled",
+          files,
+          commands: computer?.commands ?? [],
+        }),
+      });
+      if (res.status === 409) { setPublishStatus("taken"); return; }
+      if (!res.ok) { setPublishStatus("error"); return; }
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      setPublishedUrl(`${origin}/view/${publishSlug}`);
+      setPublishStatus("ok");
+    } catch {
+      setPublishStatus("error");
+    }
+  }, [publishSlug, files, computer]);
+
   const effectiveStatus: ComputerStatus = useWebContainerMode
     ? wcStatusToStore(wc.status)
     : computer.status ?? "building";
@@ -272,20 +304,28 @@ export function ComputerArtifact() {
           >
             <Download className="h-3.5 w-3.5" /> Download
           </button>
+          <button
+            type="button"
+            onClick={() => { setPublishSlug(computer.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")); setPublishOpen(true); setPublishStatus("idle"); setPublishedUrl(null); }}
+            disabled={!files.length}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-koda-accent/30 bg-koda-accent/10 px-2.5 py-1.5 text-xs font-medium text-koda-accent-soft transition-colors hover:bg-koda-accent/20 disabled:opacity-40"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Publish
+          </button>
         </div>
       </div>
 
       {/* Body */}
       <div className="relative flex-1 overflow-hidden">
         {tab === "preview" && (
-          isReact && wc.previewUrl ? (
+          isReact && !wcFailed && wc.previewUrl ? (
             <iframe
               key={wc.previewUrl}
               title={`${computer.title} preview`}
               src={wc.previewUrl}
               className="h-full w-full bg-white"
             />
-          ) : isReact && (wc.status === "installing" || wc.status === "starting" || wc.status === "booting") ? (
+          ) : isReact && !wcFailed && (wc.status === "installing" || wc.status === "starting" || wc.status === "booting") ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-koda-muted">
               <Loader2 className="h-6 w-6 animate-spin text-koda-accent" />
               <p className="text-sm">
@@ -392,6 +432,56 @@ export function ComputerArtifact() {
           <SandboxDesktop containerId={containerId!} />
         )}
       </div>
+
+      {/* Publish Dialog */}
+      {publishOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-xl border border-koda-border bg-koda-surface p-6 shadow-2xl">
+            {publishedUrl ? (
+              <>
+                <p className="text-sm font-semibold text-koda-text">Published!</p>
+                <p className="mt-1 text-xs text-koda-muted">Your project is live at:</p>
+                <a href={publishedUrl} target="_blank" rel="noopener noreferrer"
+                  className="mt-3 block rounded-lg border border-koda-border bg-koda-surface-2 p-3 text-sm font-mono text-koda-accent-soft break-all hover:bg-koda-accent/10 transition-colors">
+                  {publishedUrl}
+                </a>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button onClick={() => setPublishOpen(false)} className="rounded-lg px-3 py-1.5 text-xs font-medium text-koda-muted hover:text-koda-text">Close</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-koda-text">Publish your project</p>
+                <p className="mt-1 text-xs text-koda-muted">Choose a unique slug for your public URL.</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="shrink-0 text-xs text-koda-muted">/view/</span>
+                  <input
+                    autoFocus
+                    value={publishSlug}
+                    onChange={(e) => { setPublishSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")); setPublishStatus("idle"); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" && publishSlug && publishStatus !== "checking") handlePublish(); }}
+                    className="flex-1 rounded-lg border border-koda-border bg-koda-bg px-3 py-2 text-sm font-mono text-koda-text outline-none focus:border-koda-accent/50"
+                    placeholder="my-project"
+                  />
+                </div>
+                {publishStatus === "taken" && <p className="mt-2 text-xs text-red-400">That slug is already taken. Try another.</p>}
+                {publishStatus === "error" && <p className="mt-2 text-xs text-red-400">Something went wrong. Try again.</p>}
+                <div className="mt-4 flex justify-end gap-2">
+                  <button onClick={() => setPublishOpen(false)} className="rounded-lg px-3 py-1.5 text-xs font-medium text-koda-muted hover:text-koda-text">Cancel</button>
+                  <button
+                    onClick={handlePublish}
+                    disabled={!publishSlug || publishStatus === "checking"}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-koda-accent/90 disabled:opacity-40"
+                  >
+                    {publishStatus === "checking" ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
+                    {publishStatus === "checking" ? "Publishing…" : "Publish"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

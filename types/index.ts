@@ -69,6 +69,21 @@ export interface RouteDecision {
   reason: string;
 }
 
+// ─── Custom AIs ──────────────────────────────────────────────
+export interface CustomAI {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  createdAt: number;
+  promptStarters?: string[];
+}
+
+export interface PublicCustomAI extends CustomAI {
+  authorId?: string;
+  authorName?: string;
+}
+
 // ─── Accounts & billing ───────────────────────────────────────
 export type Plan = "free" | "go" | "pro" | "max" | "ultra";
 
@@ -91,6 +106,12 @@ export interface User {
   credits: number;
   /** Whether two-factor authentication is enabled for this account. */
   twoFactorEnabled?: boolean;
+  /** Whether auto-recharge is enabled for this user. */
+  autoRechargeEnabled?: boolean;
+  /** The amount to auto-recharge in cents. */
+  autoRechargeAmountCents?: number;
+  /** The threshold in cents below which auto-recharge is triggered. */
+  autoRechargeThresholdCents?: number;
 }
 
 // ─── API keys & credits ───────────────────────────────────────
@@ -312,6 +333,8 @@ export interface Message {
   sources?: Source[];
   /** Images generated for this answer (text-to-image). */
   generatedImages?: GeneratedImage[];
+  /** Images fetched from search (e.g. product photos) for Perplexity-like display. */
+  searchImages?: ImageResult[];
   /** AI-generated follow-up questions shown under an assistant answer. */
   followups?: string[];
   /** Live agent activity trace (understanding → search → reading → writing). */
@@ -427,6 +450,8 @@ export interface Thread {
   updatedAt: number;
   /** Optional share ID for public sharing. */
   shareId?: string;
+  /** Optional Custom AI ID used for this thread. */
+  customAIId?: string;
 }
 
 // ─── API payloads ─────────────────────────────────────────────
@@ -460,12 +485,17 @@ export interface ChatRequestBody {
   providerApiKey?: string;
   /** Base URL override for external providers. */
   providerBaseUrl?: string;
+  /** Optional instructions from a selected Custom AI. */
+  customInstructions?: string;
+  /** Enable web search for the query. */
+  enableSearch?: boolean;
 }
 
 export type ChatStreamEvent =
   | { type: "token"; content: string }
   | { type: "thinking"; content: string }
   | { type: "followups"; questions: string[] }
+  | { type: "search_images"; images: ImageResult[] }
   | { type: "error"; message: string }
   | { type: "done" };
 

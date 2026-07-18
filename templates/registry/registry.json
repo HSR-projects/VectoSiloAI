@@ -1,0 +1,294 @@
+{
+  "version": "1.0.0",
+  "total": 104,
+  "categories": {
+    "layout": {
+      "label": "Layout & Containers",
+      "description": "Animated wrappers, grids, modals, drawers",
+      "templates": [
+        "animate-container",
+        "animate-section",
+        "animate-grid",
+        "animate-stack",
+        "page-transition",
+        "parallax-container",
+        "animate-modal",
+        "animate-drawer",
+        "ui-stickyheader",
+        "ui-sidebar"
+      ]
+    },
+    "navigation": {
+      "label": "Navigation",
+      "description": "Navbars, menus, tabs, breadcrumbs, pagination",
+      "templates": [
+        "nav-navbar",
+        "nav-mobile",
+        "nav-breadcrumbs",
+        "nav-tabs",
+        "nav-megamenu",
+        "nav-sidenav",
+        "ui-pagination",
+        "ui-stepper",
+        "ui-treeview"
+      ]
+    },
+    "hero": {
+      "label": "Hero Sections",
+      "description": "Landing heroes with animations",
+      "templates": [
+        "hero-basic",
+        "hero-split",
+        "hero-gradient",
+        "hero-typewriter"
+      ]
+    },
+    "cards": {
+      "label": "Cards & Surfaces",
+      "description": "Interactive cards with hover/click animations",
+      "templates": [
+        "card-basic",
+        "card-glass",
+        "card-gradient",
+        "card-image",
+        "card-flip",
+        "card-expand",
+        "card-pricing",
+        "card-testimonial",
+        "card-blog",
+        "card-product",
+        "card-horizontal",
+        "card-profile"
+      ]
+    },
+    "forms": {
+      "label": "Forms & Inputs",
+      "description": "Animated form controls",
+      "templates": [
+        "form-input",
+        "form-textarea",
+        "form-select",
+        "form-checkbox",
+        "form-radio",
+        "form-toggle",
+        "form-fileupload",
+        "form-slider"
+      ]
+    },
+    "feedback": {
+      "label": "Feedback & UI",
+      "description": "Toasts, alerts, badges, loading states",
+      "templates": [
+        "feedback-toast",
+        "feedback-alert",
+        "feedback-badge",
+        "feedback-skeleton",
+        "feedback-progress",
+        "feedback-spinner",
+        "feedback-empty",
+        "feedback-error"
+      ]
+    },
+    "data-display": {
+      "label": "Data Display",
+      "description": "Tables, lists, timelines, charts, galleries",
+      "templates": [
+        "data-table",
+        "data-grid",
+        "data-list",
+        "data-timeline",
+        "data-stats",
+        "data-accordion",
+        "data-carousel",
+        "data-gallery",
+        "data-chart"
+      ]
+    },
+    "marketing": {
+      "label": "Marketing Sections",
+      "description": "Features, testimonials, pricing, FAQ, team",
+      "templates": [
+        "marketing-features",
+        "marketing-testimonials",
+        "marketing-pricing",
+        "marketing-faq",
+        "marketing-contact",
+        "marketing-newsletter",
+        "marketing-team",
+        "marketing-logocloud"
+      ]
+    },
+    "ui-elements": {
+      "label": "UI Elements",
+      "description": "Miscellaneous interactive components",
+      "templates": [
+        "ui-avatar",
+        "ui-notification",
+        "ui-dropdown",
+        "ui-tooltip",
+        "ui-countdown",
+        "ui-rating"
+      ]
+    },
+    "pages-landing": {
+      "label": "Landing Pages",
+      "description": "Full landing page compositions",
+      "templates": [
+        "page-landing-saas",
+        "page-landing-startup",
+        "page-landing-product",
+        "page-landing-agency",
+        "page-landing-portfolio",
+        "page-landing-mobile"
+      ]
+    },
+    "pages-dashboard": {
+      "label": "Dashboards",
+      "description": "Analytics, admin, project management",
+      "templates": [
+        "page-dashboard-analytics",
+        "page-dashboard-admin",
+        "page-dashboard-project"
+      ]
+    },
+    "pages-auth": {
+      "label": "Auth Pages",
+      "description": "Login, register, password reset, 2FA",
+      "templates": [
+        "page-auth-login",
+        "page-auth-register",
+        "page-auth-reset",
+        "page-auth-2fa"
+      ]
+    },
+    "pages-content": {
+      "label": "Content Pages",
+      "description": "Blog, docs, about, contact, careers, FAQ",
+      "templates": [
+        "page-blog-grid",
+        "page-blog-post",
+        "page-docs",
+        "page-contact",
+        "page-about",
+        "page-careers",
+        "page-faq",
+        "page-error",
+        "page-portfolio-project",
+        "page-services",
+        "page-compare-plans",
+        "page-waitlist"
+      ]
+    },
+    "pages-pricing": {
+      "label": "Pricing Pages",
+      "description": "Pricing tables and plan comparisons",
+      "templates": [
+        "page-pricing-simple",
+        "page-pricing-tiered"
+      ]
+    }
+  },
+  "templates": {
+    "animate-container": { "file": "components/AnimatedContainer", "type": "component", "category": "layout", "props": { "direction": "up|down|left|right|scale|none", "duration": 0.5, "delay": 0, "once": true }, "description": "Wraps children with entrance animation on scroll into view" },
+    "animate-section": { "file": "components/AnimatedSection", "type": "component", "category": "layout", "props": { "id": "string", "bg": "string", "padding": "string" }, "description": "Full-width section with scroll-triggered reveal" },
+    "animate-grid": { "file": "components/AnimatedGrid", "type": "component", "category": "layout", "props": { "cols": "{mobile?:1, tablet?:2, desktop?:3}", "gap": "number", "staggerDelay": 0.08 }, "description": "CSS grid with staggered child entrance animations" },
+    "animate-stack": { "file": "components/AnimatedStack", "type": "component", "category": "layout", "props": { "gap": "number", "staggerDelay": 0.08 }, "description": "Flex column with staggered child entrance animations" },
+    "page-transition": { "file": "components/PageTransition", "type": "component", "category": "layout", "props": { "key": "string" }, "description": "Page-level fade+slide transition wrapper" },
+    "parallax-container": { "file": "components/ParallaxContainer", "type": "component", "category": "layout", "props": { "speed": 0.3, "offset": 0 }, "description": "Parallax scrolling wrapper using framer-motion scroll" },
+    "animate-modal": { "file": "components/AnimatedModal", "type": "component", "category": "layout", "props": { "open": "boolean", "onClose": "function", "title": "string" }, "description": "Modal with backdrop blur, scale entrance, AnimatePresence" },
+    "animate-drawer": { "file": "components/AnimatedDrawer", "type": "component", "category": "layout", "props": { "open": "boolean", "onClose": "function", "side": "left|right", "width": "string" }, "description": "Slide-in drawer panel from left or right" },
+    "ui-stickyheader": { "file": "components/StickyHeader", "type": "component", "category": "layout", "props": {}, "description": "Header that hides/shows on scroll direction" },
+    "ui-sidebar": { "file": "components/AnimatedSidebar", "type": "component", "category": "layout", "props": {}, "description": "Collapsible sidebar with smooth width animation" },
+    "nav-navbar": { "file": "components/Navbar", "type": "component", "category": "navigation", "props": { "logo": "ReactNode", "links": "array", "cta": "ReactNode", "sticky": true }, "description": "Animated navbar with scroll effects and mobile drawer" },
+    "nav-mobile": { "file": "components/MobileNav", "type": "component", "category": "navigation", "props": { "open": "boolean", "onClose": "function", "links": "array" }, "description": "Full-screen mobile navigation with staggered menu items" },
+    "nav-breadcrumbs": { "file": "components/Breadcrumbs", "type": "component", "category": "navigation", "props": { "items": "array" }, "description": "Animated breadcrumbs with separator icons" },
+    "nav-tabs": { "file": "components/Tabs", "type": "component", "category": "navigation", "props": { "tabs": "array", "activeTab": "string", "onChange": "function" }, "description": "Animated tab switcher with smooth underline indicator" },
+    "nav-megamenu": { "file": "components/MegaMenu", "type": "component", "category": "navigation", "props": {}, "description": "Full-width dropdown mega menu with columns" },
+    "nav-sidenav": { "file": "components/SideNav", "type": "component", "category": "navigation", "props": {}, "description": "Vertical side navigation with active state" },
+    "ui-pagination": { "file": "components/Pagination", "type": "component", "category": "navigation", "props": {}, "description": "Page navigation with ellipsis and smooth transitions" },
+    "ui-stepper": { "file": "components/Stepper", "type": "component", "category": "navigation", "props": {}, "description": "Step progress wizard with connecting lines" },
+    "ui-treeview": { "file": "components/TreeView", "type": "component", "category": "navigation", "props": {}, "description": "Collapsible tree/nested list component" },
+    "hero-basic": { "file": "components/HeroBasic", "type": "component", "category": "hero", "props": { "title": "string", "subtitle": "string", "primaryCta": "object", "secondaryCta": "object" }, "description": "Simple hero with fade-in + slide-up entrance for each element" },
+    "hero-split": { "file": "components/HeroSplit", "type": "component", "category": "hero", "props": { "title": "string", "subtitle": "string", "cta": "object", "image": "ReactNode", "reverse": false }, "description": "Split layout hero with parallax image side" },
+    "hero-gradient": { "file": "components/HeroGradient", "type": "component", "category": "hero", "props": { "title": "string", "subtitle": "string", "cta": "object" }, "description": "Hero with animated gradient background and floating shapes" },
+    "hero-typewriter": { "file": "components/HeroTypewriter", "type": "component", "category": "hero", "props": { "title": "string", "subtitle": "string", "words": "string[]" }, "description": "Hero with typewriter title cycling through word array" },
+    "card-basic": { "file": "components/CardBasic", "type": "component", "category": "cards", "props": { "onClick": "function", "href": "string" }, "description": "Standard hover-lift card with translateY and shadow" },
+    "card-glass": { "file": "components/CardGlass", "type": "component", "category": "cards", "props": { "blur": "10px", "opacity": "0.1" }, "description": "Glassmorphism card with backdrop-blur and translucent bg" },
+    "card-gradient": { "file": "components/CardGradient", "type": "component", "category": "cards", "props": { "gradientColors": "string[]" }, "description": "Card with animated gradient border" },
+    "card-image": { "file": "components/CardImage", "type": "component", "category": "cards", "props": { "src": "string", "alt": "string", "title": "string", "href": "string" }, "description": "Image card with zoom on hover and slide-up overlay" },
+    "card-flip": { "file": "components/CardFlip", "type": "component", "category": "cards", "props": { "front": "ReactNode", "back": "ReactNode" }, "description": "3D card flip on hover with perspective transform" },
+    "card-expand": { "file": "components/CardExpand", "type": "component", "category": "cards", "props": { "title": "string", "preview": "ReactNode", "children": "ReactNode" }, "description": "Expandable card with smooth height animation" },
+    "card-pricing": { "file": "components/CardPricing", "type": "component", "category": "cards", "props": { "name": "string", "price": "string", "period": "string", "features": "string[]", "popular": false }, "description": "Pricing card with feature list, badge, hover lift" },
+    "card-testimonial": { "file": "components/CardTestimonial", "type": "component", "category": "cards", "props": { "avatar": "string", "name": "string", "role": "string", "quote": "string", "rating": "number" }, "description": "Testimonial card with avatar, rating stars, quote mark" },
+    "card-blog": { "file": "components/CardBlog", "type": "component", "category": "cards", "props": { "image": "string", "date": "string", "category": "string", "title": "string", "excerpt": "string" }, "description": "Blog post card with image zoom, category tag, author" },
+    "card-product": { "file": "components/CardProduct", "type": "component", "category": "cards", "props": { "image": "string", "name": "string", "price": "number", "badge": "string", "onAddToCart": "function" }, "description": "E-commerce product card with badge, zoom, slide-up CTA" },
+    "card-horizontal": { "file": "components/CardHorizontal", "type": "component", "category": "cards", "props": {}, "description": "Horizontal card with image left, content right" },
+    "card-profile": { "file": "components/CardProfile", "type": "component", "category": "cards", "props": {}, "description": "Profile card with cover photo, avatar, social links" },
+    "form-input": { "file": "components/InputAnimated", "type": "component", "category": "forms", "props": { "label": "string", "error": "string", "icon": "ReactNode", "helperText": "string" }, "description": "Animated input with floating label" },
+    "form-textarea": { "file": "components/TextareaAnimated", "type": "component", "category": "forms", "props": { "label": "string", "error": "string", "maxLength": "number" }, "description": "Animated textarea with floating label and char count" },
+    "form-select": { "file": "components/SelectAnimated", "type": "component", "category": "forms", "props": { "label": "string", "options": "array", "placeholder": "string", "error": "string" }, "description": "Custom select with animated dropdown and stagger options" },
+    "form-checkbox": { "file": "components/CheckboxAnimated", "type": "component", "category": "forms", "props": { "label": "string", "checked": "boolean", "disabled": false }, "description": "Animated checkbox with SVG checkmark draw" },
+    "form-radio": { "file": "components/RadioAnimated", "type": "component", "category": "forms", "props": { "name": "string", "options": "array", "direction": "row|column" }, "description": "Animated radio group with ripple fill" },
+    "form-toggle": { "file": "components/ToggleSwitch", "type": "component", "category": "forms", "props": { "label": "string", "checked": "boolean", "size": "sm|md|lg" }, "description": "Animated toggle switch with smooth knob slide" },
+    "form-fileupload": { "file": "components/FileUpload", "type": "component", "category": "forms", "props": { "accept": "string", "multiple": false, "maxSize": "number" }, "description": "Drag-and-drop file upload with animated states" },
+    "form-slider": { "file": "components/SliderRange", "type": "component", "category": "forms", "props": { "min": 0, "max": 100, "step": 1, "label": "string" }, "description": "Animated range slider with custom track" },
+    "feedback-toast": { "file": "components/Toast", "type": "component", "category": "feedback", "props": {}, "description": "Toast notification system with toaster and toast() function" },
+    "feedback-alert": { "file": "components/Alert", "type": "component", "category": "feedback", "props": { "type": "info|success|warning|error", "title": "string", "dismissible": false }, "description": "Inline alert with colored border and icon" },
+    "feedback-badge": { "file": "components/Badge", "type": "component", "category": "feedback", "props": { "variant": "default|success|warning|error|info", "size": "sm|md|lg", "removable": false }, "description": "Animated badge with pulse, dot, and removable option" },
+    "feedback-skeleton": { "file": "components/Skeleton", "type": "component", "category": "feedback", "props": { "variant": "text|card|image|avatar", "width": "string", "height": "string", "count": 1 }, "description": "Skeleton loader with shimmer animation" },
+    "feedback-progress": { "file": "components/Progress", "type": "component", "category": "feedback", "props": { "value": "number", "max": 100, "variant": "default|success|warning|error", "label": "string" }, "description": "Animated progress bar with stripes option" },
+    "feedback-spinner": { "file": "components/Spinner", "type": "component", "category": "feedback", "props": { "size": "sm|md|lg", "variant": "default|accent|white", "label": "string" }, "description": "Smooth rotating loading spinner" },
+    "feedback-empty": { "file": "components/EmptyState", "type": "component", "category": "feedback", "props": { "icon": "ReactNode", "title": "string", "message": "string", "action": "object" }, "description": "Empty state with bouncing icon and CTA" },
+    "feedback-error": { "file": "components/ErrorState", "type": "component", "category": "feedback", "props": { "title": "string", "message": "string", "error": "Error", "onRetry": "function" }, "description": "Error state with retry and expandable details" },
+    "data-table": { "file": "components/Table", "type": "component", "category": "data-display", "props": { "columns": "array", "data": "array", "onSort": "function" }, "description": "Animated data table with sortable columns and staggered rows" },
+    "data-grid": { "file": "components/DataGrid", "type": "component", "category": "data-display", "props": { "columns": "array", "data": "array", "selectable": false, "pageSize": 10 }, "description": "Feature-rich grid with selection, pagination, shift-click" },
+    "data-list": { "file": "components/List", "type": "component", "category": "data-display", "props": { "items": "array", "variant": "default|compact|card" }, "description": "Animated list with staggered slide-in items" },
+    "data-timeline": { "file": "components/Timeline", "type": "component", "category": "data-display", "props": { "items": "array" }, "description": "Vertical timeline with scroll-triggered line animation" },
+    "data-stats": { "file": "components/Stats", "type": "component", "category": "data-display", "props": { "items": "array", "columns": 4 }, "description": "Animated statistics that count up on scroll into view" },
+    "data-accordion": { "file": "components/Accordion", "type": "component", "category": "data-display", "props": { "items": "array", "allowMultiple": false }, "description": "FAQ accordion with smooth height animation" },
+    "data-carousel": { "file": "components/Carousel", "type": "component", "category": "data-display", "props": { "items": "array", "autoPlay": false, "interval": 5000 }, "description": "Image/card carousel with smooth slide transitions" },
+    "data-gallery": { "file": "components/Gallery", "type": "component", "category": "data-display", "props": { "images": "array", "columns": 3 }, "description": "Image gallery with lightbox and keyboard navigation" },
+    "data-chart": { "file": "components/Chart", "type": "component", "category": "data-display", "props": {}, "description": "CSS-based bar and line charts" },
+    "marketing-features": { "file": "components/FeaturesGrid", "type": "component", "category": "marketing", "props": { "title": "string", "subtitle": "string", "features": "array", "columns": 3 }, "description": "Features section with icon cards and stagger animation" },
+    "marketing-testimonials": { "file": "components/Testimonials", "type": "component", "category": "marketing", "props": { "title": "string", "testimonials": "array", "variant": "cards|single|grid" }, "description": "Testimonials carousel with multiple layout variants" },
+    "marketing-pricing": { "file": "components/PricingTable", "type": "component", "category": "marketing", "props": { "plans": "array", "yearly": false }, "description": "Full pricing table with monthly/yearly toggle" },
+    "marketing-faq": { "file": "components/FAQ", "type": "component", "category": "marketing", "props": { "title": "string", "subtitle": "string", "items": "array", "showSearch": true }, "description": "FAQ section with search and category filters" },
+    "marketing-contact": { "file": "components/Contact", "type": "component", "category": "marketing", "props": { "title": "string", "subtitle": "string", "email": "string", "onSubmit": "function" }, "description": "Contact section with form and info cards" },
+    "marketing-newsletter": { "file": "components/Newsletter", "type": "component", "category": "marketing", "props": { "title": "string", "subtitle": "string", "onSubmit": "function", "variant": "simple|card|split" }, "description": "Newsletter signup with multiple style variants" },
+    "marketing-team": { "file": "components/Team", "type": "component", "category": "marketing", "props": { "title": "string", "subtitle": "string", "members": "array" }, "description": "Team section with hover-reveal social links" },
+    "marketing-logocloud": { "file": "components/LogoCloud", "type": "component", "category": "marketing", "props": { "title": "string", "logos": "array", "animated": false }, "description": "Client logo cloud with marquee scroll option" },
+    "ui-avatar": { "file": "components/AvatarGroup", "type": "component", "category": "ui-elements", "props": {}, "description": "Stacked avatar group with overlap" },
+    "ui-notification": { "file": "components/Notification", "type": "component", "category": "ui-elements", "props": {}, "description": "Notification bell with dropdown list" },
+    "ui-dropdown": { "file": "components/DropdownMenu", "type": "component", "category": "ui-elements", "props": {}, "description": "Animated dropdown menu component" },
+    "ui-tooltip": { "file": "components/Tooltip", "type": "component", "category": "ui-elements", "props": {}, "description": "Hover tooltip with arrow" },
+    "ui-countdown": { "file": "components/Countdown", "type": "component", "category": "ui-elements", "props": {}, "description": "Animated countdown timer" },
+    "ui-rating": { "file": "components/Rating", "type": "component", "category": "ui-elements", "props": {}, "description": "Interactive star rating component" },
+    "page-landing-saas": { "file": "pages/LandingSaaS", "type": "page", "category": "pages-landing", "description": "Full SaaS landing page with all marketing sections" },
+    "page-landing-startup": { "file": "pages/LandingStartup", "type": "page", "category": "pages-landing", "description": "Startup landing with gradient hero and stats" },
+    "page-landing-product": { "file": "pages/LandingProduct", "type": "page", "category": "pages-landing", "description": "Product landing with carousel and pricing" },
+    "page-landing-agency": { "file": "pages/LandingAgency", "type": "page", "category": "pages-landing", "description": "Agency portfolio landing with gallery" },
+    "page-landing-portfolio": { "file": "pages/LandingPortfolio", "type": "page", "category": "pages-landing", "description": "Personal portfolio landing with project filters" },
+    "page-landing-mobile": { "file": "pages/LandingMobile", "type": "page", "category": "pages-landing", "description": "Mobile app landing with app store buttons" },
+    "page-dashboard-analytics": { "file": "pages/DashboardAnalytics", "type": "page", "category": "pages-dashboard", "description": "Analytics dashboard with charts and data tables" },
+    "page-dashboard-admin": { "file": "pages/DashboardAdmin", "type": "page", "category": "pages-dashboard", "description": "Admin dashboard with user management" },
+    "page-dashboard-project": { "file": "pages/DashboardProject", "type": "page", "category": "pages-dashboard", "description": "Project management dashboard with Kanban board" },
+    "page-auth-login": { "file": "pages/AuthLogin", "type": "page", "category": "pages-auth", "description": "Split layout login with animated form and social auth" },
+    "page-auth-register": { "file": "pages/AuthRegister", "type": "page", "category": "pages-auth", "description": "Split layout registration with password strength" },
+    "page-auth-reset": { "file": "pages/AuthReset", "type": "page", "category": "pages-auth", "description": "3-step password reset flow" },
+    "page-auth-2fa": { "file": "pages/AuthTwoFactor", "type": "page", "category": "pages-auth", "description": "Two-factor authentication page" },
+    "page-blog-grid": { "file": "pages/BlogGrid", "type": "page", "category": "pages-content", "description": "Blog listing with grid layout and category filters" },
+    "page-blog-post": { "file": "pages/BlogPost", "type": "page", "category": "pages-content", "description": "Full article page with ToC, share buttons, related posts" },
+    "page-docs": { "file": "pages/Docs", "type": "page", "category": "pages-content", "description": "Documentation layout with sidebar navigation" },
+    "page-contact": { "file": "pages/ContactPage", "type": "page", "category": "pages-content", "description": "Contact page with form and info cards" },
+    "page-about": { "file": "pages/AboutPage", "type": "page", "category": "pages-content", "description": "About us page with timeline and team" },
+    "page-careers": { "file": "pages/CareersPage", "type": "page", "category": "pages-content", "description": "Careers page with open positions and culture" },
+    "page-faq": { "file": "pages/FAQPage", "type": "page", "category": "pages-content", "description": "FAQ page with search and categorized questions" },
+    "page-error": { "file": "pages/ErrorPage", "type": "page", "category": "pages-content", "description": "404/500 error page with animated number and CTAs" },
+    "page-portfolio-project": { "file": "pages/PortfolioProject", "type": "page", "category": "pages-content", "description": "Single project detail page" },
+    "page-services": { "file": "pages/ServicesPage", "type": "page", "category": "pages-content", "description": "Services listing with process timeline" },
+    "page-compare-plans": { "file": "pages/ComparePlans", "type": "page", "category": "pages-content", "description": "Plan comparison with feature matrix" },
+    "page-waitlist": { "file": "pages/WaitlistPage", "type": "page", "category": "pages-content", "description": "Product launch waitlist page" },
+    "page-pricing-simple": { "file": "pages/PricingSimple", "type": "page", "category": "pages-pricing", "description": "Simple 3-tier pricing page with toggle" },
+    "page-pricing-tiered": { "file": "pages/PricingTiered", "type": "page", "category": "pages-pricing", "description": "Tiered pricing with full feature comparison table" }
+  }
+}

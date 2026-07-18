@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   KeyRound, Plus, Copy, Check, Trash2, Loader2, Coins, Zap, AlertTriangle, LogIn,
-  Home as HomeIcon, Activity, ArrowLeft, Cpu, CheckCircle2, Circle, ArrowUpRight,
+  Home as HomeIcon, Activity, ArrowLeft, Cpu, CheckCircle2, Circle, ArrowUpRight, Terminal,
 } from "lucide-react";
 import type { ApiKeyPublic, OAuthClientPublic } from "@/types";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -13,7 +13,7 @@ import { useKodaStore } from "@/lib/store";
 import { CREDIT_PACKS, formatCredits, API_CENTS_PER_1K } from "@/lib/credits";
 import { modelLabel, relativeTime, cn } from "@/lib/utils";
 
-type Section = "home" | "usage" | "keys" | "oauth" | "credits";
+type Section = "home" | "usage" | "keys" | "oauth" | "credits" | "playground";
 type Range = "24h" | "7d" | "30d" | "90d";
 
 interface UsageSummary {
@@ -30,6 +30,7 @@ const NAV: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: "keys", label: "API Keys", icon: <KeyRound className="h-4 w-4" /> },
   { id: "oauth", label: "OAuth Apps", icon: <LogIn className="h-4 w-4" /> },
   { id: "credits", label: "Credits", icon: <Coins className="h-4 w-4" /> },
+  { id: "playground", label: "Playground", icon: <Terminal className="h-4 w-4" /> },
 ];
 
 export default function DevelopersPage() {
@@ -65,6 +66,15 @@ export default function DevelopersPage() {
   const [creatingApp, setCreatingApp] = useState(false);
   const [newAppCreds, setNewAppCreds] = useState<{ clientId: string; clientSecret: string } | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Playground
+  const [playgroundPrompt, setPlaygroundPrompt] = useState("");
+  const [playgroundLoading, setPlaygroundLoading] = useState(false);
+  const [playgroundMessages, setPlaygroundMessages] = useState<Array<{ role: "user" | "assistant"; content: string; timestamp: number }>>([]);
+  const [playgroundModel, setPlaygroundModel] = useState<string>(availableModels[0] || "");
+  const [playgroundApiKey, setPlaygroundApiKey] = useState("");
+  const [playgroundKeyVisible, setPlaygroundKeyVisible] = useState(false);
+  const [playgroundEnableSearch, setPlaygroundEnableSearch] = useState(true);
 
   const loadKeys = useCallback(async () => {
     setKeysLoading(true);
@@ -113,7 +123,7 @@ export default function DevelopersPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newName.trim() || "Default key",
-          creditLimitCents: dollarsToCents(newKeyLimit),
+          creditLimitCents: newKeyLimit === "unlimited" ? undefined : dollarsToCents(newKeyLimit),
         }),
       });
       const data = await res.json();
@@ -252,7 +262,7 @@ export default function DevelopersPage() {
           )}
           {section === "usage" && <UsageSection usage={usage} credits={user?.credits ?? 0} />}
           {section === "credits" && (
-            <CreditsSection credits={user?.credits ?? 0} buying={buying} onBuy={buyCredits} onRefresh={refresh} />
+            <CreditsSection user={user} credits={user?.credits ?? 0} buying={buying} onBuy={buyCredits} onRefresh={refresh} />
           )}
           {section === "keys" && (
             <KeysSection
@@ -273,6 +283,89 @@ export default function DevelopersPage() {
               creating={creatingApp} onCreate={createApp} onDelete={deleteApp}
               newCreds={newAppCreds} onDismiss={() => setNewAppCreds(null)}
               copiedField={copiedField} onCopy={copyText}
+            />
+          )}
+          {section === "playground" && (
+            <PlaygroundSection
+              models={availableModels}
+              prompt={playgroundPrompt}
+              setPrompt={setPlaygroundPrompt}
+              messages={playgroundMessages}
+              loading={playgroundLoading}
+              selectedModel={playgroundModel}
+              setSelectedModel={setPlaygroundModel}
+              apiKey={playgroundApiKey}
+              setApiKey={setPlaygroundApiKey}
+              keyVisible={playgroundKeyVisible}
+              setKeyVisible={setPlaygroundKeyVisible}
+              onSubmit={async (model, prompt, apiKey) => {
+                if (!apiKey.trim()) {
+                  setError("Please enter an API key");
+                  return;
+                }
+                if (!prompt.trim()) {
+                  return;
+                }
+
+                setPlaygroundLoading(true);
+                setError(null);
+                setPlaygroundMessages(prev => [...prev, { role: "user", content: prompt, timestamp: Date.now() }]);
+                setPlaygroundPrompt("");
+
+                try {
+                  const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({ 
+                      messages: [...playgroundMessages, { role: "user", content: prompt }],
+                      model 
+                    }),
+                  });
+
+                  if (!res.ok) {
+                    throw new Error(`API error: ${res.status} ${res.statusText}`);
+                  }
+
+                  const text = await res.text();
+                  if (!text) {
+                    throw new Error("Empty response from API");
+                  }
+
+                  let data;
+                  try {
+                    data = JSON.parse(text);
+                  } catch (parseErr) {
+                    setError(`JSON parse error: ${text.substring(0, 100)}`);
+                    setPlaygroundMessages(prev => [...prev, { 
+                      role: "assistant", 
+                      content: `Error parsing response: ${text.substring(0, 200)}`,
+                      timestamp: Date.now() 
+                    }]);
+                    setPlaygroundLoading(false);
+                    return;
+                  }
+
+                  const responseText = data.message?.content || data.content || "No response";
+                  setPlaygroundMessages(prev => [...prev, { 
+                    role: "assistant", 
+                    content: responseText,
+                    timestamp: Date.now() 
+                  }]);
+                } catch (err) {
+                  const errorMsg = err instanceof Error ? err.message : "Unknown error";
+                  setError(errorMsg);
+                  setPlaygroundMessages(prev => [...prev, { 
+                    role: "assistant", 
+                    content: `Error: ${errorMsg}`,
+                    timestamp: Date.now() 
+                  }]);
+                } finally {
+                  setPlaygroundLoading(false);
+                }
+              }}
             />
           )}
         </div>
@@ -410,37 +503,177 @@ function UsageSection({ usage, credits }: { usage: UsageSummary | null; credits:
 }
 
 function CreditsSection({
-  credits, buying, onBuy, onRefresh,
+  user, credits, buying, onBuy, onRefresh,
 }: {
-  credits: number; buying: string | null; onBuy: (id: string) => void; onRefresh: () => void;
+  user: any; credits: number; buying: string | null; onBuy: (id: string) => void; onRefresh: () => void;
 }) {
+  const [autoRecharge, setAutoRecharge] = useState(user?.autoRechargeEnabled ?? false);
+  const [autoRechargeAmount, setAutoRechargeAmount] = useState(user?.autoRechargeAmountCents ? (user.autoRechargeAmountCents / 100).toFixed(2) : "10.00");
+  const [autoRechargeThreshold, setAutoRechargeThreshold] = useState(user?.autoRechargeThresholdCents ? (user.autoRechargeThresholdCents / 100).toFixed(2) : "5.00");
+  const [savingAutoRecharge, setSavingAutoRecharge] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [savingCard, setSavingCard] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setAutoRecharge(user.autoRechargeEnabled ?? false);
+      if (user.autoRechargeAmountCents) setAutoRechargeAmount((user.autoRechargeAmountCents / 100).toFixed(2));
+      if (user.autoRechargeThresholdCents) setAutoRechargeThreshold((user.autoRechargeThresholdCents / 100).toFixed(2));
+    }
+  }, [user]);
+
+  const saveCard = async () => {
+    setSavingCard(true);
+    try {
+      const res = await fetch("/api/razorpay/save-card", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.id) throw new Error(data.error || "Could not start card verification.");
+      const params = new URLSearchParams({
+        order_id: data.id,
+        key: data.key,
+        amount: String(data.amount),
+        currency: data.currency || "USD",
+        name: data.name || "Koda AI",
+        description: data.description || "Save card",
+        email: data.prefill?.email || "",
+        callback: `${window.location.origin}/razorpay/success?order_id=${data.id}&kind=save_card`,
+      });
+      window.location.href = `/razorpay/checkout?${params}`;
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setSavingCard(false);
+    }
+  };
+
+  const removeCard = async () => {
+    if (!confirm("Are you sure you want to remove your saved card? This will also disable auto-recharge.")) return;
+    setSavingCard(true);
+    try {
+      const res = await fetch("/api/razorpay/save-card", { method: "DELETE" });
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || "Could not remove card.");
+      }
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setSavingCard(false);
+    }
+  };
+
+  const saveAutoRecharge = async () => {
+    setSavingAutoRecharge(true);
+    setSaveSuccess(false);
+    try {
+      const res = await fetch("/api/account/auto-recharge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled: autoRecharge,
+          amountCents: dollarsToCents(autoRechargeAmount),
+          thresholdCents: dollarsToCents(autoRechargeThreshold),
+        }),
+      });
+      if (res.ok) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+        onRefresh();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingAutoRecharge(false);
+    }
+  };
+
   return (
-    <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-koda-accent/15">
-          <Coins className="h-5 w-5 text-koda-accent" />
+    <div className="space-y-6">
+      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-koda-accent/15">
+            <Coins className="h-5 w-5 text-koda-accent" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-koda-muted">Credit balance</p>
+            <p className="text-2xl font-semibold text-koda-text">{formatCredits(credits)}</p>
+          </div>
+          <p className="ml-auto hidden text-right text-xs text-koda-muted sm:block">
+            ~{API_CENTS_PER_1K}¢ / 1K tokens<br />Credits never expire
+          </p>
         </div>
-        <div>
-          <p className="text-xs uppercase tracking-wide text-koda-muted">Credit balance</p>
-          <p className="text-2xl font-semibold text-koda-text">{formatCredits(credits)}</p>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {CREDIT_PACKS.map((pack) => (
+            <button key={pack.id} onClick={() => onBuy(pack.id)} disabled={!!buying}
+              className="relative flex flex-col items-center gap-1 rounded-xl border border-koda-border bg-koda-surface-2 px-3 py-3 transition-colors hover:border-koda-accent/50 hover:bg-koda-surface disabled:opacity-60">
+              {pack.note && <span className="absolute -top-2 rounded-full bg-koda-accent px-2 py-0.5 text-[10px] font-semibold text-black">{pack.note}</span>}
+              <span className="text-lg font-semibold text-koda-text">${pack.usd}</span>
+              <span className="text-xs text-koda-muted">{pack.credits} credits</span>
+              {buying === pack.id && <Loader2 className="mt-1 h-3.5 w-3.5 animate-spin text-koda-accent" />}
+            </button>
+          ))}
         </div>
-        <p className="ml-auto hidden text-right text-xs text-koda-muted sm:block">
-          ~{API_CENTS_PER_1K}¢ / 1K tokens<br />Credits never expire
-        </p>
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {CREDIT_PACKS.map((pack) => (
-          <button key={pack.id} onClick={() => onBuy(pack.id)} disabled={!!buying}
-            className="relative flex flex-col items-center gap-1 rounded-xl border border-koda-border bg-koda-surface-2 px-3 py-3 transition-colors hover:border-koda-accent/50 hover:bg-koda-surface disabled:opacity-60">
-            {pack.note && <span className="absolute -top-2 rounded-full bg-koda-accent px-2 py-0.5 text-[10px] font-semibold text-black">{pack.note}</span>}
-            <span className="text-lg font-semibold text-koda-text">${pack.usd}</span>
-            <span className="text-xs text-koda-muted">{pack.credits} credits</span>
-            {buying === pack.id && <Loader2 className="mt-1 h-3.5 w-3.5 animate-spin text-koda-accent" />}
-          </button>
-        ))}
-      </div>
-      <button onClick={onRefresh} className="mt-3 text-xs text-koda-muted hover:text-koda-text">Refresh balance</button>
-    </section>
+        <button onClick={onRefresh} className="mt-3 text-xs text-koda-muted hover:text-koda-text">Refresh balance</button>
+      </section>
+
+      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
+        <h2 className="mb-4 text-sm font-semibold text-koda-text">Auto-recharge</h2>
+        <p className="mb-4 text-xs text-koda-muted">Automatically add credits when your balance falls below a certain amount.</p>
+        
+        <div className="space-y-4">
+          <div className="rounded-xl border border-koda-border bg-koda-surface-2 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-koda-text">Payment Method</p>
+                <p className="text-xs text-koda-muted">
+                  {user?.hasSavedCard ? "Card saved successfully" : "No card saved for auto-recharge"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {user?.hasSavedCard && (
+                  <button onClick={removeCard} disabled={savingCard} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-60">
+                    Remove Card
+                  </button>
+                )}
+                <button onClick={saveCard} disabled={savingCard} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-xs font-medium text-black hover:bg-koda-accent-soft disabled:opacity-60">
+                  {savingCard ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                  {user?.hasSavedCard ? "Update Card" : "Add Card"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={autoRecharge} onChange={(e) => setAutoRecharge(e.target.checked)} className="rounded border-koda-border bg-koda-surface-2 text-koda-accent focus:ring-koda-accent" />
+            <span className="text-sm text-koda-text">Enable auto-recharge</span>
+          </label>
+          
+          {autoRecharge && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs text-koda-muted">When balance falls below ($)</label>
+                <input value={autoRechargeThreshold} onChange={(e) => setAutoRechargeThreshold(e.target.value)}
+                  className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-koda-muted">Recharge amount ($)</label>
+                <input value={autoRechargeAmount} onChange={(e) => setAutoRechargeAmount(e.target.value)}
+                  className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none" />
+              </div>
+            </div>
+          )}
+          
+          <div className="flex items-center gap-3">
+            <button onClick={saveAutoRecharge} disabled={savingAutoRecharge} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-surface-2 px-4 py-2 text-sm font-medium text-koda-text hover:bg-koda-surface disabled:opacity-60">
+              {savingAutoRecharge ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save settings
+            </button>
+            {saveSuccess && <span className="text-xs text-green-400">Settings saved successfully!</span>}
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -477,10 +710,10 @@ function KeysSection({
           <label className="relative">
             <span className="pointer-events-none absolute left-3 top-2 text-sm text-koda-muted">$</span>
             <input value={newKeyLimit} onChange={(e) => setNewKeyLimit(e.target.value)} onKeyDown={(e) => e.key === "Enter" && onCreate()}
-              inputMode="decimal" aria-label="Credit limit in dollars"
+              inputMode="text" aria-label="Credit limit in dollars"
               className="w-full rounded-lg border border-koda-border bg-koda-surface-2 py-2 pl-7 pr-3 text-sm text-koda-text placeholder:text-koda-muted focus:border-koda-accent/50 focus:outline-none" />
           </label>
-          <button onClick={onCreate} disabled={creating || limitCents <= 0} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-koda-accent-soft disabled:opacity-60">
+          <button onClick={onCreate} disabled={creating || (newKeyLimit !== "unlimited" && limitCents <= 0)} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-koda-accent-soft disabled:opacity-60">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create
           </button>
         </div>
@@ -491,9 +724,13 @@ function KeysSection({
               {pack.label} {formatCredits(pack.credits)}
             </button>
           ))}
+          <button onClick={() => setNewKeyLimit("unlimited")}
+            className="rounded-md border border-koda-border bg-koda-surface-2 px-2.5 py-1 text-xs text-koda-muted hover:border-koda-accent/40 hover:text-koda-text">
+            Unlimited
+          </button>
         </div>
         <p className="mt-2 text-xs text-koda-muted">
-          This key can spend up to {formatCredits(limitCents)} from your account balance. Buy credits in the Credits tab to fund it.
+          {newKeyLimit === "unlimited" ? "This key has no spending limit." : `This key can spend up to ${formatCredits(limitCents)} from your account balance. Buy credits in the Credits tab to fund it.`}
         </p>
       </div>
       <div className="divide-y divide-koda-border overflow-hidden rounded-xl border border-koda-border bg-koda-surface">
@@ -607,6 +844,149 @@ curl -X POST ${origin}/api/oauth/token \\
 # 3. Fetch the profile
 curl ${origin}/api/oauth/userinfo -H "Authorization: Bearer TOKEN"`}
       </pre>
+    </section>
+  );
+}
+
+function PlaygroundSection({
+  models,
+  prompt,
+  setPrompt,
+  messages,
+  loading,
+  selectedModel,
+  setSelectedModel,
+  apiKey,
+  setApiKey,
+  keyVisible,
+  setKeyVisible,
+  onSubmit,
+}: {
+  models: string[];
+  prompt: string;
+  setPrompt: (p: string) => void;
+  messages: Array<{ role: "user" | "assistant"; content: string; timestamp: number }>;
+  loading: boolean;
+  selectedModel: string;
+  setSelectedModel: (m: string) => void;
+  apiKey: string;
+  setApiKey: (k: string) => void;
+  keyVisible: boolean;
+  setKeyVisible: (v: boolean) => void;
+  onSubmit: (model: string, prompt: string, apiKey: string) => Promise<void>;
+}) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  return (
+    <section className="space-y-6">
+      <div>
+        <h2 className="mb-2 text-lg font-semibold text-koda-text">API Playground</h2>
+        <p className="text-sm text-koda-muted">Test your API with a real chat interface. Enter your API key and start chatting.</p>
+      </div>
+
+      <div className="flex flex-col rounded-lg border border-koda-border bg-koda-surface/40 overflow-hidden" style={{ height: "600px" }}>
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-koda-muted">
+              <p>No messages yet. Start by entering a prompt below.</p>
+            </div>
+          ) : (
+            messages.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-xs lg:max-w-md rounded-lg px-4 py-2 ${
+                  msg.role === "user"
+                    ? "bg-koda-accent text-koda-bg"
+                    : "bg-koda-surface-2 text-koda-text"
+                }`}>
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className={`text-xs mt-1 ${msg.role === "user" ? "text-koda-bg/70" : "text-koda-muted"}`}>
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-koda-surface-2 text-koda-text rounded-lg px-4 py-2">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className="border-t border-koda-border bg-koda-bg/40 p-4 space-y-3">
+          {/* Settings Row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-koda-text">API Key</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type={keyVisible ? "text" : "password"}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="sk_..."
+                  className="flex-1 rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-xs text-koda-text placeholder-koda-muted focus:border-koda-accent focus:outline-none"
+                  disabled={loading}
+                />
+                <button
+                  onClick={() => setKeyVisible(!keyVisible)}
+                  className="text-xs text-koda-muted hover:text-koda-text transition-colors"
+                >
+                  {keyVisible ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-koda-text">Model</label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-xs text-koda-text focus:border-koda-accent focus:outline-none"
+                disabled={loading}
+              >
+                {models.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Message Input */}
+          <div className="flex gap-2">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.ctrlKey && !loading && prompt.trim() && apiKey.trim()) {
+                  onSubmit(selectedModel, prompt, apiKey);
+                }
+              }}
+              placeholder="Enter message... (Ctrl+Enter to send)"
+              className="flex-1 max-h-24 resize-none rounded-lg border border-koda-border bg-koda-bg px-3 py-2 text-xs text-koda-text placeholder-koda-muted focus:border-koda-accent focus:outline-none"
+              disabled={loading}
+            />
+            <button
+              onClick={() => onSubmit(selectedModel, prompt, apiKey)}
+              disabled={loading || !prompt.trim() || !apiKey.trim()}
+              className="rounded-lg bg-koda-accent px-3 py-2 font-medium text-koda-bg hover:bg-koda-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs h-fit"
+            >
+              {loading ? "..." : "Send"}
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

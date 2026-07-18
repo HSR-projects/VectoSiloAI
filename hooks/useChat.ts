@@ -14,7 +14,7 @@ import { stripSheetSyntax } from "@/lib/sheetsParser";
 import { stripDocSyntax } from "@/lib/docParser";
 import { parseGithubDirective, stripGithubSyntax } from "@/lib/githubDirective";
 import { parseMemoryDirectives, stripMemorySyntax } from "@/lib/memoryDirective";
-import { PAGE_OPEN_RE } from "@/lib/prompts";
+import { PAGE_OPEN_RE, VISIT_URL_RE } from "@/lib/prompts";
 import { makeBuildState, detectBuilds, finalizeBuilds } from "@/lib/artifactDirectives";
 import type { ProjectFile } from "@/types";
 import type {
@@ -61,7 +61,7 @@ interface SendOptions {
   codingSwarm?: boolean;
   /** Map of agent role → model name for multi-model swarm. */
   agentModels?: Record<string, string>;
-  /** Think mode — model reasons in a <think> block, shown collapsibly. */
+  /** Think mode — model reasons in a  consolidated block, shown collapsibly. */
   think?: boolean;
 }
 
@@ -431,6 +431,11 @@ export function useChat(threadId: string | null) {
         ? `${computerContext(existingProject)}\n\n${built.query}`
         : built.query;
 
+      const currentThread = s.getThread(threadId);
+      const customAI = currentThread?.customAIId 
+        ? s.customAIs.find(ai => ai.id === currentThread.customAIId)
+        : null;
+
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -453,6 +458,7 @@ export function useChat(threadId: string | null) {
             provider: store.getState().provider,
             providerApiKey: store.getState().providerApiKey,
             providerBaseUrl: store.getState().providerBaseUrl,
+            customInstructions: customAI?.instructions,
           }),
           signal: controller.signal,
         });
@@ -587,6 +593,29 @@ export function useChat(threadId: string | null) {
               }
             }
 
+            // Webpage scraping: [[visit: <url>]] → scrape the page and append to chat
+            const visitMatch = acc.match(/\[\[visit:\s*([^\]]+)\]\]/i);
+            if (visitMatch) {
+              const visitUrl = visitMatch[1].trim();
+              if (visitUrl && !(window as any)._lastVisitedUrl?.includes(visitUrl)) {
+                (window as any)._lastVisitedUrl = [...((window as any)._lastVisitedUrl || []), visitUrl];
+                void (async () => {
+                  const stepId = pushStep(`Reading ${visitUrl.replace(/^https?:\/\/(www\.)?/, "").slice(0, 20)}...`, "active");
+                  try {
+                    const { sources: scraped } = await scrape([visitUrl]);
+                    if (scraped.length > 0 && scraped[0].content) {
+                      setStep(stepId, "done", "page read successfully");
+                      send(`Here is the content of the page you requested to visit (${visitUrl}):\n\n${scraped[0].content}`);
+                    } else {
+                      setStep(stepId, "error", "could not read page content");
+                    }
+                  } catch (err) {
+                    setStep(stepId, "error", "failed to visit page");
+                  }
+                })();
+              }
+            }
+
             // Auto-memory: persist each new [[memory: …]] fact the model emits.
             const facts = parseMemoryDirectives(acc);
             for (let i = savedMemories; i < facts.length; i++) {
@@ -598,6 +627,8 @@ export function useChat(threadId: string | null) {
             }
 
             update({ content: stripDirectives(acc) });
+          } else if (evt.type === "search_images") {
+            update({ searchImages: evt.images });
           } else if (evt.type === "followups") {
             update({ followups: evt.questions });
           } else if (evt.type === "error") {
@@ -832,6 +863,7 @@ function stripDirectives(text: string): string {
               .replace(new RegExp(CHESS_MOVE_RE.source, "gi"), "")
               .replace(new RegExp(IMAGE_RE.source, "gi"), "")
               .replace(PAGE_OPEN_RE, "")
+              .replace(VISIT_URL_RE, "")
           )
         )
       )

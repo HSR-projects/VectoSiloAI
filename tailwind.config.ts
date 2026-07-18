@@ -11,17 +11,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // KodaAI brand tokens
         koda: {
-          bg: "#0f0f10",
-          surface: "#1a1a1c",
-          "surface-2": "#202023",
-          border: "#2a2a2e",
-          accent: "#9b7cff",
-          "accent-soft": "#b9a4ff",
-          "accent-dim": "#6f5bbf",
-          text: "#f0f0f2",
-          muted: "#8a8a9a",
+          bg: "#212121",
+          surface: "#2f2f2f",
+          "surface-2": "#343541",
+          border: "#424242",
+          accent: "#10a37f",
+          "accent-soft": "#1a7f64",
+          "accent-dim": "#0d8c6d",
+          text: "#ececec",
+          muted: "#8e8e93",
         },
       },
       fontFamily: {
@@ -29,7 +28,7 @@ const config: Config = {
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(155,124,255,0.4), 0 0 24px -4px rgba(155,124,255,0.35)",
+        glow: "0 0 0 1px rgba(16,163,127,0.4), 0 0 24px -4px rgba(16,163,127,0.35)",
       },
       keyframes: {
         blink: {
