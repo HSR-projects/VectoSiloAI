@@ -39,7 +39,7 @@ export function StickyHeader({ children, className, threshold = 50 }: StickyHead
           className={cn(
             "fixed top-0 z-50 w-full transition-shadow duration-300",
             scrolled
-              ? "border-b border-koda-border bg-koda-bg/95 shadow-lg backdrop-blur-md"
+              ? "border-b border-vectosilo-border bg-vectosilo-bg/95 shadow-lg backdrop-blur-md"
               : "bg-transparent",
             className
           )}

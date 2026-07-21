@@ -15,7 +15,7 @@
     color-scheme: dark;
   }
   body {
-    @apply bg-koda-bg text-koda-text antialiased;
+    @apply bg-vectosilo-bg text-vectosilo-text antialiased;
     font-family: var(--font-geist-sans);
     /* Never let a stray wide element cause the whole page to scroll sideways. */
     overflow-x: hidden;
@@ -32,10 +32,10 @@
     height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-koda-border;
+    @apply rounded-full bg-vectosilo-border;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-koda-accent-dim;
+    @apply bg-vectosilo-accent-dim;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -49,7 +49,7 @@
   padding: 0;
 }
 .prose :where(code):not(:where(pre code)) {
-  @apply rounded bg-koda-surface-2 px-1.5 py-0.5 text-[0.85em] font-medium;
+  @apply rounded bg-vectosilo-surface-2 px-1.5 py-0.5 text-[0.85em] font-medium;
 }
 .prose :where(code):not(:where(pre code))::before,
 .prose :where(code):not(:where(pre code))::after {
@@ -57,7 +57,7 @@
 }
 
 /* Animated gradient glow for the hero */
-.koda-hero-glow {
+.vectosilo-hero-glow {
   background: radial-gradient(
     600px circle at 50% 0%,
     rgba(16, 163, 127, 0.12),

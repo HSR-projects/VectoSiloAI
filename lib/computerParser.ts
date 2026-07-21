@@ -1,20 +1,21 @@
 import type { ProjectFile } from "@/types";
 
 /**
- * Parses the model's Koda's Computer output out of the streaming text.
+ * Parses the model's VectoSilo's Computer output out of the streaming text.
  *
  * The model emits, as the very first characters, `[[computer:Title]]`, then one
- * `<koda-file path="...">…</koda-file>` block per file and `<koda-cmd>…</koda-cmd>`
+ * `<vectosilo-file path="...">…</vectosilo-file>` block per file and `<vectosilo-cmd>…</vectosilo-cmd>`
  * blocks for shell commands. We parse only fully-closed blocks so partial,
  * mid-stream tags never render or half-load.
  */
 
 const DIRECTIVE_RE = /\[\[computer(?::\s*([^\]]*))?\]\]/i;
 const WEBSITE_RE = /\[\[website(?::\s*([^\]]*))?\]\]/i;
-const FILE_RE = /<koda-file\s+path=["']([^"']+)["']\s*>([\s\S]*?)<\/koda-file>/gi;
-const CMD_RE = /<koda-cmd>\s*([\s\S]*?)<\/koda-cmd>/gi;
+const FILE_RE = /<vectosilo-file\s+path=["']([^"']+)["']\s*>([\s\S]*?)<\/vectosilo-file>/gi;
+const CMD_RE = /<vectosilo-cmd>\s*([\s\S]*?)<\/vectosilo-cmd>/gi;
+const SCAFFOLD_RE = /\[\[scaffold(?::\s*([^\]]+))?\]\]/i;
 
-/** Detect the Website builder directive (shares the <koda-file> format). */
+/** Detect the Website builder directive (shares the <vectosilo-file> format). */
 export function parseWebsiteDirective(text: string): { title: string } | null {
   const m = text.match(WEBSITE_RE);
   if (!m) return null;
@@ -69,7 +70,7 @@ export function parseComputerCommands(text: string): string[] {
 
 /** True if the stream contains (or is starting) a computer directive. */
 export function hasComputerSyntax(text: string): boolean {
-  return DIRECTIVE_RE.test(text) || /<koda-file|<koda-cmd/i.test(text);
+  return DIRECTIVE_RE.test(text) || /<vectosilo-file|<vectosilo-cmd/i.test(text);
 }
 
 /** Remove all computer syntax (directive, file/cmd blocks, partials) from visible text. */
@@ -79,8 +80,27 @@ export function stripComputerSyntax(text: string): string {
     .replace(new RegExp(FILE_RE.source, "gi"), "")
     .replace(new RegExp(CMD_RE.source, "gi"), "")
     // Trailing unclosed blocks still streaming in.
-    .replace(/<koda-file[\s\S]*$/i, "")
-    .replace(/<koda-cmd[\s\S]*$/i, "")
+    .replace(/<vectosilo-file[\s\S]*$/i, "")
+    .replace(/<vectosilo-cmd[\s\S]*$/i, "")
     .replace(/\[\[computer[^\]]*$/i, "")
+    .replace(/\[\[scaffold[^\]]*$/i, "")
     .replace(/^\s+/, "");
+}
+
+/** Detect the scaffold directive (AI references a template to auto-build). */
+export function parseScaffoldDirective(text: string): { id: string; title?: string } | null {
+  const m = text.match(SCAFFOLD_RE);
+  if (!m) return null;
+  const full = (m[1] || "").trim();
+  if (!full) return null;
+  const parts = full.split(":");
+  return {
+    id: parts[0].trim(),
+    title: parts[1]?.trim() || undefined,
+  };
+}
+
+/** Remove scaffold directive from visible text. */
+export function stripScaffoldSyntax(text: string): string {
+  return text.replace(SCAFFOLD_RE, "").replace(/\[\[scaffold[^\]]*$/i, "");
 }

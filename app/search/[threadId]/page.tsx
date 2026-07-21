@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle, FileText, Music, Loader2 } from "lucide-react";
 import type { Attachment } from "@/types";
 import type { Message } from "@/types";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { useModels } from "@/hooks/useModels";
 import { uid } from "@/lib/utils";
 import { useThread } from "@/hooks/useThread";
@@ -45,8 +45,8 @@ export default function ThreadPage() {
     thinkMode,
     targetUrl,
     setTargetUrl,
-  } = useKodaStore();
-  const artifact = useKodaStore((s) => s.artifact);
+  } = useVectoSiloStore();
+  const artifact = useVectoSiloStore((s) => s.artifact);
   const { thread, messages } = useThread(threadId);
   const { send, stop, loading, searchWarning } = useChat(threadId);
 
@@ -86,7 +86,7 @@ export default function ThreadPage() {
   // drop that turn and everything after it, then send the (edited) text fresh.
   const resendFrom = (userMessageId: string, text: string) => {
     if (loading) return;
-    useKodaStore.getState().deleteMessagesFrom(threadId, userMessageId);
+    useVectoSiloStore.getState().deleteMessagesFrom(threadId, userMessageId);
     send(text, sendOpts);
   };
 
@@ -101,14 +101,14 @@ export default function ThreadPage() {
     if (threadId) setActiveThread(threadId);
   }, [threadId, setActiveThread]);
 
-  // A Koda's Computer sandbox is bound to the chat that built it — it is never
+  // A VectoSilo's Computer sandbox is bound to the chat that built it — it is never
   // persisted or shared. Switching threads discards the sandbox entirely.
   useEffect(() => {
-    useKodaStore.getState().resetComputer();
-    useKodaStore.getState().resetSlides();
-    useKodaStore.getState().resetWorkbook();
-    useKodaStore.getState().resetWebsite();
-    useKodaStore.getState().resetDoc();
+    useVectoSiloStore.getState().resetComputer();
+    useVectoSiloStore.getState().resetSlides();
+    useVectoSiloStore.getState().resetWorkbook();
+    useVectoSiloStore.getState().resetWebsite();
+    useVectoSiloStore.getState().resetDoc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId]);
 
@@ -116,10 +116,10 @@ export default function ThreadPage() {
   useEffect(() => {
     if (!mounted || sentInitial.current) return;
     const q = searchParams.get("q") ?? "";
-    const pending = useKodaStore.getState().pendingAttachments;
+    const pending = useVectoSiloStore.getState().pendingAttachments;
     if ((q || pending.length) && thread && thread.messages.length === 0) {
       sentInitial.current = true;
-      if (pending.length) useKodaStore.getState().setPendingAttachments([]);
+      if (pending.length) useVectoSiloStore.getState().setPendingAttachments([]);
       send(q, { ...sendOpts, attachments: pending.length ? pending : undefined });
       // Clean the URL so refresh doesn't re-send.
       router.replace(`/search/${threadId}`);
@@ -166,7 +166,7 @@ export default function ThreadPage() {
 
   const handleVoiceRecorded = async (blob: Blob, duration: number, transcript: string) => {
     setVoiceRecording(false);
-    const store = useKodaStore.getState();
+    const store = useVectoSiloStore.getState();
     const tid = threadId;
     if (!tid) return;
 
@@ -298,7 +298,7 @@ export default function ThreadPage() {
         {/* Sticky follow-up input — scoped to the main column so the artifact
             panel never overlaps it. */}
         {!notFound && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-koda-bg via-koda-bg/90 to-transparent pt-10 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-vectosilo-bg via-vectosilo-bg/90 to-transparent pt-10 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div className="pointer-events-auto mx-auto max-w-3xl px-4">
               {(voiceRecording || voiceMode) && (
                 <VoiceRecorder
@@ -353,7 +353,7 @@ function MessageAttachments({ attachments }: { attachments: Attachment[] }) {
             href={a.thumbUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block h-20 w-20 overflow-hidden rounded-lg border border-koda-border"
+            className="block h-20 w-20 overflow-hidden rounded-lg border border-vectosilo-border"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={a.thumbUrl} alt={a.name} className="h-full w-full object-cover" />
@@ -361,7 +361,7 @@ function MessageAttachments({ attachments }: { attachments: Attachment[] }) {
         ) : (
           <span
             key={a.id}
-            className="inline-flex max-w-[200px] items-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface px-2.5 py-1.5 text-xs text-koda-muted"
+            className="inline-flex max-w-[200px] items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs text-vectosilo-muted"
           >
             {a.kind === "audio" ? (
               <Music className="h-3.5 w-3.5 shrink-0" />

@@ -10,7 +10,7 @@
  *   IMAGE_API_KEY       Pollinations token — strongly recommended; keyless
  *                       access is heavily rate-limited (queue 402s). Free at
  *                       https://auth.pollinations.ai
- *   IMAGE_API_REFERRER  referrer tag for the provider, default "kodaai"
+ *   IMAGE_API_REFERRER  referrer tag for the provider, default "vectosiloai"
  */
 
 const IMAGE_API_BASE = (
@@ -18,7 +18,7 @@ const IMAGE_API_BASE = (
 ).replace(/\/$/, "");
 const IMAGE_API_MODEL = process.env.IMAGE_API_MODEL || "flux";
 const IMAGE_API_KEY = process.env.IMAGE_API_KEY || "";
-const IMAGE_API_REFERRER = process.env.IMAGE_API_REFERRER || "kodaai";
+const IMAGE_API_REFERRER = process.env.IMAGE_API_REFERRER || "vectosiloai";
 
 export interface ServerImageOptions {
   width?: number;

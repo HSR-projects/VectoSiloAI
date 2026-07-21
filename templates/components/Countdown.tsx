@@ -64,18 +64,18 @@ export function Countdown({
       {segments.map((seg) => (
         <div
           key={seg.label}
-          className="flex flex-col items-center rounded-xl border border-koda-border bg-koda-surface px-4 py-3 sm:px-6 sm:py-4"
+          className="flex flex-col items-center rounded-xl border border-vectosilo-border bg-vectosilo-surface px-4 py-3 sm:px-6 sm:py-4"
         >
           <motion.span
             key={seg.value}
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-2xl font-bold text-koda-text sm:text-3xl tabular-nums"
+            className="text-2xl font-bold text-vectosilo-text sm:text-3xl tabular-nums"
           >
             {String(seg.value).padStart(2, "0")}
           </motion.span>
-          <span className="mt-1 text-[10px] font-medium uppercase tracking-wider text-koda-muted sm:text-xs">
+          <span className="mt-1 text-[10px] font-medium uppercase tracking-wider text-vectosilo-muted sm:text-xs">
             {seg.label}
           </span>
         </div>

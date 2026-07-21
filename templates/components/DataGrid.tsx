@@ -101,10 +101,10 @@ export function DataGrid<T extends Record<string, any>>({
 
   return (
     <div className={cn("flex flex-col", className)} {...rest}>
-      <div className="w-full overflow-x-auto rounded-xl border border-koda-border">
+      <div className="w-full overflow-x-auto rounded-xl border border-vectosilo-border">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-koda-border bg-koda-surface">
+            <tr className="border-b border-vectosilo-border bg-vectosilo-surface">
               {selectable && (
                 <th className="w-10 px-3 py-3">
                   <button
@@ -112,8 +112,8 @@ export function DataGrid<T extends Record<string, any>>({
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                       allPageSelected
-                        ? "border-koda-accent bg-koda-accent"
-                        : "border-koda-border hover:border-koda-accent"
+                        ? "border-vectosilo-accent bg-vectosilo-accent"
+                        : "border-vectosilo-border hover:border-vectosilo-accent"
                     )}
                   >
                     {allPageSelected && <Check className="h-3 w-3 text-white" />}
@@ -123,7 +123,7 @@ export function DataGrid<T extends Record<string, any>>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-koda-muted"
+                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-vectosilo-muted"
                 >
                   {col.label}
                 </th>
@@ -140,7 +140,7 @@ export function DataGrid<T extends Record<string, any>>({
                 >
                   <td
                     colSpan={columns.length + (selectable ? 1 : 0)}
-                    className="px-4 py-12 text-center text-koda-muted"
+                    className="px-4 py-12 text-center text-vectosilo-muted"
                   >
                     {emptyMessage}
                   </td>
@@ -160,9 +160,9 @@ export function DataGrid<T extends Record<string, any>>({
                       layout
                       onClick={() => toggleOne(id, false)}
                       className={cn(
-                        "border-b border-koda-border transition-colors last:border-b-0",
-                        "hover:bg-koda-surface/60",
-                        isSelected && "bg-koda-accent/8"
+                        "border-b border-vectosilo-border transition-colors last:border-b-0",
+                        "hover:bg-vectosilo-surface/60",
+                        isSelected && "bg-vectosilo-accent/8"
                       )}
                     >
                       {selectable && (
@@ -175,8 +175,8 @@ export function DataGrid<T extends Record<string, any>>({
                             className={cn(
                               "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                               isSelected
-                                ? "border-koda-accent bg-koda-accent"
-                                : "border-koda-border hover:border-koda-accent"
+                                ? "border-vectosilo-accent bg-vectosilo-accent"
+                                : "border-vectosilo-border hover:border-vectosilo-accent"
                             )}
                           >
                             {isSelected && <Check className="h-3 w-3 text-white" />}
@@ -184,7 +184,7 @@ export function DataGrid<T extends Record<string, any>>({
                         </td>
                       )}
                       {columns.map((col) => (
-                        <td key={col.key} className="px-4 py-3 text-koda-text">
+                        <td key={col.key} className="px-4 py-3 text-vectosilo-text">
                           {col.render
                             ? col.render(item, page * pageSize + i)
                             : (item[col.key] ?? "-")}
@@ -201,7 +201,7 @@ export function DataGrid<T extends Record<string, any>>({
 
       {totalPages > 1 && (
         <div className="mt-3 flex items-center justify-between px-1">
-          <span className="text-xs text-koda-muted">
+          <span className="text-xs text-vectosilo-muted">
             {data.length} item{data.length !== 1 ? "s" : ""}
           </span>
           <div className="flex items-center gap-2">
@@ -211,8 +211,8 @@ export function DataGrid<T extends Record<string, any>>({
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
                 page === 0
-                  ? "text-koda-muted/40 cursor-not-allowed"
-                  : "text-koda-muted hover:bg-koda-surface hover:text-koda-text"
+                  ? "text-vectosilo-muted/40 cursor-not-allowed"
+                  : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
               )}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -224,8 +224,8 @@ export function DataGrid<T extends Record<string, any>>({
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
                   page === i
-                    ? "bg-koda-accent text-white"
-                    : "text-koda-muted hover:bg-koda-surface hover:text-koda-text"
+                    ? "bg-vectosilo-accent text-white"
+                    : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
                 )}
               >
                 {i + 1}
@@ -237,8 +237,8 @@ export function DataGrid<T extends Record<string, any>>({
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
                 page >= totalPages - 1
-                  ? "text-koda-muted/40 cursor-not-allowed"
-                  : "text-koda-muted hover:bg-koda-surface hover:text-koda-text"
+                  ? "text-vectosilo-muted/40 cursor-not-allowed"
+                  : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
               )}
             >
               <ChevronRight className="h-4 w-4" />

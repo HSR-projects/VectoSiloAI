@@ -47,7 +47,7 @@ async function getClient(): Promise<Client> {
   connectPromise = (async () => {
     connectAttempts++;
     const c = new Client(
-      { name: "kodaai-search", version: "1.0.0" },
+      { name: "vectosiloai-search", version: "1.0.0" },
       { capabilities: {} }
     );
 
@@ -155,15 +155,27 @@ export async function searchMCP(
   limit: number = 5
 ): Promise<SearchResult[]> {
   const c = await getClient();
+
+  // Timeout for the MCP search call (10 seconds)
   const queries = generateSubQueries(query);
 
-  const result = await c.callTool({
-    name: "search",
-    arguments: {
-      queries,
-      safesearch: 1,
-    },
-  });
+  let result: unknown;
+  try {
+    result = await Promise.race([
+      c.callTool({
+        name: "search",
+        arguments: {
+          queries,
+          safesearch: 1,
+        },
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("MCP search timed out after 10s")), 10_000)
+      ),
+    ]);
+  } catch (e) {
+    throw e;
+  }
 
   const content = (result as { content?: { type: string; text?: string }[] }).content;
   const textContent = content?.find(

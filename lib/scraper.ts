@@ -77,7 +77,7 @@ async function fetchImageBase64(imgUrl: string): Promise<string | null> {
   try {
     const res = await fetch(imgUrl, {
       signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; KodaAI/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; VectoSiloAI/1.0)" },
     });
     if (!res.ok) return null;
     const ctype = res.headers.get("content-type") ?? "";
@@ -132,7 +132,7 @@ async function scrapeOne(
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; KodaAI/1.0; +https://github.com/kodaai)",
+          "Mozilla/5.0 (compatible; VectoSiloAI/1.0; +https://github.com/vectosiloai)",
         Accept: "text/html,application/xhtml+xml",
       },
       cache: "no-store",

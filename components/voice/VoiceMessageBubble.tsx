@@ -113,7 +113,7 @@ export function VoiceMessageBubble({ url, duration: estDuration, align = "left",
           compact ? "h-8 w-8" : "h-10 w-10",
           align === "right"
             ? "bg-white/20 text-white hover:bg-white/30"
-            : "bg-koda-accent/15 text-koda-accent hover:bg-koda-accent/25"
+            : "bg-vectosilo-accent/15 text-vectosilo-accent hover:bg-vectosilo-accent/25"
         )}
       >
         {playing ? (
@@ -131,8 +131,8 @@ export function VoiceMessageBubble({ url, duration: estDuration, align = "left",
               "flex-1 rounded-full transition-all",
               compact ? "" : "min-h-[4px]",
               i <= activeBar && playing
-                ? align === "right" ? "bg-white" : "bg-koda-accent"
-                : align === "right" ? "bg-white/30" : "bg-koda-text/20"
+                ? align === "right" ? "bg-white" : "bg-vectosilo-accent"
+                : align === "right" ? "bg-white/30" : "bg-vectosilo-text/20"
             )}
             style={{
               height: compact
@@ -146,7 +146,7 @@ export function VoiceMessageBubble({ url, duration: estDuration, align = "left",
       <span className={cn(
         "shrink-0 tabular-nums",
         compact ? "text-[10px]" : "text-xs",
-        align === "right" ? "text-white/70" : "text-koda-muted"
+        align === "right" ? "text-white/70" : "text-vectosilo-muted"
       )}>
         {fmt(playing ? progress * duration : duration)}
       </span>
@@ -159,20 +159,20 @@ export function VoiceBubbleSkeleton({ align = "left" }: { align?: "left" | "righ
     <div className="flex h-14 items-center gap-2">
       <div className={cn(
         "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-        align === "right" ? "bg-white/10" : "bg-koda-accent/10"
+        align === "right" ? "bg-white/10" : "bg-vectosilo-accent/10"
       )}>
-        <Loader2 className="h-4 w-4 animate-spin text-koda-muted" />
+        <Loader2 className="h-4 w-4 animate-spin text-vectosilo-muted" />
       </div>
       <div className="flex flex-1 items-center gap-1 animate-pulse">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}
-            className="flex-1 rounded-full bg-koda-text/10"
+            className="flex-1 rounded-full bg-vectosilo-text/10"
             style={{ height: `${Math.max(4, (0.15 + Math.random() * 0.85) * 36)}px` }}
           />
         ))}
       </div>
-      <span className="w-8 shrink-0 text-xs text-koda-muted">0:00</span>
+      <span className="w-8 shrink-0 text-xs text-vectosilo-muted">0:00</span>
     </div>
   );
 }

@@ -26,7 +26,7 @@ async function writeDB(db: GiftsDB): Promise<void> {
 }
 
 function generateGiftCode(): string {
-  return "KODA-" + randomBytes(4).toString("hex").toUpperCase();
+  return "VECTOSILO-" + randomBytes(4).toString("hex").toUpperCase();
 }
 
 export async function createGift(

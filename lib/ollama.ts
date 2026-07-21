@@ -4,19 +4,19 @@ import { recordIncident } from "@/lib/incidentStore";
 /**
  * Ollama Cloud client.
  *
- * KodaAI is configured to use Ollama Cloud (https://ollama.com) rather than a
+ * VectoSiloAI is configured to use Ollama Cloud (https://ollama.com) rather than a
  * local Ollama daemon. Requests are authenticated with a bearer API key.
  * The wire protocol is identical to local Ollama, so the same client works if
  * you ever point OLLAMA_BASE_URL back at http://localhost:11434.
  */
 
 export const OLLAMA_BASE_URL = (
-  process.env.KODA_CLOUD_BASE_URL || process.env.OLLAMA_BASE_URL || "https://ollama.com"
+  process.env.VECTOSILO_CLOUD_BASE_URL || process.env.OLLAMA_BASE_URL || "https://ollama.com"
 ).replace(/\/$/, "");
 
-export const OLLAMA_API_KEY = process.env.KODA_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
+export const OLLAMA_API_KEY = process.env.VECTOSILO_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
 
-export const DEFAULT_MODEL = process.env.KODA_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
+export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
 
 /**
  * Optional hard override. When OLLAMA_FORCE_MODEL is set, EVERY chat call uses
@@ -69,7 +69,7 @@ export class OllamaError extends Error {
 
 /** Friendly guidance attached to connection failures. */
 function connectionHint(): string {
-  return "Could not reach the KodaAI model service. Check your connection and try again in a moment.";
+  return "Could not reach the VectoSiloAI model service. Check your connection and try again in a moment.";
 }
 
 /** Replace upstream Ollama errors with user-friendly messages and record incidents where needed. */
@@ -112,6 +112,8 @@ interface ChatOptions {
   options?: Record<string, unknown>;
   /** Enable the model's native reasoning ("thinking"). */
   think?: boolean;
+  /** Format of the output, e.g. "json" or a JSON schema object */
+  format?: "json" | object;
 }
 
 /** A streamed delta: reasoning tokens and/or answer tokens. */
@@ -139,6 +141,7 @@ export async function* chatStreamRich(
         stream: true,
         think: think || undefined,
         options: opts.options,
+        format: opts.format,
       }),
       signal: opts.signal,
     });
@@ -212,6 +215,7 @@ export async function* chatStream(
         messages: opts.messages,
         stream: true,
         options: opts.options,
+        format: opts.format,
       }),
       signal: opts.signal,
     });
@@ -266,6 +270,7 @@ export async function chat(opts: ChatOptions): Promise<string> {
         messages: opts.messages,
         stream: false,
         options: opts.options,
+        format: opts.format,
       }),
       signal: opts.signal,
     });

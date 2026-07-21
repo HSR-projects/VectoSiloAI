@@ -35,14 +35,14 @@ export function FocusModes({ value, onChange }: FocusModesProps) {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               active
-                ? "border-koda-accent/50 bg-koda-accent/15 text-koda-accent-soft"
-                : "border-koda-border bg-koda-surface text-koda-muted hover:border-koda-border hover:bg-koda-surface-2 hover:text-koda-text"
+                ? "border-vectosilo-accent/50 bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+                : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:border-vectosilo-border hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
             )}
           >
             <Icon className="h-3.5 w-3.5" />
             {label}
             {active && (
-              <span className="h-1.5 w-1.5 rounded-full bg-koda-accent" aria-hidden />
+              <span className="h-1.5 w-1.5 rounded-full bg-vectosilo-accent" aria-hidden />
             )}
           </button>
         );

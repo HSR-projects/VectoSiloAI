@@ -103,7 +103,7 @@ export async function createContainer(userId: string): Promise<DesktopContainer>
   cleanupStale();
 
   const id = genId();
-  const name = `koda-desktop-${id}`;
+  const name = `vectosilo-desktop-${id}`;
   const vncPort = portCounter++;
 
   const startupScript = [

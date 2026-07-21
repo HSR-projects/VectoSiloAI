@@ -118,14 +118,14 @@ const faqItems = [
 export default function LandingMobile() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-koda-bg">
+      <div className="min-h-screen bg-vectosilo-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-koda-text">Flow</span>}
+          logo={<span className="text-xl font-bold text-vectosilo-text">Flow</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-koda-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-koda-accent/90"
+              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
             >
               Download
             </a>
@@ -142,20 +142,20 @@ export default function LandingMobile() {
             />
           </div>
           <div className="mt-8 lg:mt-0">
-            <div className="relative mx-auto h-[500px] w-[250px] rounded-[2.5rem] border-4 border-koda-border bg-koda-surface shadow-2xl">
-              <div className="absolute left-1/2 top-0 h-5 w-28 -translate-x-1/2 rounded-b-xl bg-koda-border" />
-              <div className="flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-b from-koda-accent/20 via-koda-surface to-koda-surface-2 p-6">
+            <div className="relative mx-auto h-[500px] w-[250px] rounded-[2.5rem] border-4 border-vectosilo-border bg-vectosilo-surface shadow-2xl">
+              <div className="absolute left-1/2 top-0 h-5 w-28 -translate-x-1/2 rounded-b-xl bg-vectosilo-border" />
+              <div className="flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-b from-vectosilo-accent/20 via-vectosilo-surface to-vectosilo-surface-2 p-6">
                 <div className="text-center">
-                  <div className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-koda-accent/20 p-4">
-                    <div className="h-full w-full rounded-lg bg-koda-accent" />
+                  <div className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-vectosilo-accent/20 p-4">
+                    <div className="h-full w-full rounded-lg bg-vectosilo-accent" />
                   </div>
-                  <p className="text-2xl font-bold text-koda-text">Flow</p>
-                  <p className="mt-1 text-xs text-koda-muted">Your life, simplified</p>
+                  <p className="text-2xl font-bold text-vectosilo-text">Flow</p>
+                  <p className="mt-1 text-xs text-vectosilo-muted">Your life, simplified</p>
                   <div className="mt-6 space-y-3">
                     {["Today's Tasks", "Upcoming", "Habits"].map((item) => (
                       <div
                         key={item}
-                        className="rounded-lg bg-koda-surface-2/50 px-4 py-2 text-sm text-koda-muted"
+                        className="rounded-lg bg-vectosilo-surface-2/50 px-4 py-2 text-sm text-vectosilo-muted"
                       >
                         {item}
                       </div>
@@ -211,44 +211,44 @@ export default function LandingMobile() {
           buttonText="Join Waitlist"
         />
 
-        <footer className="border-t border-koda-border bg-koda-surface py-12">
+        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <span className="text-lg font-bold text-koda-text">Flow</span>
-                <p className="mt-2 text-sm text-koda-muted">
+                <span className="text-lg font-bold text-vectosilo-text">Flow</span>
+                <p className="mt-2 text-sm text-vectosilo-muted">
                   Your life, simplified.
                 </p>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">App</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Downloads</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Updates</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">App</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Features</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Downloads</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Updates</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">Support</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Help Center</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Contact</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Privacy</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Terms</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Support</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Help Center</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Contact</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Terms</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">Connect</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Twitter</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Instagram</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">TikTok</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Discord</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Connect</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Twitter</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Instagram</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">TikTok</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Discord</a></li>
                 </ul>
               </div>
             </div>
-            <div className="mt-10 border-t border-koda-border pt-6 text-center text-sm text-koda-muted">
+            <div className="mt-10 border-t border-vectosilo-border pt-6 text-center text-sm text-vectosilo-muted">
               &copy; {new Date().getFullYear()} Flow. All rights reserved.
             </div>
           </div>

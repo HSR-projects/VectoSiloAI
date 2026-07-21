@@ -213,7 +213,7 @@ export default function StatusPage() {
               <circle cx="16" cy="16" r="3" fill="url(#ks)" />
               <path d="M16 4.5v3M16 24.5v3M4.5 16h3M24.5 16h3" stroke="url(#ks)" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
-            <span style={{ fontSize: 19, fontWeight: 600, letterSpacing: "-0.02em" }}>KodaAI Status</span>
+            <span style={{ fontSize: 19, fontWeight: 600, letterSpacing: "-0.02em" }}>VectoSiloAI Status</span>
           </div>
           <a href="/"
             style={{

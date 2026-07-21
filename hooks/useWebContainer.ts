@@ -149,7 +149,7 @@ export function useWebContainer(): UseWebContainerResult {
     // Dev server already running and dependencies unchanged: just write
     // the new files into the LIVE instance and let Vite HMR hot-reload.
     if (devProcess && installedPkg !== null && nextPkg === installedPkg) {
-      log("\nkoda@sandbox:~/project$ # applying edits to live VM…");
+      log("\nvectosilo@sandbox:~/project$ # applying edits to live VM…");
       try {
         await wc.mount(toFileTree(files) as Parameters<typeof wc.mount>[0]);
         log(`Updated ${files.length} file(s) — hot-reloading.`);
@@ -183,7 +183,7 @@ export function useWebContainer(): UseWebContainerResult {
     const cmds = commands.length ? commands : ["npm install", "npm run dev"];
     try {
       for (const cmd of cmds) {
-        log(`\nkoda@sandbox:~/project$ ${cmd}`);
+        log(`\nvectosilo@sandbox:~/project$ ${cmd}`);
         const [bin, ...args] = cmd.trim().split(/\s+/);
         const proc = await wc.spawn(bin, args);
         proc.output.pipeTo(new WritableStream({ write: (d) => writeChunk(d) }));

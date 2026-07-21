@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { scrapeUrlsWithMedia } from "@/lib/scraper";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +19,7 @@ export async function POST(req: Request) {
     .filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
     .slice(0, 6);
 
+  const { scrapeUrlsWithMedia } = await import("@/lib/scraper");
   const { sources, pageImages } = await scrapeUrlsWithMedia(safe);
   return NextResponse.json({ sources, pageImages });
 }

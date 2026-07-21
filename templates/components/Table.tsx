@@ -48,15 +48,15 @@ export function Table<T extends Record<string, any>>({
   };
 
   return (
-    <div className={cn("w-full overflow-x-auto rounded-xl border border-koda-border", className)} {...rest}>
+    <div className={cn("w-full overflow-x-auto rounded-xl border border-vectosilo-border", className)} {...rest}>
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-koda-border bg-koda-surface">
+          <tr className="border-b border-vectosilo-border bg-vectosilo-surface">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-koda-muted",
+                  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-vectosilo-muted",
                   col.sortable && "cursor-pointer select-none"
                 )}
                 onClick={() => col.sortable && handleSort(col.key)}
@@ -67,12 +67,12 @@ export function Table<T extends Record<string, any>>({
                     <span className="inline-flex flex-col">
                       {sortKey === col.key ? (
                         sortDir === "asc" ? (
-                          <ChevronUp className="h-3 w-3 text-koda-accent" />
+                          <ChevronUp className="h-3 w-3 text-vectosilo-accent" />
                         ) : (
-                          <ChevronDown className="h-3 w-3 text-koda-accent" />
+                          <ChevronDown className="h-3 w-3 text-vectosilo-accent" />
                         )
                       ) : (
-                        <ChevronsUpDown className="h-3 w-3 text-koda-muted" />
+                        <ChevronsUpDown className="h-3 w-3 text-vectosilo-muted" />
                       )}
                     </span>
                   )}
@@ -93,12 +93,12 @@ export function Table<T extends Record<string, any>>({
                 exit="hidden"
                 layout
                 className={cn(
-                  "border-b border-koda-border transition-colors last:border-b-0",
-                  "hover:bg-koda-surface/60"
+                  "border-b border-vectosilo-border transition-colors last:border-b-0",
+                  "hover:bg-vectosilo-surface/60"
                 )}
               >
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 text-koda-text">
+                  <td key={col.key} className="px-4 py-3 text-vectosilo-text">
                     {col.render ? col.render(item, i) : (item[col.key] ?? "-")}
                   </td>
                 ))}

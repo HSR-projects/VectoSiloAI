@@ -115,7 +115,7 @@ export async function POST(req: Request) {
   const caps = effectiveCaps(userPlan);
   const model = caps.allModels ? safeRequested : DEFAULT_MODEL;
 
-  const provider = rawProvider && rawProvider !== "kodaai" ? rawProvider : "kodaai";
+  const provider = rawProvider && rawProvider !== "vectosiloai" ? rawProvider : "vectosiloai";
 
   if (!query?.trim()) {
     return new Response("Missing query.", { status: 400 });
@@ -162,7 +162,7 @@ export async function POST(req: Request) {
     // Think mode uses the model's NATIVE reasoning (think:true below), so no
     // prompt-level instruction is needed here.
     const customBlock = customInstructions ? `\n\n[Custom AI Persona/Instructions]:\n${customInstructions}` : "";
-    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${TEMPLATE_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}${customBlock}\n\n── QUICK REFERENCE (emit directives as the VERY FIRST characters, no preamble) ──\n• Build an app/game/tool → [[computer:Title]] + <koda-file> + <koda-cmd>\n• Static website/page → [[website:Title]] + <koda-file>\n• Slides/presentation → [[slides:Title]] + <koda-slide>\n• Spreadsheet/sheet → [[sheet:Title]] + <koda-table>\n• Document/doc → [[doc:Title]] + <koda-doc>\n• Generate image → [[image: prompt → path]]\n• Run terminal command → [[computer:Terminal]] + <koda-cmd>\n• Build from templates → use template IDs (page-landing-*, page-dashboard-*, page-auth-*, etc.) to compose websites without writing full code`;
+    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${TEMPLATE_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}${customBlock}\n\n── QUICK REFERENCE (emit directives as the VERY FIRST characters, no preamble) ──\n• Build an app/game/tool → [[computer:Title]] + <vectosilo-file> + <vectosilo-cmd>\n• Static website/page → [[website:Title]] + <vectosilo-file>\n• Slides/presentation → [[slides:Title]] + <vectosilo-slide>\n• Spreadsheet/sheet → [[sheet:Title]] + <vectosilo-table>\n• Document/doc → [[doc:Title]] + <vectosilo-doc>\n• Generate image → [[image: prompt → path]]\n• Run terminal command → [[computer:Terminal]] + <vectosilo-cmd>\n• Build from templates → [[scaffold:TEMPLATE_ID:Title]] (auto-builds complete website, no code needed)`;
   }
 
   // ── Chess engine analysis (inject into system prompt if chess is mentioned) ──
@@ -244,7 +244,7 @@ export async function POST(req: Request) {
           controller.enqueue(encoder.encode(sse({ type: "search_images", images: fetchedSearchImages })));
         }
 
-        if (provider === "kodaai") {
+        if (provider === "vectosiloai") {
           // Native reasoning only on a normal turn (not the plain/GitHub passes).
           const useThink = think && !plain && !githubInvoke;
           for await (const delta of chatStreamRich({ model, messages, stream: true, think: useThink })) {
@@ -301,7 +301,7 @@ export async function POST(req: Request) {
         const message =
           e instanceof OllamaError
             ? e.message
-            : "Unexpected error reaching the KodaAI model service.";
+            : "Unexpected error reaching the VectoSiloAI model service.";
         controller.enqueue(encoder.encode(sse({ type: "error", message })));
       } finally {
         controller.close();

@@ -9,7 +9,7 @@ import {
 import type { ApiKeyPublic, OAuthClientPublic } from "@/types";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useModels } from "@/hooks/useModels";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { CREDIT_PACKS, formatCredits, API_CENTS_PER_1K } from "@/lib/credits";
 import { modelLabel, relativeTime, cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export default function DevelopersPage() {
   const router = useRouter();
   const { user, loading: authLoading, refresh } = useAuth();
   useModels();
-  const availableModels = useKodaStore((s) => s.availableModels);
+  const availableModels = useVectoSiloStore((s) => s.availableModels);
 
   const [section, setSection] = useState<Section>("home");
   const [range, setRange] = useState<Range>("24h");
@@ -151,7 +151,7 @@ export default function DevelopersPage() {
         key: data.key,
         amount: String(data.amount),
         currency: data.currency || "INR",
-        name: data.name || "Koda AI",
+        name: data.name || "VectoSilo AI",
         description: data.description || "API credits",
         email: data.prefill?.email || "",
         callback: `${window.location.origin}/razorpay/success?order_id=${data.id}&kind=credits`,
@@ -188,10 +188,10 @@ export default function DevelopersPage() {
 
   if (!authLoading && !user) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-koda-bg px-4 text-center">
-        <KeyRound className="h-10 w-10 text-koda-accent" />
-        <p className="text-koda-text">Sign in to open the developer console.</p>
-        <button onClick={() => router.push("/")} className="rounded-xl bg-koda-accent px-5 py-2 text-sm font-semibold text-black hover:bg-koda-accent-soft">
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-vectosilo-bg px-4 text-center">
+        <KeyRound className="h-10 w-10 text-vectosilo-accent" />
+        <p className="text-vectosilo-text">Sign in to open the developer console.</p>
+        <button onClick={() => router.push("/")} className="rounded-xl bg-vectosilo-accent px-5 py-2 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft">
           Go home
         </button>
       </div>
@@ -205,34 +205,34 @@ export default function DevelopersPage() {
   ];
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-koda-bg">
+    <div className="flex h-dvh overflow-hidden bg-vectosilo-bg">
       {/* Sidebar (desktop) */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-koda-border bg-koda-surface/40 md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-vectosilo-border bg-vectosilo-surface/40 md:flex">
         <button onClick={() => router.push("/")} className="flex items-center gap-2 px-4 py-4 text-left">
-          <span className="text-lg font-semibold tracking-tight text-koda-text">Koda<span className="text-koda-accent">AI</span></span>
-          <span className="rounded bg-koda-surface-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-koda-muted">Dev</span>
+          <span className="text-lg font-semibold tracking-tight text-vectosilo-text">VectoSilo<span className="text-vectosilo-accent">AI</span></span>
+          <span className="rounded bg-vectosilo-surface-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-vectosilo-muted">Dev</span>
         </button>
         <nav className="flex-1 space-y-0.5 px-2">
           {NAV.map((n) => (
             <button key={n.id} onClick={() => setSection(n.id)}
               className={cn("flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                section === n.id ? "bg-koda-surface-2 text-koda-text" : "text-koda-muted hover:bg-koda-surface-2/60 hover:text-koda-text")}>
+                section === n.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted hover:bg-vectosilo-surface-2/60 hover:text-vectosilo-text")}>
               {n.icon}{n.label}
             </button>
           ))}
         </nav>
-        <button onClick={() => router.push("/")} className="m-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text">
+        <button onClick={() => router.push("/")} className="m-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text">
           <ArrowLeft className="h-4 w-4" /> Back to app
         </button>
       </aside>
 
       <main className="flex-1 overflow-y-auto">
         {/* Mobile nav strip */}
-        <div className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-koda-border bg-koda-bg/90 p-2 backdrop-blur md:hidden [scrollbar-width:none]">
+        <div className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-vectosilo-border bg-vectosilo-bg/90 p-2 backdrop-blur md:hidden [scrollbar-width:none]">
           {NAV.map((n) => (
             <button key={n.id} onClick={() => setSection(n.id)}
               className={cn("flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs",
-                section === n.id ? "bg-koda-surface-2 text-koda-text" : "text-koda-muted")}>
+                section === n.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted")}>
               {n.icon}{n.label}
             </button>
           ))}
@@ -240,7 +240,7 @@ export default function DevelopersPage() {
 
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
           <div className="mb-6 flex items-center justify-between gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight text-koda-text">
+            <h1 className="text-2xl font-semibold tracking-tight text-vectosilo-text">
               {NAV.find((n) => n.id === section)?.label}
             </h1>
             {(section === "home" || section === "usage") && (
@@ -379,10 +379,10 @@ export default function DevelopersPage() {
 function RangeTabs({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   const ranges: Range[] = ["24h", "7d", "30d", "90d"];
   return (
-    <div className="flex rounded-lg border border-koda-border bg-koda-surface p-0.5 text-xs">
+    <div className="flex rounded-lg border border-vectosilo-border bg-vectosilo-surface p-0.5 text-xs">
       {ranges.map((r) => (
         <button key={r} onClick={() => onChange(r)}
-          className={cn("rounded-md px-2.5 py-1 transition-colors", value === r ? "bg-koda-surface-2 text-koda-text" : "text-koda-muted hover:text-koda-text")}>
+          className={cn("rounded-md px-2.5 py-1 transition-colors", value === r ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted hover:text-vectosilo-text")}>
           {r}
         </button>
       ))}
@@ -403,9 +403,9 @@ function MiniBars({ data, accent }: { data: number[]; accent: string }) {
 
 function StatCard({ label, value, children }: { label: string; value: string; children?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-koda-border bg-koda-surface p-4">
-      <p className="text-xs text-koda-muted">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-koda-text">{value}</p>
+    <div className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-4">
+      <p className="text-xs text-vectosilo-muted">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-vectosilo-text">{value}</p>
       {children && <div className="mt-3">{children}</div>}
     </div>
   );
@@ -425,16 +425,16 @@ function HomeSection({
   return (
     <div className="space-y-8">
       {/* Get started */}
-      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
-        <h2 className="mb-4 text-sm font-semibold text-koda-text">Get started</h2>
+      <section className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-5">
+        <h2 className="mb-4 text-sm font-semibold text-vectosilo-text">Get started</h2>
         <div className="space-y-3">
           {checklist.map((c) => (
             <button key={c.label} onClick={() => onGo(c.go)} className="flex w-full items-center gap-3 text-left">
               {c.done
                 ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400" />
-                : <Circle className="h-5 w-5 shrink-0 text-koda-muted" />}
-              <span className={cn("text-sm", c.done ? "text-koda-muted line-through" : "text-koda-text")}>{c.label}</span>
-              {!c.done && <ArrowUpRight className="ml-auto h-4 w-4 text-koda-muted" />}
+                : <Circle className="h-5 w-5 shrink-0 text-vectosilo-muted" />}
+              <span className={cn("text-sm", c.done ? "text-vectosilo-muted line-through" : "text-vectosilo-text")}>{c.label}</span>
+              {!c.done && <ArrowUpRight className="ml-auto h-4 w-4 text-vectosilo-muted" />}
             </button>
           ))}
         </div>
@@ -448,10 +448,10 @@ function HomeSection({
         <StatCard label="Total requests" value={fmt(usage?.totalRequests ?? 0)}>
           <MiniBars data={(usage?.series ?? []).map((s) => s.requests)} accent="#22c55e" />
         </StatCard>
-        <div className="rounded-2xl border border-koda-accent/30 bg-koda-accent/[0.06] p-4">
-          <p className="text-xs text-koda-muted">Credit remaining</p>
-          <p className="mt-1 text-2xl font-semibold text-koda-text">{formatCredits(credits)}</p>
-          <button onClick={() => onGo("credits")} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-semibold text-black hover:bg-koda-accent-soft">
+        <div className="rounded-2xl border border-vectosilo-accent/30 bg-vectosilo-accent/[0.06] p-4">
+          <p className="text-xs text-vectosilo-muted">Credit remaining</p>
+          <p className="mt-1 text-2xl font-semibold text-vectosilo-text">{formatCredits(credits)}</p>
+          <button onClick={() => onGo("credits")} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-semibold text-black hover:bg-vectosilo-accent-soft">
             <Coins className="h-3.5 w-3.5" /> Add credits
           </button>
         </div>
@@ -459,16 +459,16 @@ function HomeSection({
 
       {/* Recommended models */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-koda-text">Recommended models</h2>
+        <h2 className="mb-3 text-sm font-semibold text-vectosilo-text">Recommended models</h2>
         {models.length === 0 ? (
-          <p className="text-sm text-koda-muted">No models available right now.</p>
+          <p className="text-sm text-vectosilo-muted">No models available right now.</p>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {models.slice(0, 6).map((m) => (
-              <div key={m} className="rounded-xl border border-koda-border bg-koda-surface p-4">
-                <Cpu className="mb-2 h-5 w-5 text-koda-accent" />
-                <p className="text-sm font-medium text-koda-text">{modelLabel(m)}</p>
-                <p className="mt-0.5 font-mono text-xs text-koda-muted">{m}</p>
+              <div key={m} className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-4">
+                <Cpu className="mb-2 h-5 w-5 text-vectosilo-accent" />
+                <p className="text-sm font-medium text-vectosilo-text">{modelLabel(m)}</p>
+                <p className="mt-0.5 font-mono text-xs text-vectosilo-muted">{m}</p>
               </div>
             ))}
           </div>
@@ -487,13 +487,13 @@ function UsageSection({ usage, credits }: { usage: UsageSummary | null; credits:
         <StatCard label="Spend" value={formatCredits(usage?.totalCostCents ?? 0)} />
         <StatCard label="Credit left" value={formatCredits(credits)} />
       </div>
-      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
-        <p className="mb-3 text-sm font-semibold text-koda-text">Tokens over time</p>
+      <section className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-5">
+        <p className="mb-3 text-sm font-semibold text-vectosilo-text">Tokens over time</p>
         <MiniBars data={(usage?.series ?? []).map((s) => s.tokens)} accent="#7c3aed" />
-        <p className="mb-3 mt-6 text-sm font-semibold text-koda-text">Requests over time</p>
+        <p className="mb-3 mt-6 text-sm font-semibold text-vectosilo-text">Requests over time</p>
         <MiniBars data={(usage?.series ?? []).map((s) => s.requests)} accent="#22c55e" />
         {(usage?.totalRequests ?? 0) === 0 && (
-          <p className="mt-4 text-center text-xs text-koda-muted">
+          <p className="mt-4 text-center text-xs text-vectosilo-muted">
             No API usage in this range yet. Usage from your API keys will appear here.
           </p>
         )}
@@ -533,7 +533,7 @@ function CreditsSection({
         key: data.key,
         amount: String(data.amount),
         currency: data.currency || "USD",
-        name: data.name || "Koda AI",
+        name: data.name || "VectoSilo AI",
         description: data.description || "Save card",
         email: data.prefill?.email || "",
         callback: `${window.location.origin}/razorpay/success?order_id=${data.id}&kind=save_card`,
@@ -591,43 +591,43 @@ function CreditsSection({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
+      <section className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-koda-accent/15">
-            <Coins className="h-5 w-5 text-koda-accent" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-vectosilo-accent/15">
+            <Coins className="h-5 w-5 text-vectosilo-accent" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-koda-muted">Credit balance</p>
-            <p className="text-2xl font-semibold text-koda-text">{formatCredits(credits)}</p>
+            <p className="text-xs uppercase tracking-wide text-vectosilo-muted">Credit balance</p>
+            <p className="text-2xl font-semibold text-vectosilo-text">{formatCredits(credits)}</p>
           </div>
-          <p className="ml-auto hidden text-right text-xs text-koda-muted sm:block">
+          <p className="ml-auto hidden text-right text-xs text-vectosilo-muted sm:block">
             ~{API_CENTS_PER_1K}¢ / 1K tokens<br />Credits never expire
           </p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {CREDIT_PACKS.map((pack) => (
             <button key={pack.id} onClick={() => onBuy(pack.id)} disabled={!!buying}
-              className="relative flex flex-col items-center gap-1 rounded-xl border border-koda-border bg-koda-surface-2 px-3 py-3 transition-colors hover:border-koda-accent/50 hover:bg-koda-surface disabled:opacity-60">
-              {pack.note && <span className="absolute -top-2 rounded-full bg-koda-accent px-2 py-0.5 text-[10px] font-semibold text-black">{pack.note}</span>}
-              <span className="text-lg font-semibold text-koda-text">${pack.usd}</span>
-              <span className="text-xs text-koda-muted">{pack.credits} credits</span>
-              {buying === pack.id && <Loader2 className="mt-1 h-3.5 w-3.5 animate-spin text-koda-accent" />}
+              className="relative flex flex-col items-center gap-1 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-3 transition-colors hover:border-vectosilo-accent/50 hover:bg-vectosilo-surface disabled:opacity-60">
+              {pack.note && <span className="absolute -top-2 rounded-full bg-vectosilo-accent px-2 py-0.5 text-[10px] font-semibold text-black">{pack.note}</span>}
+              <span className="text-lg font-semibold text-vectosilo-text">${pack.usd}</span>
+              <span className="text-xs text-vectosilo-muted">{pack.credits} credits</span>
+              {buying === pack.id && <Loader2 className="mt-1 h-3.5 w-3.5 animate-spin text-vectosilo-accent" />}
             </button>
           ))}
         </div>
-        <button onClick={onRefresh} className="mt-3 text-xs text-koda-muted hover:text-koda-text">Refresh balance</button>
+        <button onClick={onRefresh} className="mt-3 text-xs text-vectosilo-muted hover:text-vectosilo-text">Refresh balance</button>
       </section>
 
-      <section className="rounded-2xl border border-koda-border bg-koda-surface p-5">
-        <h2 className="mb-4 text-sm font-semibold text-koda-text">Auto-recharge</h2>
-        <p className="mb-4 text-xs text-koda-muted">Automatically add credits when your balance falls below a certain amount.</p>
+      <section className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-5">
+        <h2 className="mb-4 text-sm font-semibold text-vectosilo-text">Auto-recharge</h2>
+        <p className="mb-4 text-xs text-vectosilo-muted">Automatically add credits when your balance falls below a certain amount.</p>
         
         <div className="space-y-4">
-          <div className="rounded-xl border border-koda-border bg-koda-surface-2 p-4">
+          <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-koda-text">Payment Method</p>
-                <p className="text-xs text-koda-muted">
+                <p className="text-sm font-medium text-vectosilo-text">Payment Method</p>
+                <p className="text-xs text-vectosilo-muted">
                   {user?.hasSavedCard ? "Card saved successfully" : "No card saved for auto-recharge"}
                 </p>
               </div>
@@ -637,7 +637,7 @@ function CreditsSection({
                     Remove Card
                   </button>
                 )}
-                <button onClick={saveCard} disabled={savingCard} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-xs font-medium text-black hover:bg-koda-accent-soft disabled:opacity-60">
+                <button onClick={saveCard} disabled={savingCard} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-vectosilo-accent px-3.5 py-2 text-xs font-medium text-black hover:bg-vectosilo-accent-soft disabled:opacity-60">
                   {savingCard ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   {user?.hasSavedCard ? "Update Card" : "Add Card"}
                 </button>
@@ -646,27 +646,27 @@ function CreditsSection({
           </div>
 
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={autoRecharge} onChange={(e) => setAutoRecharge(e.target.checked)} className="rounded border-koda-border bg-koda-surface-2 text-koda-accent focus:ring-koda-accent" />
-            <span className="text-sm text-koda-text">Enable auto-recharge</span>
+            <input type="checkbox" checked={autoRecharge} onChange={(e) => setAutoRecharge(e.target.checked)} className="rounded border-vectosilo-border bg-vectosilo-surface-2 text-vectosilo-accent focus:ring-vectosilo-accent" />
+            <span className="text-sm text-vectosilo-text">Enable auto-recharge</span>
           </label>
           
           {autoRecharge && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs text-koda-muted">When balance falls below ($)</label>
+                <label className="mb-1 block text-xs text-vectosilo-muted">When balance falls below ($)</label>
                 <input value={autoRechargeThreshold} onChange={(e) => setAutoRechargeThreshold(e.target.value)}
-                  className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none" />
+                  className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none" />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-koda-muted">Recharge amount ($)</label>
+                <label className="mb-1 block text-xs text-vectosilo-muted">Recharge amount ($)</label>
                 <input value={autoRechargeAmount} onChange={(e) => setAutoRechargeAmount(e.target.value)}
-                  className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none" />
+                  className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none" />
               </div>
             </div>
           )}
           
           <div className="flex items-center gap-3">
-            <button onClick={saveAutoRecharge} disabled={savingAutoRecharge} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-surface-2 px-4 py-2 text-sm font-medium text-koda-text hover:bg-koda-surface disabled:opacity-60">
+            <button onClick={saveAutoRecharge} disabled={savingAutoRecharge} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-vectosilo-surface-2 px-4 py-2 text-sm font-medium text-vectosilo-text hover:bg-vectosilo-surface disabled:opacity-60">
               {savingAutoRecharge ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save settings
             </button>
             {saveSuccess && <span className="text-xs text-green-400">Settings saved successfully!</span>}
@@ -691,67 +691,67 @@ function KeysSection({
   return (
     <section>
       {revealed && (
-        <div className="mb-4 rounded-xl border border-koda-accent/40 bg-koda-accent/10 p-4">
-          <p className="mb-2 text-xs font-medium text-koda-accent-soft">Copy your key now — you won&apos;t see it again.</p>
-          <div className="flex items-center gap-2 rounded-lg bg-koda-bg/60 px-3 py-2">
-            <code className="flex-1 truncate font-mono text-xs text-koda-text">{revealed}</code>
-            <button onClick={onCopy} className="flex items-center gap-1 rounded-md bg-koda-surface-2 px-2 py-1 text-xs text-koda-text hover:bg-koda-surface">
+        <div className="mb-4 rounded-xl border border-vectosilo-accent/40 bg-vectosilo-accent/10 p-4">
+          <p className="mb-2 text-xs font-medium text-vectosilo-accent-soft">Copy your key now — you won&apos;t see it again.</p>
+          <div className="flex items-center gap-2 rounded-lg bg-vectosilo-bg/60 px-3 py-2">
+            <code className="flex-1 truncate font-mono text-xs text-vectosilo-text">{revealed}</code>
+            <button onClick={onCopy} className="flex items-center gap-1 rounded-md bg-vectosilo-surface-2 px-2 py-1 text-xs text-vectosilo-text hover:bg-vectosilo-surface">
               {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copied" : "Copy"}
             </button>
           </div>
-          <button onClick={onDismiss} className="mt-2 text-xs text-koda-muted hover:text-koda-text">Done</button>
+          <button onClick={onDismiss} className="mt-2 text-xs text-vectosilo-muted hover:text-vectosilo-text">Done</button>
         </div>
       )}
-      <div className="mb-3 rounded-xl border border-koda-border bg-koda-surface p-3">
+      <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-3">
         <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
           <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && onCreate()}
             placeholder="Key name (e.g. production)"
-            className="rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text placeholder:text-koda-muted focus:border-koda-accent/50 focus:outline-none" />
+            className="rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none" />
           <label className="relative">
-            <span className="pointer-events-none absolute left-3 top-2 text-sm text-koda-muted">$</span>
+            <span className="pointer-events-none absolute left-3 top-2 text-sm text-vectosilo-muted">$</span>
             <input value={newKeyLimit} onChange={(e) => setNewKeyLimit(e.target.value)} onKeyDown={(e) => e.key === "Enter" && onCreate()}
               inputMode="text" aria-label="Credit limit in dollars"
-              className="w-full rounded-lg border border-koda-border bg-koda-surface-2 py-2 pl-7 pr-3 text-sm text-koda-text placeholder:text-koda-muted focus:border-koda-accent/50 focus:outline-none" />
+              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 py-2 pl-7 pr-3 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none" />
           </label>
-          <button onClick={onCreate} disabled={creating || (newKeyLimit !== "unlimited" && limitCents <= 0)} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-koda-accent-soft disabled:opacity-60">
+          <button onClick={onCreate} disabled={creating || (newKeyLimit !== "unlimited" && limitCents <= 0)} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-vectosilo-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-vectosilo-accent-soft disabled:opacity-60">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create
           </button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {CREDIT_PACKS.map((pack) => (
             <button key={pack.id} onClick={() => setNewKeyLimit((pack.usd).toFixed(2))}
-              className="rounded-md border border-koda-border bg-koda-surface-2 px-2.5 py-1 text-xs text-koda-muted hover:border-koda-accent/40 hover:text-koda-text">
+              className="rounded-md border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1 text-xs text-vectosilo-muted hover:border-vectosilo-accent/40 hover:text-vectosilo-text">
               {pack.label} {formatCredits(pack.credits)}
             </button>
           ))}
           <button onClick={() => setNewKeyLimit("unlimited")}
-            className="rounded-md border border-koda-border bg-koda-surface-2 px-2.5 py-1 text-xs text-koda-muted hover:border-koda-accent/40 hover:text-koda-text">
+            className="rounded-md border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1 text-xs text-vectosilo-muted hover:border-vectosilo-accent/40 hover:text-vectosilo-text">
             Unlimited
           </button>
         </div>
-        <p className="mt-2 text-xs text-koda-muted">
+        <p className="mt-2 text-xs text-vectosilo-muted">
           {newKeyLimit === "unlimited" ? "This key has no spending limit." : `This key can spend up to ${formatCredits(limitCents)} from your account balance. Buy credits in the Credits tab to fund it.`}
         </p>
       </div>
-      <div className="divide-y divide-koda-border overflow-hidden rounded-xl border border-koda-border bg-koda-surface">
+      <div className="divide-y divide-vectosilo-border overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface">
         {loading ? (
-          <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-koda-muted" /></div>
+          <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-vectosilo-muted" /></div>
         ) : keys.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-koda-muted">No API keys yet.</p>
+          <p className="px-4 py-6 text-center text-sm text-vectosilo-muted">No API keys yet.</p>
         ) : keys.map((k) => (
           <div key={k.id} className="flex items-center justify-between px-4 py-3">
             <div className="min-w-0">
-              <p className="truncate text-sm text-koda-text">{k.name}</p>
-              <p className="font-mono text-xs text-koda-muted">
-                sk-koda-…{k.last4} · created {relativeTime(k.createdAt)}
+              <p className="truncate text-sm text-vectosilo-text">{k.name}</p>
+              <p className="font-mono text-xs text-vectosilo-muted">
+                sk-vectosilo-…{k.last4} · created {relativeTime(k.createdAt)}
                 {k.lastUsedAt ? ` · last used ${relativeTime(k.lastUsedAt)}` : " · never used"}
               </p>
-              <p className="mt-1 text-xs text-koda-muted">
+              <p className="mt-1 text-xs text-vectosilo-muted">
                 Spent {formatCredits(k.spentCents)} / {k.creditLimitCents ? formatCredits(k.creditLimitCents) : "no key limit"}
               </p>
             </div>
             <button onClick={() => onRevoke(k.id)} aria-label={`Revoke ${k.name}`}
-              className="ml-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-koda-muted hover:bg-red-500/10 hover:text-red-300">
+              className="ml-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-red-500/10 hover:text-red-300">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
@@ -759,12 +759,12 @@ function KeysSection({
       </div>
 
       <section className="mt-6">
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-koda-text"><Zap className="h-4 w-4 text-koda-accent" /> Quickstart</h2>
-        <pre className="overflow-x-auto rounded-xl border border-koda-border bg-[#141416] p-4 text-xs leading-relaxed text-koda-text/90">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-vectosilo-text"><Zap className="h-4 w-4 text-vectosilo-accent" /> Quickstart</h2>
+        <pre className="overflow-x-auto rounded-xl border border-vectosilo-border bg-[#141416] p-4 text-xs leading-relaxed text-vectosilo-text/90">
 {`curl ${origin}/api/v1/chat \\
-  -H "Authorization: Bearer sk-koda-..." \\
+  -H "Authorization: Bearer sk-vectosilo-..." \\
   -H "Content-Type: application/json" \\
-  -d '{ "model": "koda", "prompt": "Hello from KodaAI" }'`}
+  -d '{ "model": "vectosilo", "prompt": "Hello from VectoSiloAI" }'`}
         </pre>
       </section>
     </section>
@@ -784,61 +784,61 @@ function OAuthSection({
 }) {
   return (
     <section>
-      <p className="mb-3 text-xs text-koda-muted">
-        Let any website offer a “Continue with KodaAI” button. Register an app to get a client ID &amp; secret.
+      <p className="mb-3 text-xs text-vectosilo-muted">
+        Let any website offer a “Continue with VectoSiloAI” button. Register an app to get a client ID &amp; secret.
       </p>
 
       {newCreds && (
-        <div className="mb-4 rounded-xl border border-koda-accent/40 bg-koda-accent/10 p-4">
-          <p className="mb-2 text-xs font-medium text-koda-accent-soft">Save your client secret now — it won&apos;t be shown again.</p>
+        <div className="mb-4 rounded-xl border border-vectosilo-accent/40 bg-vectosilo-accent/10 p-4">
+          <p className="mb-2 text-xs font-medium text-vectosilo-accent-soft">Save your client secret now — it won&apos;t be shown again.</p>
           <CredRow label="Client ID" value={newCreds.clientId} copied={copiedField === "id"} onCopy={() => onCopy("id", newCreds.clientId)} />
           <CredRow label="Client secret" value={newCreds.clientSecret} copied={copiedField === "secret"} onCopy={() => onCopy("secret", newCreds.clientSecret)} />
-          <button onClick={onDismiss} className="mt-2 text-xs text-koda-muted hover:text-koda-text">Done</button>
+          <button onClick={onDismiss} className="mt-2 text-xs text-vectosilo-muted hover:text-vectosilo-text">Done</button>
         </div>
       )}
 
-      <div className="mb-3 space-y-2 rounded-xl border border-koda-border bg-koda-surface p-3">
+      <div className="mb-3 space-y-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-3">
         <input value={appName} onChange={(e) => setAppName(e.target.value)} placeholder="App name (e.g. My Website)"
-          className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text placeholder:text-koda-muted focus:border-koda-accent/50 focus:outline-none" />
+          className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none" />
         <textarea value={appRedirects} onChange={(e) => setAppRedirects(e.target.value)} rows={2}
-          placeholder={"Redirect URIs (one per line)\nhttps://myapp.com/auth/koda/callback"}
-          className="w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-sm text-koda-text placeholder:text-koda-muted focus:border-koda-accent/50 focus:outline-none" />
+          placeholder={"Redirect URIs (one per line)\nhttps://myapp.com/auth/vectosilo/callback"}
+          className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none" />
         <button onClick={onCreate} disabled={creating || !appName.trim() || !appRedirects.trim()}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-koda-accent-soft disabled:opacity-50">
+          className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3.5 py-2 text-sm font-medium text-black hover:bg-vectosilo-accent-soft disabled:opacity-50">
           {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Register app
         </button>
       </div>
 
-      <div className="divide-y divide-koda-border overflow-hidden rounded-xl border border-koda-border bg-koda-surface">
+      <div className="divide-y divide-vectosilo-border overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface">
         {loading ? (
-          <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-koda-muted" /></div>
+          <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-vectosilo-muted" /></div>
         ) : apps.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-koda-muted">No apps yet.</p>
+          <p className="px-4 py-6 text-center text-sm text-vectosilo-muted">No apps yet.</p>
         ) : apps.map((a) => (
           <div key={a.clientId} className="flex items-start justify-between gap-3 px-4 py-3">
             <div className="min-w-0">
-              <p className="truncate text-sm text-koda-text">{a.name}</p>
-              <p className="truncate font-mono text-xs text-koda-muted">{a.clientId}</p>
-              <p className="mt-0.5 truncate text-xs text-koda-muted">{a.redirectUris.join(", ")}</p>
+              <p className="truncate text-sm text-vectosilo-text">{a.name}</p>
+              <p className="truncate font-mono text-xs text-vectosilo-muted">{a.clientId}</p>
+              <p className="mt-0.5 truncate text-xs text-vectosilo-muted">{a.redirectUris.join(", ")}</p>
             </div>
             <button onClick={() => onDelete(a.clientId)} aria-label={`Delete ${a.name}`}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-koda-muted hover:bg-red-500/10 hover:text-red-300">
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-red-500/10 hover:text-red-300">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ))}
       </div>
 
-      <pre className="mt-3 overflow-x-auto rounded-xl border border-koda-border bg-[#141416] p-4 text-xs leading-relaxed text-koda-text/90">
+      <pre className="mt-3 overflow-x-auto rounded-xl border border-vectosilo-border bg-[#141416] p-4 text-xs leading-relaxed text-vectosilo-text/90">
 {`# 1. Send users to consent
-${origin}/oauth/authorize?client_id=koda_...
+${origin}/oauth/authorize?client_id=vectosilo_...
   &redirect_uri=https://myapp.com/callback&response_type=code
   &scope=profile%20email&state=xyz
 
 # 2. Exchange ?code for a token
 curl -X POST ${origin}/api/oauth/token \\
   -d grant_type=authorization_code -d code=THE_CODE \\
-  -d client_id=koda_... -d client_secret=koda_sk_... \\
+  -d client_id=vectosilo_... -d client_secret=vectosilo_sk_... \\
   -d redirect_uri=https://myapp.com/callback
 
 # 3. Fetch the profile
@@ -884,15 +884,15 @@ function PlaygroundSection({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="mb-2 text-lg font-semibold text-koda-text">API Playground</h2>
-        <p className="text-sm text-koda-muted">Test your API with a real chat interface. Enter your API key and start chatting.</p>
+        <h2 className="mb-2 text-lg font-semibold text-vectosilo-text">API Playground</h2>
+        <p className="text-sm text-vectosilo-muted">Test your API with a real chat interface. Enter your API key and start chatting.</p>
       </div>
 
-      <div className="flex flex-col rounded-lg border border-koda-border bg-koda-surface/40 overflow-hidden" style={{ height: "600px" }}>
+      <div className="flex flex-col rounded-lg border border-vectosilo-border bg-vectosilo-surface/40 overflow-hidden" style={{ height: "600px" }}>
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-koda-muted">
+            <div className="flex items-center justify-center h-full text-vectosilo-muted">
               <p>No messages yet. Start by entering a prompt below.</p>
             </div>
           ) : (
@@ -900,11 +900,11 @@ function PlaygroundSection({
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-xs lg:max-w-md rounded-lg px-4 py-2 ${
                   msg.role === "user"
-                    ? "bg-koda-accent text-koda-bg"
-                    : "bg-koda-surface-2 text-koda-text"
+                    ? "bg-vectosilo-accent text-vectosilo-bg"
+                    : "bg-vectosilo-surface-2 text-vectosilo-text"
                 }`}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <p className={`text-xs mt-1 ${msg.role === "user" ? "text-koda-bg/70" : "text-koda-muted"}`}>
+                  <p className={`text-xs mt-1 ${msg.role === "user" ? "text-vectosilo-bg/70" : "text-vectosilo-muted"}`}>
                     {new Date(msg.timestamp).toLocaleTimeString()}
                   </p>
                 </div>
@@ -913,11 +913,11 @@ function PlaygroundSection({
           )}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-koda-surface-2 text-koda-text rounded-lg px-4 py-2">
+              <div className="bg-vectosilo-surface-2 text-vectosilo-text rounded-lg px-4 py-2">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                  <div className="w-2 h-2 bg-koda-muted rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                  <div className="w-2 h-2 bg-vectosilo-muted rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-vectosilo-muted rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                  <div className="w-2 h-2 bg-vectosilo-muted rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                 </div>
               </div>
             </div>
@@ -926,34 +926,34 @@ function PlaygroundSection({
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-koda-border bg-koda-bg/40 p-4 space-y-3">
+        <div className="border-t border-vectosilo-border bg-vectosilo-bg/40 p-4 space-y-3">
           {/* Settings Row */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-koda-text">API Key</label>
+              <label className="mb-1 block text-xs font-medium text-vectosilo-text">API Key</label>
               <div className="flex items-center gap-2">
                 <input
                   type={keyVisible ? "text" : "password"}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="sk_..."
-                  className="flex-1 rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-xs text-koda-text placeholder-koda-muted focus:border-koda-accent focus:outline-none"
+                  className="flex-1 rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-xs text-vectosilo-text placeholder-vectosilo-muted focus:border-vectosilo-accent focus:outline-none"
                   disabled={loading}
                 />
                 <button
                   onClick={() => setKeyVisible(!keyVisible)}
-                  className="text-xs text-koda-muted hover:text-koda-text transition-colors"
+                  className="text-xs text-vectosilo-muted hover:text-vectosilo-text transition-colors"
                 >
                   {keyVisible ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-koda-text">Model</label>
+              <label className="mb-1 block text-xs font-medium text-vectosilo-text">Model</label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-xs text-koda-text focus:border-koda-accent focus:outline-none"
+                className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-xs text-vectosilo-text focus:border-vectosilo-accent focus:outline-none"
                 disabled={loading}
               >
                 {models.map((m) => (
@@ -974,13 +974,13 @@ function PlaygroundSection({
                 }
               }}
               placeholder="Enter message... (Ctrl+Enter to send)"
-              className="flex-1 max-h-24 resize-none rounded-lg border border-koda-border bg-koda-bg px-3 py-2 text-xs text-koda-text placeholder-koda-muted focus:border-koda-accent focus:outline-none"
+              className="flex-1 max-h-24 resize-none rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-xs text-vectosilo-text placeholder-vectosilo-muted focus:border-vectosilo-accent focus:outline-none"
               disabled={loading}
             />
             <button
               onClick={() => onSubmit(selectedModel, prompt, apiKey)}
               disabled={loading || !prompt.trim() || !apiKey.trim()}
-              className="rounded-lg bg-koda-accent px-3 py-2 font-medium text-koda-bg hover:bg-koda-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs h-fit"
+              className="rounded-lg bg-vectosilo-accent px-3 py-2 font-medium text-vectosilo-bg hover:bg-vectosilo-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs h-fit"
             >
               {loading ? "..." : "Send"}
             </button>
@@ -994,10 +994,10 @@ function PlaygroundSection({
 function CredRow({ label, value, copied, onCopy }: { label: string; value: string; copied: boolean; onCopy: () => void }) {
   return (
     <div className="mb-2">
-      <p className="mb-1 text-[11px] uppercase tracking-wide text-koda-muted">{label}</p>
-      <div className="flex items-center gap-2 rounded-lg bg-koda-bg/60 px-3 py-2">
-        <code className="flex-1 truncate font-mono text-xs text-koda-text">{value}</code>
-        <button onClick={onCopy} className="flex items-center gap-1 rounded-md bg-koda-surface-2 px-2 py-1 text-xs text-koda-text hover:bg-koda-surface">
+      <p className="mb-1 text-[11px] uppercase tracking-wide text-vectosilo-muted">{label}</p>
+      <div className="flex items-center gap-2 rounded-lg bg-vectosilo-bg/60 px-3 py-2">
+        <code className="flex-1 truncate font-mono text-xs text-vectosilo-text">{value}</code>
+        <button onClick={onCopy} className="flex items-center gap-1 rounded-md bg-vectosilo-surface-2 px-2 py-1 text-xs text-vectosilo-text hover:bg-vectosilo-surface">
           {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copied" : "Copy"}
         </button>
       </div>

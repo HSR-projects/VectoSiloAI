@@ -331,7 +331,7 @@ export default function CareersPage() {
               className="text-center"
             >
               <h2 className="text-3xl font-bold text-[#ececec] sm:text-4xl">
-                Why Work at KodaAI?
+                Why Work at VectoSiloAI?
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-lg text-[#8e8e93]">
                 We believe in taking care of our team so they can focus on doing
@@ -397,7 +397,7 @@ export default function CareersPage() {
 
         <footer className="border-t border-[#424242] bg-[#2f2f2f] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} KodaAI. All rights reserved.
+            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
           </div>
         </footer>
       </div>

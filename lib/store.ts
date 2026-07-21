@@ -30,7 +30,7 @@ function pickActiveFile(files: ProjectFile[]): string | undefined {
   return files[0].path;
 }
 
-interface KodaState {
+interface VectoSiloState {
   // ─── Model ──────────────────────────────────────────────
   selectedModel: string;
   availableModels: string[];
@@ -61,7 +61,7 @@ interface KodaState {
   setPendingAttachments: (a: Attachment[]) => void;
 
   /**
-   * Text to seed the composer with (e.g. from the "Ask Koda AI" selection
+   * Text to seed the composer with (e.g. from the "Ask VectoSilo AI" selection
    * popover). SearchBar picks it up, fills the input, and clears it.
    */
   composerDraft: string;
@@ -71,10 +71,10 @@ interface KodaState {
   /** Chess engine strength, 1 (easy) … 10 (hard). */
   chessDifficulty: number;
   setChessDifficulty: (n: number) => void;
-  /** Selected AI provider (defaults to KodaAI Cloud). */
+  /** Selected AI provider (defaults to VectoSiloAI Cloud). */
   provider: string;
   setProvider: (id: string) => void;
-  /** API key for the selected provider (empty for KodaAI Cloud / local). */
+  /** API key for the selected provider (empty for VectoSiloAI Cloud / local). */
   providerApiKey: string;
   setProviderApiKey: (key: string) => void;
   /** Custom base URL override for the selected provider. */
@@ -101,7 +101,7 @@ interface KodaState {
   /** Hands-free voice conversation overlay. */
   voiceOpen: boolean;
   setVoiceOpen: (v: boolean) => void;
-  /** Require a "Hey Koda" wake phrase before acting on speech. */
+  /** Require a "Hey VectoSilo" wake phrase before acting on speech. */
   wakeWordEnabled: boolean;
   setWakeWordEnabled: (v: boolean) => void;
 
@@ -140,7 +140,7 @@ interface KodaState {
   chessFen: string;
   setChessFen: (fen: string) => void;
 
-  // ─── Koda's Computer (sandboxed project workspace) ──────────
+  // ─── VectoSilo's Computer (sandboxed project workspace) ──────────
   // Transient only: never persisted, never written to thread history, so a
   // sandbox can't be shared into or leak across other chats.
   computer: ComputerProject | null;
@@ -227,12 +227,12 @@ interface KodaState {
   customAIsOpen: boolean;
   setCustomAIsOpen: (v: boolean) => void;
   setActiveCustomAIId: (id: string | null) => void;
-  createCustomAI: (name: string, description: string, instructions: string, promptStarters?: string[]) => void;
+  createCustomAI: (name: string, description: string, instructions: string, promptStarters?: string[], avatarUrl?: string) => void;
   updateCustomAI: (id: string, updates: Partial<CustomAI>) => void;
   deleteCustomAI: (id: string) => void;
 }
 
-export const useKodaStore = create<KodaState>()(
+export const useVectoSiloStore = create<VectoSiloState>()(
   persist(
     (set, get) => ({
       selectedModel: "",
@@ -271,7 +271,7 @@ export const useKodaStore = create<KodaState>()(
       chessDifficulty: 5,
       setChessDifficulty: (n) =>
         set({ chessDifficulty: Math.max(1, Math.min(10, Math.round(n))) }),
-      provider: "kodaai",
+      provider: "vectosiloai",
       setProvider: (id) => set({ provider: id }),
       providerApiKey: "",
       setProviderApiKey: (key) => set({ providerApiKey: key }),
@@ -502,7 +502,7 @@ export const useKodaStore = create<KodaState>()(
       customAIsOpen: false,
       setCustomAIsOpen: (v) => set({ customAIsOpen: v }),
       setActiveCustomAIId: (id) => set({ activeCustomAIId: id }),
-      createCustomAI: (name, description, instructions, promptStarters) =>
+      createCustomAI: (name, description, instructions, promptStarters, avatarUrl) =>
         set((s) => ({
           customAIs: [
             ...s.customAIs,
@@ -512,6 +512,7 @@ export const useKodaStore = create<KodaState>()(
               description,
               instructions,
               promptStarters,
+              avatarUrl,
               createdAt: Date.now(),
             },
           ],
@@ -584,7 +585,7 @@ export const useKodaStore = create<KodaState>()(
       getThread: (id) => get().threads.find((t) => t.id === id),
     }),
     {
-      name: "kodaai-store",
+      name: "vectosiloai-store",
       // Bump when the persisted shape changes; `migrate` scrubs old data.
       version: 1,
       // Don't persist transient/server-derived state.
@@ -617,9 +618,9 @@ export const useKodaStore = create<KodaState>()(
           const p = persisted as Record<string, unknown>;
           delete p.threads;
           delete p.activeThreadId;
-          return p as unknown as KodaState;
+          return p as unknown as VectoSiloState;
         }
-        return persisted as KodaState;
+        return persisted as VectoSiloState;
       },
     }
   )

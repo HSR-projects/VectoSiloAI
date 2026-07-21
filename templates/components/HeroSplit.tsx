@@ -49,11 +49,11 @@ export function HeroSplit({
         transition={{ duration: 0.7, ease: "easeOut" }}
         className="flex-1 text-center lg:text-left"
       >
-        <h1 className="text-4xl font-bold tracking-tight text-koda-text sm:text-5xl lg:text-6xl">
+        <h1 className="text-4xl font-bold tracking-tight text-vectosilo-text sm:text-5xl lg:text-6xl">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-4 text-lg text-koda-muted sm:text-xl">{subtitle}</p>
+          <p className="mt-4 text-lg text-vectosilo-muted sm:text-xl">{subtitle}</p>
         )}
         {cta && (
           <motion.div
@@ -64,7 +64,7 @@ export function HeroSplit({
           >
             <a
               href={cta.href}
-              className="inline-block rounded-lg bg-koda-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-koda-accent-dim"
+              className="inline-block rounded-lg bg-vectosilo-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent-dim"
             >
               {cta.label}
             </a>

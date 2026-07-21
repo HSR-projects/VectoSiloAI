@@ -55,7 +55,7 @@ export async function createContainer(): Promise<string> {
     "run",
     "-d",
     "--rm",
-    "--name", `koda-sandbox-${id}`,
+    "--name", `vectosilo-sandbox-${id}`,
     "-e", "DEBIAN_FRONTEND=noninteractive",
     "--memory", "512m",
     "--memory-swap", "512m",

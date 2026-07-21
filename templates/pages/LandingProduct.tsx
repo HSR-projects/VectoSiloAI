@@ -69,10 +69,10 @@ const carouselItems = [
   {
     id: 1,
     content: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/20 via-koda-surface to-purple-500/20 p-8">
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/20 via-vectosilo-surface to-purple-500/20 p-8">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-48 w-48 rounded-3xl bg-gradient-to-br from-koda-accent/40 to-blue-500/40 shadow-2xl" />
-          <p className="text-sm text-koda-muted">Product Shot - Front View</p>
+          <div className="mx-auto mb-4 h-48 w-48 rounded-3xl bg-gradient-to-br from-vectosilo-accent/40 to-blue-500/40 shadow-2xl" />
+          <p className="text-sm text-vectosilo-muted">Product Shot - Front View</p>
         </div>
       </div>
     ),
@@ -80,10 +80,10 @@ const carouselItems = [
   {
     id: 2,
     content: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-500/20 via-koda-surface to-pink-500/20 p-8">
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-500/20 via-vectosilo-surface to-pink-500/20 p-8">
         <div className="text-center">
           <div className="mx-auto mb-4 h-48 w-48 rounded-3xl bg-gradient-to-br from-purple-500/40 to-pink-500/40 shadow-2xl" />
-          <p className="text-sm text-koda-muted">Product Shot - Side View</p>
+          <p className="text-sm text-vectosilo-muted">Product Shot - Side View</p>
         </div>
       </div>
     ),
@@ -91,10 +91,10 @@ const carouselItems = [
   {
     id: 3,
     content: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 via-koda-surface to-teal-500/20 p-8">
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 via-vectosilo-surface to-teal-500/20 p-8">
         <div className="text-center">
           <div className="mx-auto mb-4 h-48 w-48 rounded-3xl bg-gradient-to-br from-green-500/40 to-teal-500/40 shadow-2xl" />
-          <p className="text-sm text-koda-muted">Product Shot - Detail View</p>
+          <p className="text-sm text-vectosilo-muted">Product Shot - Detail View</p>
         </div>
       </div>
     ),
@@ -180,14 +180,14 @@ const faqItems = [
 export default function LandingProduct() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-koda-bg">
+      <div className="min-h-screen bg-vectosilo-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-koda-text">Luxora</span>}
+          logo={<span className="text-xl font-bold text-vectosilo-text">Luxora</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-koda-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-koda-accent/90"
+              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
             >
               Buy Now
             </a>
@@ -224,10 +224,10 @@ export default function LandingProduct() {
           id="pricing"
           className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8"
         >
-          <h2 className="text-center text-3xl font-bold text-koda-text sm:text-4xl">
+          <h2 className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl">
             Choose your edition
           </h2>
-          <p className="mt-4 text-center text-lg text-koda-muted">
+          <p className="mt-4 text-center text-lg text-vectosilo-muted">
             Find the perfect configuration for your lifestyle.
           </p>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,44 +250,44 @@ export default function LandingProduct() {
           buttonText="Subscribe"
         />
 
-        <footer className="border-t border-koda-border bg-koda-surface py-12">
+        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <span className="text-lg font-bold text-koda-text">Luxora</span>
-                <p className="mt-2 text-sm text-koda-muted">
+                <span className="text-lg font-bold text-vectosilo-text">Luxora</span>
+                <p className="mt-2 text-sm text-vectosilo-muted">
                   Premium products for modern living.
                 </p>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">Shop</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">All Products</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">New Arrivals</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Best Sellers</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Accessories</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Shop</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">All Products</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">New Arrivals</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Best Sellers</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Accessories</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">Support</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Contact</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">FAQ</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Shipping</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Returns</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Support</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Contact</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">FAQ</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Shipping</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Returns</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-koda-text">Company</h4>
-                <ul className="space-y-2 text-sm text-koda-muted">
-                  <li><a href="#" className="hover:text-koda-text transition-colors">About</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Press</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-koda-text transition-colors">Privacy</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Company</h4>
+                <ul className="space-y-2 text-sm text-vectosilo-muted">
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">About</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Press</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Careers</a></li>
+                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Privacy</a></li>
                 </ul>
               </div>
             </div>
-            <div className="mt-10 border-t border-koda-border pt-6 text-center text-sm text-koda-muted">
+            <div className="mt-10 border-t border-vectosilo-border pt-6 text-center text-sm text-vectosilo-muted">
               &copy; {new Date().getFullYear()} Luxora. All rights reserved.
             </div>
           </div>

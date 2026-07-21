@@ -28,14 +28,14 @@ const categories: FAQCategory[] = [
     label: "General",
     items: [
       {
-        question: "What is KodaAI?",
+        question: "What is VectoSiloAI?",
         answer:
-          "KodaAI is an all-in-one platform for building, deploying, and scaling AI-powered applications. It provides tools for API management, analytics, team collaboration, and more.",
+          "VectoSiloAI is an all-in-one platform for building, deploying, and scaling AI-powered applications. It provides tools for API management, analytics, team collaboration, and more.",
       },
       {
-        question: "Who is KodaAI for?",
+        question: "Who is VectoSiloAI for?",
         answer:
-          "KodaAI is designed for developers, engineering teams, and organizations of all sizes who want to build and ship AI-powered products efficiently.",
+          "VectoSiloAI is designed for developers, engineering teams, and organizations of all sizes who want to build and ship AI-powered products efficiently.",
       },
       {
         question: "Is there a free trial?",
@@ -95,7 +95,7 @@ const categories: FAQCategory[] = [
           "We guarantee 99.9% uptime for Pro plans and 99.99% for Enterprise plans, backed by our SLA.",
       },
       {
-        question: "Can I self-host KodaAI?",
+        question: "Can I self-host VectoSiloAI?",
         answer:
           "Enterprise customers can self-host using our Docker images. Contact sales for more information.",
       },
@@ -164,7 +164,7 @@ export default function FAQPage() {
                 Frequently Asked Questions
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-lg text-[#8e8e93]">
-                Find answers to common questions about KodaAI. Can&apos;t find
+                Find answers to common questions about VectoSiloAI. Can&apos;t find
                 what you are looking for? Reach out to our support team.
               </p>
             </motion.div>
@@ -304,7 +304,7 @@ export default function FAQPage() {
 
         <footer className="border-t border-[#424242] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} KodaAI. All rights reserved.
+            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
           </div>
         </footer>
       </div>

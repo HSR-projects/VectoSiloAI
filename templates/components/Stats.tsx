@@ -91,16 +91,16 @@ export function Stats({ items, columns = 3, className, ...rest }: StatsProps) {
           key={item.label}
           custom={i}
           variants={itemVariants}
-          className="flex flex-col gap-2 rounded-xl border border-koda-border bg-koda-surface p-5"
+          className="flex flex-col gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-koda-muted">{item.label}</span>
+            <span className="text-xs font-medium text-vectosilo-muted">{item.label}</span>
             {item.icon && (
-              <span className="text-koda-accent">{item.icon}</span>
+              <span className="text-vectosilo-accent">{item.icon}</span>
             )}
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold text-koda-text">
+            <span className="text-2xl font-bold text-vectosilo-text">
               {item.prefix}
               <Counter value={item.value} inView={inView} />
               {item.suffix}

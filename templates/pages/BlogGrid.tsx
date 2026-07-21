@@ -142,7 +142,7 @@ export default function BlogGrid() {
       <div className="min-h-screen bg-[#212121]">
         <Navbar
           logo={
-            <span className="text-xl font-bold text-[#ececec]">KodaAI</span>
+            <span className="text-xl font-bold text-[#ececec]">VectoSiloAI</span>
           }
           links={[
             { label: "Home", href: "/" },
@@ -162,7 +162,7 @@ export default function BlogGrid() {
               Our Blog
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-[#8e8e93]">
-              Insights, tutorials, and updates from the KodaAI team.
+              Insights, tutorials, and updates from the VectoSiloAI team.
             </p>
           </motion.div>
 
@@ -254,7 +254,7 @@ export default function BlogGrid() {
 
         <footer className="mt-24 border-t border-[#424242] bg-[#2f2f2f] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} KodaAI. All rights reserved.
+            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
           </div>
         </footer>
       </div>

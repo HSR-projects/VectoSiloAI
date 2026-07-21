@@ -44,7 +44,7 @@ function TreeItem({
         }}
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
-          "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+          "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
         )}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
@@ -59,7 +59,7 @@ function TreeItem({
         ) : (
           <span className="w-3.5 flex-shrink-0" />
         )}
-        {node.icon || (hasChildren ? <Folder size={14} className="flex-shrink-0 text-koda-accent" /> : <File size={14} className="flex-shrink-0 text-koda-muted" />)}
+        {node.icon || (hasChildren ? <Folder size={14} className="flex-shrink-0 text-vectosilo-accent" /> : <File size={14} className="flex-shrink-0 text-vectosilo-muted" />)}
         <span className="truncate">{node.label}</span>
       </button>
       <AnimatePresence>
@@ -91,7 +91,7 @@ export function TreeView({ nodes, className, onSelect }: TreeViewProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-koda-border bg-koda-surface p-2",
+        "rounded-xl border border-vectosilo-border bg-vectosilo-surface p-2",
         className
       )}
     >

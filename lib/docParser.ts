@@ -2,15 +2,15 @@
  * Parses the Doc builder output out of the streaming text.
  *
  * The model emits, as the very first characters, `[[doc:Title]]`, then the
- * document body wrapped in a single `<koda-doc>…</koda-doc>` block containing
+ * document body wrapped in a single `<vectosilo-doc>…</vectosilo-doc>` block containing
  * raw Markdown. We stream the body as it arrives (even before the closing tag)
  * so the preview fills in live. Unlike code files, the body is NOT un-fenced —
  * Markdown legitimately contains ``` code fences.
  */
 
 const DOC_DIRECTIVE_RE = /\[\[doc(?::\s*([^\]]*))?\]\]/i;
-const DOC_BLOCK_RE = /<koda-doc(?:\s+title=["']([^"']*)["'])?\s*>([\s\S]*?)<\/koda-doc>/i;
-const DOC_OPEN_RE = /<koda-doc(?:\s+title=["']([^"']*)["'])?\s*>/i;
+const DOC_BLOCK_RE = /<vectosilo-doc(?:\s+title=["']([^"']*)["'])?\s*>([\s\S]*?)<\/vectosilo-doc>/i;
+const DOC_OPEN_RE = /<vectosilo-doc(?:\s+title=["']([^"']*)["'])?\s*>/i;
 
 /** Detect the opening directive and document title. */
 export function parseDocDirective(text: string): { title: string } | null {
@@ -35,7 +35,7 @@ export function parseDocContent(text: string): string {
 
 /** True if the stream contains (or is starting) a doc directive. */
 export function hasDocSyntax(text: string): boolean {
-  return DOC_DIRECTIVE_RE.test(text) || /<koda-doc/i.test(text);
+  return DOC_DIRECTIVE_RE.test(text) || /<vectosilo-doc/i.test(text);
 }
 
 /** Remove all doc syntax (directive, block, partials) from visible text. */
@@ -44,7 +44,7 @@ export function stripDocSyntax(text: string): string {
     .replace(DOC_DIRECTIVE_RE, "")
     .replace(new RegExp(DOC_BLOCK_RE.source, "gi"), "")
     // Trailing unclosed block still streaming in.
-    .replace(/<koda-doc[\s\S]*$/i, "")
+    .replace(/<vectosilo-doc[\s\S]*$/i, "")
     .replace(/\[\[doc[^\]]*$/i, "")
     .replace(/^\s+/, "");
 }

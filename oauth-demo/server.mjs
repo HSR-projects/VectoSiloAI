@@ -1,17 +1,17 @@
-// Minimal "Continue with KodaAI" demo — a sample third-party website that
-// integrates KodaAI's OAuth provider end to end. Zero dependencies: just Node's
+// Minimal "Continue with VectoSiloAI" demo — a sample third-party website that
+// integrates VectoSiloAI's OAuth provider end to end. Zero dependencies: just Node's
 // built-in http + global fetch (Node 18+).
 //
-//   1. Register an app at <KodaAI>/developers → OAuth Apps
+//   1. Register an app at <VectoSiloAI>/developers → OAuth Apps
 //      Redirect URI:  http://localhost:4567/callback
 //   2. CLIENT_ID=... CLIENT_SECRET=... node server.mjs
-//   3. Open http://localhost:4567 and click "Continue with KodaAI".
+//   3. Open http://localhost:4567 and click "Continue with VectoSiloAI".
 
 import http from "node:http";
 import crypto from "node:crypto";
 
 const PORT = Number(process.env.PORT || 4567);
-const KODA = (process.env.KODA_BASE_URL || "http://localhost:3002").replace(/\/$/, "");
+const VECTOSILO = (process.env.VECTOSILO_BASE_URL || "http://localhost:3002").replace(/\/$/, "");
 const CLIENT_ID = process.env.CLIENT_ID || "";
 const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI = process.env.REDIRECT_URI || `http://localhost:${PORT}/callback`;
@@ -20,16 +20,16 @@ const SCOPE = process.env.SCOPE || "profile email";
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.error(
     "\n  Missing CLIENT_ID / CLIENT_SECRET.\n" +
-      "  Register an app at " + KODA + "/developers (OAuth Apps),\n" +
+      "  Register an app at " + VECTOSILO + "/developers (OAuth Apps),\n" +
       "  set redirect URI to " + REDIRECT_URI + ", then run:\n\n" +
-      "    CLIENT_ID=koda_... CLIENT_SECRET=koda_sk_... node server.mjs\n",
+      "    CLIENT_ID=vectosilo_... CLIENT_SECRET=vectosilo_sk_... node server.mjs\n",
   );
   process.exit(1);
 }
 
 const html = (body) => `<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KodaAI OAuth Demo</title>
+<title>VectoSiloAI OAuth Demo</title>
 <style>
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
        background:#0a0a0c;color:#e8e8ea;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
@@ -62,11 +62,11 @@ function parseCookies(req) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
-  // ── Landing page: the "Continue with KodaAI" button ──
+  // ── Landing page: the "Continue with VectoSiloAI" button ──
   if (url.pathname === "/") {
     const state = crypto.randomBytes(16).toString("hex");
     const authUrl =
-      `${KODA}/oauth/authorize?` +
+      `${VECTOSILO}/oauth/authorize?` +
       new URLSearchParams({
         client_id: CLIENT_ID,
         redirect_uri: REDIRECT_URI,
@@ -81,9 +81,9 @@ const server = http.createServer(async (req, res) => {
     res.end(
       html(`
         <h1>Acme Widgets</h1>
-        <p>A sample app using <span class="brand">Koda<span>AI</span></span> to sign in.</p>
-        <a class="btn" href="${authUrl}">Continue with KodaAI</a>
-        <p class="muted">Provider: ${KODA}</p>
+        <p>A sample app using <span class="brand">VectoSilo<span>AI</span></span> to sign in.</p>
+        <a class="btn" href="${authUrl}">Continue with VectoSiloAI</a>
+        <p class="muted">Provider: ${VECTOSILO}</p>
       `),
     );
     return;
@@ -107,7 +107,7 @@ const server = http.createServer(async (req, res) => {
 
     try {
       // 1) Exchange the authorization code for an access token.
-      const tokenRes = await fetch(`${KODA}/api/oauth/token`, {
+      const tokenRes = await fetch(`${VECTOSILO}/api/oauth/token`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -124,7 +124,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       // 2) Fetch the user's profile with the access token.
-      const infoRes = await fetch(`${KODA}/api/oauth/userinfo`, {
+      const infoRes = await fetch(`${VECTOSILO}/api/oauth/userinfo`, {
         headers: { Authorization: `Bearer ${token.access_token}` },
       });
       const info = await infoRes.json();
@@ -135,7 +135,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         html(`
           <div class="avatar">${initial}</div>
-          <h1>Signed in with KodaAI</h1>
+          <h1>Signed in with VectoSiloAI</h1>
           <p>The demo app received your profile:</p>
           <div class="row"><span>Name</span><span>${info.name ?? "—"}</span></div>
           <div class="row"><span>Email</span><span>${info.email ?? "—"}</span></div>
@@ -161,7 +161,7 @@ function escapeHtml(s) {
 }
 
 server.listen(PORT, () => {
-  console.log(`\n  KodaAI OAuth demo running:  http://localhost:${PORT}`);
-  console.log(`  Provider:                   ${KODA}`);
+  console.log(`\n  VectoSiloAI OAuth demo running:  http://localhost:${PORT}`);
+  console.log(`  Provider:                   ${VECTOSILO}`);
   console.log(`  Redirect URI:               ${REDIRECT_URI}\n`);
 });

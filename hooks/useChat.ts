@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { uid, modelLabel } from "@/lib/utils";
 import { AUTO_MODEL, pickAutoModel } from "@/lib/autoModel";
 import { buildAttachments, toDisplayAttachment } from "@/lib/attachments";
 import { supportsAudio, supportsVision } from "@/lib/modelCapabilities";
 import { generateImage, editImage } from "@/lib/nvidia";
-import { stripComputerSyntax, stripWebsiteSyntax } from "@/lib/computerParser";
+import { stripComputerSyntax, stripWebsiteSyntax, parseScaffoldDirective, stripScaffoldSyntax } from "@/lib/computerParser";
 import { isReactProject } from "@/lib/computerPreview";
 import { stripSlidesSyntax } from "@/lib/slidesParser";
 import { stripSheetSyntax } from "@/lib/sheetsParser";
@@ -51,7 +51,7 @@ interface SendOptions {
   attachments?: Attachment[];
   /** Whether the plan allows text-to-image generation (Pro/Max). */
   imageGen?: boolean;
-  /** Whether the plan allows Koda's Computer (build/preview apps) (Pro/Max). */
+  /** Whether the plan allows VectoSilo's Computer (build/preview apps) (Pro/Max). */
   computer?: boolean;
   /** Max slides per deck for this plan (Free 20, Pro/Max 70). */
   slidesMax?: number;
@@ -74,7 +74,7 @@ export function useChat(threadId: string | null) {
   const [searchWarning, setSearchWarning] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const store = useKodaStore;
+  const store = useVectoSiloStore;
 
   const send = useCallback(
     async (query: string, opts: SendOptions = {}) => {
@@ -122,7 +122,7 @@ export function useChat(threadId: string | null) {
         (/@github\b/i.test(query) || (s.githubConnected && isGithubInvoke(query)));
       const modelQuery = githubInvoke ? query.replace(/@github\b/gi, "").trim() : query;
 
-      // Existing Koda's Computer project in THIS chat (if any). When present, we
+      // Existing VectoSilo's Computer project in THIS chat (if any). When present, we
       // feed its files back to the model and merge edits into it, so follow-ups
       // modify the project instead of recreating it from scratch.
       const existingProject = opts.computer ? latestComputerSnapshot(s.getThread(threadId)) : null;
@@ -284,7 +284,7 @@ export function useChat(threadId: string | null) {
           if (swarmArtifacts.computer && swarmArtifacts.computer.files.length > 0) {
             void runComputerTerminal(swarmArtifacts.computer.files, swarmArtifacts.computer.commands);
           } else if (swarmArtifacts.computer) {
-            useKodaStore.getState().setComputerStatus("ready");
+            useVectoSiloStore.getState().setComputerStatus("ready");
           }
 
           update({ streaming: false });
@@ -487,7 +487,7 @@ export function useChat(threadId: string | null) {
           : null;
 
         // Kick off image generation for an emitted [[image: …]] prompt.
-        // If a savePath is given and Koda's Computer is open, the image is
+        // If a savePath is given and VectoSilo's Computer is open, the image is
         // injected as a file in the project.
         const startImage = (prompt: string, savePath?: string) => {
           const imgId = uid();
@@ -515,7 +515,7 @@ export function useChat(threadId: string | null) {
             .then((url) => {
               patch((g) => ({ ...g, url, status: "done" }));
               syncThread(threadId);
-              // If Koda's Computer is active and a save path was given,
+              // If VectoSilo's Computer is active and a save path was given,
               // inject the image into the project files.
               if (savePath) {
                 injectImageIntoComputer(savePath, url);
@@ -531,6 +531,7 @@ export function useChat(threadId: string | null) {
         let artifactOpened = false;
         let chessColor: PlayerColor | null = null;
         let chessMoveDispatched = false;
+        let scaffoldDispatched = false;
         let dispatchedImages = 0;
         let savedMemories = 0;
         // Native reasoning (Think mode): accumulate the model's thinking tokens
@@ -570,6 +571,36 @@ export function useChat(threadId: string | null) {
               if (mv) {
                 chessMoveDispatched = true;
                 store.getState().setPendingChessMove(mv);
+              }
+            }
+
+            // Template scaffold directive — AI references a template to auto-build in sandbox
+            if (!scaffoldDispatched) {
+              const sc = parseScaffoldDirective(acc);
+              if (sc) {
+                scaffoldDispatched = true;
+                const title = sc.title || sc.id;
+                store.getState().openComputer(title);
+                store.getState().setComputerFiles([{
+                  path: "README.md",
+                  content: `# ${title}\n\nScaffolding from template \`${sc.id}\`...\n`
+                }]);
+                store.getState().setComputerCommands(["echo 'Scaffolding...'"]);
+                // Fetch scaffold in background
+                fetch(`/api/templates/scaffold?id=${encodeURIComponent(sc.id)}&title=${encodeURIComponent(title)}`)
+                  .then(r => r.json())
+                  .then(data => {
+                    if (data.success && data.files) {
+                      store.getState().setComputerFiles(data.files);
+                      store.getState().setComputerCommands(data.commands);
+                    }
+                  })
+                  .catch(() => {
+                    store.getState().setComputerCommands([
+                      "echo 'Scaffold failed — try manually'",
+                      "npm create vite@latest . -- --template react-ts",
+                    ]);
+                  });
               }
             }
 
@@ -736,7 +767,7 @@ export function useChat(threadId: string | null) {
           void runComputerTerminal(artifacts.computer.files, artifacts.computer.commands, artifacts.computer.isEdit);
         } else if (artifacts.computer) {
           // No files — skip fake terminal, let sandbox handle it
-          useKodaStore.getState().setComputerStatus("ready");
+          useVectoSiloStore.getState().setComputerStatus("ready");
         }
 
         // Generate a smart AI title after the very first response in a thread.
@@ -857,20 +888,20 @@ function stripDirectives(text: string): string {
     stripWebsiteSyntax(
       stripSheetSyntax(
         stripSlidesSyntax(
-          stripComputerSyntax(
-            text
-              .replace(new RegExp(ARTIFACT_RE.source, "gi"), "")
-              .replace(new RegExp(CHESS_MOVE_RE.source, "gi"), "")
-              .replace(new RegExp(IMAGE_RE.source, "gi"), "")
-              .replace(PAGE_OPEN_RE, "")
-              .replace(VISIT_URL_RE, "")
+          stripScaffoldSyntax(
+            stripComputerSyntax(
+              text
+                .replace(new RegExp(ARTIFACT_RE.source, "gi"), "")
+                .replace(new RegExp(CHESS_MOVE_RE.source, "gi"), "")
+                .replace(new RegExp(IMAGE_RE.source, "gi"), "")
+                .replace(PAGE_OPEN_RE, "")
+                .replace(VISIT_URL_RE, "")
+            )
           )
         )
       )
     )
   )))
-    .replace(/\[\[[^\]]*$/i, "") // trailing partial directive mid-stream
-    .replace(/^\s+/, "");
 }
 
 /** Generate a concise AI title for the thread after the first response. */
@@ -983,7 +1014,7 @@ function buildSources(results: SearchResult[], scraped: Source[]): Source[] {
 }
 
 function syncThread(threadId: string) {
-  const state = useKodaStore.getState();
+  const state = useVectoSiloStore.getState();
   if (state.incognito) return;
   const thread = state.getThread(threadId);
   if (!thread) return;
@@ -998,7 +1029,7 @@ function urlDomain_(url: string): string {
   try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url.slice(0, 30); }
 }
 
-/** The most recent Koda's Computer project saved in this thread, if any. */
+/** The most recent VectoSilo's Computer project saved in this thread, if any. */
 function latestComputerSnapshot(
   thread: { messages: Message[] } | undefined
 ): { title: string; files: ProjectFile[]; commands: string[] } | null {
@@ -1013,9 +1044,9 @@ function latestComputerSnapshot(
 /** Render the current project as context so the model edits it (not recreates). */
 function computerContext(project: { title: string; files: ProjectFile[] }): string {
   const files = project.files
-    .map((f) => `<koda-file path="${f.path}">\n${f.content}\n</koda-file>`)
+    .map((f) => `<vectosilo-file path="${f.path}">\n${f.content}\n</vectosilo-file>`)
     .join("\n");
-  return `[Koda's Computer — current project "${project.title}". The user is iterating on this existing project. Apply only the requested change on top of these files and re-emit the changed files; do not start a new project.]\n${files}`;
+  return `[VectoSilo's Computer — current project "${project.title}". The user is iterating on this existing project. Apply only the requested change on top of these files and re-emit the changed files; do not start a new project.]\n${files}`;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -1026,14 +1057,14 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * live preview. Purely cosmetic — the actual preview runs in the iframe.
  */
 async function runComputerTerminal(files: ProjectFile[], commands: string[], isEdit = false) {
-  const st = useKodaStore.getState();
+  const st = useVectoSiloStore.getState();
   if (!st.computer) return;
-  const term = (line: string) => useKodaStore.getState().appendComputerTerminal(line);
+  const term = (line: string) => useVectoSiloStore.getState().appendComputerTerminal(line);
   const status = (s: Parameters<typeof st.setComputerStatus>[0]) =>
-    useKodaStore.getState().setComputerStatus(s);
+    useVectoSiloStore.getState().setComputerStatus(s);
 
   if (isEdit) {
-    term(`\nkoda@sandbox:~/project$ applying edits (${files.length} file${files.length === 1 ? "" : "s"})…`);
+    term(`\nvectosilo@sandbox:~/project$ applying edits (${files.length} file${files.length === 1 ? "" : "s"})…`);
     await sleep(200);
     const changed = files.length > (st.computer?.files.length ?? 0)
       ? files
@@ -1057,7 +1088,7 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[], isE
 
   // Scaffold: show each file being written, one by one, so the build feels live.
   const dir = slug(st.computer.title);
-  term(`koda@sandbox:~/${dir}$ scaffolding project (${files.length} file${files.length === 1 ? "" : "s"})…`);
+  term(`vectosilo@sandbox:~/${dir}$ scaffolding project (${files.length} file${files.length === 1 ? "" : "s"})…`);
   await sleep(150);
   for (const f of files) {
     term(`  ✎ creating  ${f.path}`);
@@ -1067,12 +1098,12 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[], isE
   }
   term(`✓ wrote ${files.length} file${files.length === 1 ? "" : "s"}`);
   await sleep(150);
-  term(`koda@sandbox:~/${dir}$ ls`);
+  term(`vectosilo@sandbox:~/${dir}$ ls`);
   term(files.map((f) => f.path.split("/")[0]).filter((v, i, a) => a.indexOf(v) === i).join("  "));
   await sleep(250);
 
   for (const cmd of cmds) {
-    term(`koda@sandbox:~/${slug(st.computer.title)}$ ${cmd}`);
+    term(`vectosilo@sandbox:~/${slug(st.computer.title)}$ ${cmd}`);
     await sleep(300);
     if (/install|^npm i\b|pnpm|yarn/.test(cmd)) {
       status("installing");
@@ -1200,11 +1231,11 @@ async function readSse(
 }
 
 /**
- * Inject a generated image into the Koda's Computer project files.
+ * Inject a generated image into the VectoSilo's Computer project files.
  * Converts the data URL to base64 content and adds it as a project file.
  */
 function injectImageIntoComputer(savePath: string, dataUrl: string) {
-  const store = useKodaStore.getState();
+  const store = useVectoSiloStore.getState();
   const comp = store.computer;
   if (!comp) return;
 

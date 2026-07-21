@@ -16,11 +16,11 @@ import { cn } from "@/lib/utils";
 function StatusDot({ status }: { status: StepStatus }) {
   switch (status) {
     case "active":
-      return <Loader2 className="h-3.5 w-3.5 animate-spin text-koda-accent" />;
+      return <Loader2 className="h-3.5 w-3.5 animate-spin text-vectosilo-accent" />;
     case "done":
       return <Check className="h-3.5 w-3.5 text-emerald-400" />;
     case "skipped":
-      return <Minus className="h-3.5 w-3.5 text-koda-muted" />;
+      return <Minus className="h-3.5 w-3.5 text-vectosilo-muted" />;
     case "error":
       return <X className="h-3.5 w-3.5 text-red-400" />;
   }
@@ -40,19 +40,19 @@ export function AgentSteps({ steps }: { steps: AgentStep[] }) {
     : "Steps";
 
   return (
-    <div className="mb-4 overflow-hidden rounded-xl border border-koda-border bg-koda-surface/60">
+    <div className="mb-4 overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface/60">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-koda-muted transition-colors hover:text-koda-text"
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-vectosilo-muted transition-colors hover:text-vectosilo-text"
       >
         {active ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-koda-accent" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-vectosilo-accent" />
         ) : (
-          <Sparkles className="h-3.5 w-3.5 text-koda-accent" />
+          <Sparkles className="h-3.5 w-3.5 text-vectosilo-accent" />
         )}
-        <span className="text-koda-text/80">{summary}</span>
-        <span className="text-koda-muted/60">· {steps.length} steps</span>
+        <span className="text-vectosilo-text/80">{summary}</span>
+        <span className="text-vectosilo-muted/60">· {steps.length} steps</span>
         <ChevronDown
           className={cn(
             "ml-auto h-3.5 w-3.5 transition-transform",
@@ -81,14 +81,14 @@ export function AgentSteps({ steps }: { steps: AgentStep[] }) {
                 <span
                   className={cn(
                     step.status === "skipped"
-                      ? "text-koda-muted"
-                      : "text-koda-text/90"
+                      ? "text-vectosilo-muted"
+                      : "text-vectosilo-text/90"
                   )}
                 >
                   {step.label}
                 </span>
                 {step.detail && (
-                  <span className="truncate text-koda-muted/70">
+                  <span className="truncate text-vectosilo-muted/70">
                     — {step.detail}
                   </span>
                 )}

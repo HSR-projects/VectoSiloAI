@@ -91,7 +91,7 @@ wss.on("connection", (ws, req) => {
     const proc = spawn("docker", [
       "exec", "-i",
       "-e", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games",
-      "-e", "PS1=koda@sandbox:\\w$ ",
+      "-e", "PS1=vectosilo@sandbox:\\w$ ",
       "-e", "TERM=xterm-256color",
       containerId,
       "script", "-q", "-c", "cd /workspace && exec bash --norc", "/dev/null",

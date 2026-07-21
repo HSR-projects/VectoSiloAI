@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import hljs from "highlight.js";
 import { Download, ExternalLink, FileCode2, Loader2, Monitor, RefreshCw } from "lucide-react";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { buildPreviewSrcDoc } from "@/lib/computerPreview";
 import { downloadZip } from "@/lib/zip";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ function extOf(p: string): string {
 }
 
 export function WebsiteArtifact() {
-  const site = useKodaStore((s) => s.website);
+  const site = useVectoSiloStore((s) => s.website);
   const [tab, setTab] = useState<Tab>("code");
   const [runKey, setRunKey] = useState(0);
   const [activePath, setActivePath] = useState<string | undefined>(undefined);
@@ -65,13 +65,13 @@ export function WebsiteArtifact() {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar — wraps on narrow / mobile panels. */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-koda-border px-3 py-2">
-        <div className="flex items-center rounded-lg bg-koda-surface-2 p-0.5">
+      <div className="flex flex-wrap items-center gap-2 border-b border-vectosilo-border px-3 py-2">
+        <div className="flex items-center rounded-lg bg-vectosilo-surface-2 p-0.5">
           <TabBtn active={tab === "preview"} onClick={() => setTab("preview")} icon={<Monitor className="h-3.5 w-3.5" />} label="Preview" />
           <TabBtn active={tab === "code"} onClick={() => setTab("code")} icon={<FileCode2 className="h-3.5 w-3.5" />} label="Code" />
         </div>
         {status === "building" && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-koda-muted">
+          <span className="inline-flex items-center gap-1.5 text-xs text-vectosilo-muted">
             <Loader2 className="h-3 w-3 animate-spin" /> building…
           </span>
         )}
@@ -90,7 +90,7 @@ export function WebsiteArtifact() {
             type="button"
             onClick={() => downloadZip(site.title, files)}
             disabled={!files.length}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface px-2.5 py-1.5 text-xs font-medium text-koda-text transition-colors hover:bg-koda-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" /> Download
           </button>
@@ -110,7 +110,7 @@ export function WebsiteArtifact() {
         ) : (
           <div className="flex h-full flex-col">
             {/* File selector */}
-            <div className="flex flex-wrap gap-1 border-b border-koda-border bg-koda-surface/40 px-2 py-1.5">
+            <div className="flex flex-wrap gap-1 border-b border-vectosilo-border bg-vectosilo-surface/40 px-2 py-1.5">
               {files.map((f) => (
                 <button
                   key={f.path}
@@ -118,8 +118,8 @@ export function WebsiteArtifact() {
                   className={cn(
                     "rounded-md px-2 py-1 font-mono text-[11px] transition-colors",
                     f.path === activeFile?.path
-                      ? "bg-koda-surface-2 text-koda-text"
-                      : "text-koda-muted hover:bg-koda-surface-2/60"
+                      ? "bg-vectosilo-surface-2 text-vectosilo-text"
+                      : "text-vectosilo-muted hover:bg-vectosilo-surface-2/60"
                   )}
                 >
                   {f.path}
@@ -129,7 +129,7 @@ export function WebsiteArtifact() {
             {activeFile ? (
               <CodeView path={activeFile.path} content={activeFile.content} />
             ) : (
-              <div className="flex flex-1 items-center justify-center text-sm text-koda-muted">
+              <div className="flex flex-1 items-center justify-center text-sm text-vectosilo-muted">
                 {status === "building" ? "Generating files…" : "No files yet."}
               </div>
             )}
@@ -166,7 +166,7 @@ function TabBtn({ active, onClick, icon, label }: { active: boolean; onClick: ()
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-        active ? "bg-koda-accent/20 text-koda-accent-soft" : "text-koda-muted hover:text-koda-text"
+        active ? "bg-vectosilo-accent/20 text-vectosilo-accent-soft" : "text-vectosilo-muted hover:text-vectosilo-text"
       )}
     >
       {icon}
@@ -182,7 +182,7 @@ function IconBtn({ onClick, title, children }: { onClick: () => void; title: str
       onClick={onClick}
       title={title}
       aria-label={title}
-      className="flex h-7 w-7 items-center justify-center rounded-lg text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+      className="flex h-7 w-7 items-center justify-center rounded-lg text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
     >
       {children}
     </button>

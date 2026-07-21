@@ -11,7 +11,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        koda: {
+        vectosilo: {
           bg: "#212121",
           surface: "#2f2f2f",
           "surface-2": "#343541",

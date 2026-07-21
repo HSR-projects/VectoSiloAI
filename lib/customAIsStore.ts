@@ -37,6 +37,10 @@ export async function publishCustomAI(ai: PublicCustomAI): Promise<void> {
   
   const existingIndex = db.publicAIs.findIndex((a) => a.id === ai.id);
   if (existingIndex >= 0) {
+    // Check if the current user owns it
+    if (db.publicAIs[existingIndex].authorId !== ai.authorId) {
+      throw new Error("Unauthorized: You cannot overwrite an AI created by another user.");
+    }
     // Overwrite if it already exists (user editing their published AI)
     db.publicAIs[existingIndex] = ai;
   } else {

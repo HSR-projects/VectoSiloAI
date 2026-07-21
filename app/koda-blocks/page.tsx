@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 
-export default function KodaBlocksRedirect() {
+export default function VectoSiloBlocksRedirect() {
   useEffect(() => {
-    window.location.href = "/kodablocks/index.html";
+    window.location.href = "/vectosiloblocks/index.html";
   }, []);
   return null;
 }

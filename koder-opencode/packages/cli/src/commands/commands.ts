@@ -4,7 +4,7 @@ import { Spec } from "../framework/spec"
 declare const OPENCODE_CLI_NAME: string | undefined
 
 export const Commands = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME : "koder", {
-  description: "Koder command line interface powered by KodaAI",
+  description: "Koder command line interface powered by VectoSiloAI",
   commands: [
     Spec.make("api", {
       description: "Make a request to the running server",

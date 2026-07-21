@@ -47,19 +47,19 @@ export const InputAnimated = forwardRef<HTMLInputElement, InputAnimatedProps>(
         >
           <div
             className={cn(
-              "relative flex items-center rounded-lg border bg-koda-surface transition-all duration-200",
+              "relative flex items-center rounded-lg border bg-vectosilo-surface transition-all duration-200",
               error
                 ? "border-red-500"
                 : focused
-                  ? "border-koda-accent shadow-glow"
-                  : "border-koda-border hover:border-koda-muted"
+                  ? "border-vectosilo-accent shadow-glow"
+                  : "border-vectosilo-border hover:border-vectosilo-muted"
             )}
           >
             {icon && (
               <span
                 className={cn(
                   "pointer-events-none ml-3 transition-colors duration-200",
-                  focused ? "text-koda-accent" : "text-koda-muted"
+                  focused ? "text-vectosilo-accent" : "text-vectosilo-muted"
                 )}
               >
                 {icon}
@@ -70,7 +70,7 @@ export const InputAnimated = forwardRef<HTMLInputElement, InputAnimatedProps>(
                 ref={ref}
                 id={id}
                 className={cn(
-                  "peer w-full border-none bg-transparent pt-5 pb-2 text-koda-text outline-none placeholder-transparent transition-colors",
+                  "peer w-full border-none bg-transparent pt-5 pb-2 text-vectosilo-text outline-none placeholder-transparent transition-colors",
                   icon ? "px-2" : "px-3"
                 )}
                 placeholder={label ?? ""}
@@ -96,8 +96,8 @@ export const InputAnimated = forwardRef<HTMLInputElement, InputAnimatedProps>(
                     error
                       ? "text-red-400"
                       : focused
-                        ? "text-koda-accent"
-                        : "text-koda-muted"
+                        ? "text-vectosilo-accent"
+                        : "text-vectosilo-muted"
                   )}
                 >
                   {label}
@@ -118,7 +118,7 @@ export const InputAnimated = forwardRef<HTMLInputElement, InputAnimatedProps>(
           </motion.p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-xs text-koda-muted">{helperText}</p>
+          <p className="mt-1 text-xs text-vectosilo-muted">{helperText}</p>
         )}
       </div>
     );

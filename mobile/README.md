@@ -1,21 +1,21 @@
-# KodaAI — Android app
+# VectoSiloAI — Android app
 
-A [Capacitor](https://capacitorjs.com/) native shell that loads the hosted KodaAI
-web app in a full-screen Android WebView. Because KodaAI is a full-stack Next.js
+A [Capacitor](https://capacitorjs.com/) native shell that loads the hosted VectoSiloAI
+web app in a full-screen Android WebView. Because VectoSiloAI is a full-stack Next.js
 app (chat, auth and Ollama all run server-side), the phone needs to reach the
 live backend — the app does **not** bundle the site offline.
 
 - **Backend URL:** `https://chat.hsrprojects.org` (your Cloudflare tunnel → `localhost:3002`)
-- **Package:** `org.hsrprojects.kodaai`
+- **Package:** `org.hsrprojects.vectosiloai`
 - To point at a different server, edit `server.url` in [`capacitor.config.json`](capacitor.config.json), then run `./build-apk.sh`.
 
 ## Install the APK on your phone
 
-The prebuilt debug APK is at **`KodaAI-debug.apk`**.
+The prebuilt debug APK is at **`VectoSiloAI-debug.apk`**.
 
-1. Copy it to your phone (USB, Google Drive, or `adb install KodaAI-debug.apk`).
+1. Copy it to your phone (USB, Google Drive, or `adb install VectoSiloAI-debug.apk`).
 2. On the phone, tap the file and allow "install from unknown sources" when prompted.
-3. Launch **KodaAI**. It opens straight into the live app.
+3. Launch **VectoSiloAI**. It opens straight into the live app.
 
 > The backend must be reachable for the app to work — your machine + the
 > cloudflared tunnel both need to be running. If the server is down you'll see
@@ -28,7 +28,7 @@ The prebuilt debug APK is at **`KodaAI-debug.apk`**.
 ```
 
 This pins **JDK 17** and the user-local SDK at `~/Android/Sdk`, syncs config, and
-produces `KodaAI-debug.apk`.
+produces `VectoSiloAI-debug.apk`.
 
 ### Toolchain notes (this machine)
 - System default Java is 25 (too new for the Android Gradle Plugin) — the build

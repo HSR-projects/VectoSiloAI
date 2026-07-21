@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Attachment } from "@/types";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useModels } from "@/hooks/useModels";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -31,7 +31,7 @@ export default function HomePage() {
     setTargetUrl,
     activeCustomAIId,
     customAIs,
-  } = useKodaStore();
+  } = useVectoSiloStore();
 
   const activeAI = activeCustomAIId ? customAIs.find(a => a.id === activeCustomAIId) : null;
 
@@ -73,7 +73,7 @@ export default function HomePage() {
   // Start a chat from voice messages
   const startFromVoice = useCallback((text: string) => {
     const id = createThread(text || "Voice conversation");
-    const state = useKodaStore.getState();
+    const state = useVectoSiloStore.getState();
     const thread = state.getThread(id);
     if (thread && !state.incognito) {
       fetch("/api/threads", {
@@ -87,7 +87,7 @@ export default function HomePage() {
 
   const start = (query: string, attachments?: Attachment[]) => {
     const id = createThread(query || "Attachment");
-    const state = useKodaStore.getState();
+    const state = useVectoSiloStore.getState();
     const thread = state.getThread(id);
     if (thread && !state.incognito) {
       fetch("/api/threads", {
@@ -97,7 +97,7 @@ export default function HomePage() {
       }).catch(() => {});
     }
     if (attachments?.length) {
-      useKodaStore.getState().setPendingAttachments(attachments);
+      useVectoSiloStore.getState().setPendingAttachments(attachments);
     }
     router.push(`/search/${id}?q=${encodeURIComponent(query)}`);
   };
@@ -108,7 +108,7 @@ export default function HomePage() {
 
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Header showMenu onToggleSidebar={() => setSidebarOpen((v) => !v)} />
-        <main className="koda-hero-glow flex flex-1 flex-col items-center justify-center overflow-y-auto px-4">
+        <main className="vectosilo-hero-glow flex flex-1 flex-col items-center justify-center overflow-y-auto px-4">
         <div className="w-full max-w-2xl pb-20">
           {activeAI ? (
             <motion.div
@@ -117,16 +117,16 @@ export default function HomePage() {
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
               className="mb-8 text-center"
             >
-              <motion.div variants={fadeUp} className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-koda-surface border border-koda-border shadow-sm">
-                <Bot className="h-8 w-8 text-koda-text" />
+              <motion.div variants={fadeUp} className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-vectosilo-surface border border-vectosilo-border shadow-sm">
+                <Bot className="h-8 w-8 text-vectosilo-text" />
               </motion.div>
               <motion.h1
                 variants={fadeUp}
-                className="text-balance text-2xl font-semibold tracking-tight text-koda-text sm:text-3xl"
+                className="text-balance text-2xl font-semibold tracking-tight text-vectosilo-text sm:text-3xl"
               >
                 {activeAI.name}
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-2 text-xs text-koda-muted">
+              <motion.p variants={fadeUp} className="mt-2 text-xs text-vectosilo-muted">
                 {activeAI.description || "A custom AI persona."}
               </motion.p>
             </motion.div>
@@ -139,16 +139,16 @@ export default function HomePage() {
             >
               <motion.h1
                 variants={fadeUp}
-                className="text-balance text-3xl font-semibold tracking-tight text-koda-text sm:text-4xl md:text-5xl"
+                className="text-balance text-3xl font-semibold tracking-tight text-vectosilo-text sm:text-4xl md:text-5xl"
               >
                 Ask anything,{" "}
-                <span className="bg-gradient-to-r from-koda-accent-soft to-koda-accent bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-vectosilo-accent-soft to-vectosilo-accent bg-clip-text text-transparent">
                   privately
                 </span>
                 .
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-3 text-koda-muted">
-                Search-augmented AI by Koda AI — your queries never
+              <motion.p variants={fadeUp} className="mt-3 text-vectosilo-muted">
+                Search-augmented AI by VectoSilo AI — your queries never
                 touch OpenAI or Anthropic.
               </motion.p>
             </motion.div>
@@ -169,9 +169,9 @@ export default function HomePage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 rounded-2xl border border-koda-border bg-koda-surface p-4"
+              className="mb-4 rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-4"
             >
-              <p className="text-xs font-medium text-koda-muted mb-3">Voice conversation</p>
+              <p className="text-xs font-medium text-vectosilo-muted mb-3">Voice conversation</p>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {voiceMessages.map((msg, i) => (
                   <div key={i} className={cn(
@@ -181,8 +181,8 @@ export default function HomePage() {
                     <div className={cn(
                       "max-w-[80%] rounded-xl px-3 py-2",
                       msg.role === 'user'
-                        ? "bg-koda-accent text-white"
-                        : "bg-koda-surface-2 text-koda-text"
+                        ? "bg-vectosilo-accent text-white"
+                        : "bg-vectosilo-surface-2 text-vectosilo-text"
                     )}>
                       {msg.content}
                     </div>
@@ -194,13 +194,13 @@ export default function HomePage() {
                   const lastUser = [...voiceMessages].reverse().find(m => m.role === 'user')
                   startFromVoice(lastUser?.content || "Continue our conversation")
                 }}
-                className="mt-3 w-full rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-xs text-koda-muted hover:bg-koda-border hover:text-koda-text transition-colors"
+                className="mt-3 w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-xs text-vectosilo-muted hover:bg-vectosilo-border hover:text-vectosilo-text transition-colors"
               >
                 Continue in chat...
               </button>
               <button
                 onClick={() => setVoiceMessages([])}
-                className="mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs text-koda-muted hover:text-koda-text transition-colors"
+                className="mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs text-vectosilo-muted hover:text-vectosilo-text transition-colors"
               >
                 Dismiss
               </button>
@@ -235,9 +235,9 @@ export default function HomePage() {
                   <button
                     key={i}
                     onClick={() => start(starter)}
-                    className="flex flex-col items-start rounded-xl border border-koda-border bg-koda-surface p-4 text-left transition-colors hover:border-koda-accent/50 hover:bg-koda-surface-2"
+                    className="flex flex-col items-start rounded-xl border border-vectosilo-border bg-vectosilo-surface p-4 text-left transition-colors hover:border-vectosilo-accent/50 hover:bg-vectosilo-surface-2"
                   >
-                    <span className="text-sm font-medium text-koda-text">{starter}</span>
+                    <span className="text-sm font-medium text-vectosilo-text">{starter}</span>
                   </button>
                 ))}
               </div>

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   const auth = req.headers.get("authorization") || "";
   const secret = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
   if (!secret) {
-    return json({ error: "Missing API key. Use 'Authorization: Bearer sk-koda-...'." }, 401);
+    return json({ error: "Missing API key. Use 'Authorization: Bearer sk-vectosilo-...'." }, 401);
   }
 
   const authContext = await getApiKeyAuth(secret);

@@ -1,13 +1,13 @@
-# 🔮 KodaAI
+# 🔮 VectoSiloAI
 
-A privacy-first, Perplexity-style AI search & chat app — powered by **KodaAI Private Cloud**.
+A privacy-first, Perplexity-style AI search & chat app — powered by **VectoSiloAI Private Cloud**.
 No OpenAI, no Anthropic, no telemetry. Search-augmented, cited answers with a
 polished dark UI.
 
-> **This build uses the KodaAI Private Cloud — a fully managed inference stack.**
-> You bring your own API key; inference runs on KodaAI's infrastructure.
+> **This build uses the VectoSiloAI Private Cloud — a fully managed inference stack.**
+> You bring your own API key; inference runs on VectoSiloAI's infrastructure.
 
-![stack](https://img.shields.io/badge/Next.js-14-black) ![stack](https://img.shields.io/badge/TypeScript-5-blue) ![stack](https://img.shields.io/badge/KodaAI-Private_Cloud-9b7cff)
+![stack](https://img.shields.io/badge/Next.js-14-black) ![stack](https://img.shields.io/badge/TypeScript-5-blue) ![stack](https://img.shields.io/badge/VectoSiloAI-Private_Cloud-9b7cff)
 
 ---
 
@@ -18,7 +18,7 @@ polished dark UI.
 - **Inline citations** `[1]` `[2]` linked to source cards
 - **Auto follow-up questions** after every answer
 - **Thread history** persisted in `localStorage`
-- **Model switcher** — lists your KodaAI Private Cloud models
+- **Model switcher** — lists your VectoSiloAI Private Cloud models
 - **Focus modes** — All · No Search · Code · Academic
 - **Privacy dashboard** — shows the active model and a 0 third-party-AI-calls counter
 - **Mobile responsive**, keyboard-navigable, accessible
@@ -27,9 +27,9 @@ polished dark UI.
 
 ## Quick start
 
-### 1. Get a KodaAI API key
+### 1. Get a VectoSiloAI API key
 
-Sign in to your KodaAI dashboard and generate an API key under **Settings → API Keys**.
+Sign in to your VectoSiloAI dashboard and generate an API key under **Settings → API Keys**.
 
 ### 2. Configure environment
 
@@ -40,9 +40,9 @@ cp .env.example .env.local
 Edit `.env.local`:
 
 ```env
-KODA_CLOUD_BASE_URL=https://cloud.kodaai.com
-KODA_CLOUD_API_KEY=sk-...your-key...
-KODA_DEFAULT_MODEL=koda-1
+VECTOSILO_CLOUD_BASE_URL=https://cloud.vectosiloai.com
+VECTOSILO_CLOUD_API_KEY=sk-...your-key...
+VECTOSILO_DEFAULT_MODEL=vectosilo-1
 SEARXNG_BASE_URL=http://localhost:8080
 ```
 
@@ -61,12 +61,12 @@ Open **http://localhost:3000**.
 
 ## Web search (for "All" / "Academic" modes)
 
-Web search runs through the **KodaAI Private Cloud Search API**, authenticated with
-the same `KODA_CLOUD_API_KEY` — **no separate search key or server required.** Results
+Web search runs through the **VectoSiloAI Private Cloud Search API**, authenticated with
+the same `VECTOSILO_CLOUD_API_KEY` — **no separate search key or server required.** Results
 already include page content, so no scraping step is needed. If search fails for
-any reason, KodaAI degrades to "No Search" mode with a banner.
+any reason, VectoSiloAI degrades to "No Search" mode with a banner.
 
-Backend priority: **KodaAI Private Cloud Search → SearXNG → Brave**.
+Backend priority: **VectoSiloAI Private Cloud Search → SearXNG → Brave**.
 
 **SearXNG fallback (only needed for local-only setups that have no web search):**
 
@@ -83,12 +83,12 @@ docker run -d --name searxng -p 8080:8080 \
 
 ## Want to run fully local instead of cloud?
 
-KodaAI can also be pointed at a local inference server:
+VectoSiloAI can also be pointed at a local inference server:
 
 ```env
-KODA_CLOUD_BASE_URL=http://localhost:11434
-KODA_CLOUD_API_KEY=
-KODA_DEFAULT_MODEL=llama3.2
+VECTOSILO_CLOUD_BASE_URL=http://localhost:11434
+VECTOSILO_CLOUD_API_KEY=
+VECTOSILO_DEFAULT_MODEL=llama3.2
 ```
 
 ---
@@ -97,18 +97,18 @@ KODA_DEFAULT_MODEL=llama3.2
 
 ```
 User query
-  └─ /api/search  → KodaAI Private Cloud search (top 5 + page content)
+  └─ /api/search  → VectoSiloAI Private Cloud search (top 5 + page content)
        └─ /api/scrape → cheerio fallback, only for results lacking content
-             └─ /api/chat → KodaAI Private Cloud inference (streamed SSE)
+             └─ /api/chat → VectoSiloAI Private Cloud inference (streamed SSE)
                  └─ follow-up questions (second, non-streaming call)
 ```
 
 | Path | Purpose |
 |---|---|
 | `app/api/chat` | Streaming chat (SSE) + follow-up generation |
-| `app/api/search` | KodaAI Private Cloud web search (SearXNG / Brave fallback) |
+| `app/api/search` | VectoSiloAI Private Cloud web search (SearXNG / Brave fallback) |
 | `app/api/scrape` | URL → readable text (fallback only) |
-| `app/api/cloud/models` | Lists available KodaAI models |
+| `app/api/cloud/models` | Lists available VectoSiloAI models |
 | `lib/cloud.ts` | Cloud client (bearer auth, streaming) |
 | `lib/store.ts` | Zustand state (threads, model, focus mode) |
 | `hooks/useChat.ts` | Orchestrates search → scrape → stream |
@@ -119,7 +119,7 @@ User query
 
 Next.js 14 (App Router) · TypeScript · Tailwind CSS v3 · Radix UI primitives ·
 Framer Motion · Zustand · react-markdown + remark-gfm + rehype-highlight ·
-Lucide icons · KodaAI Own Private Models.
+Lucide icons · VectoSiloAI Own Private Models.
 
 ---
 
@@ -136,9 +136,9 @@ npm run lint    # eslint
 
 ## Privacy notes
 
-- Inference runs on **KodaAI's own private models** — not on OpenAI/Anthropic.
+- Inference runs on **VectoSiloAI's own private models** — not on OpenAI/Anthropic.
 - Web search (when enabled) goes to **your** SearXNG instance.
-- Threads live in your browser's `localStorage`; nothing is uploaded by KodaAI.
+- Threads live in your browser's `localStorage`; nothing is uploaded by VectoSiloAI.
 - The privacy badge tracks third-party AI calls (always `0` by design).
 
 ---

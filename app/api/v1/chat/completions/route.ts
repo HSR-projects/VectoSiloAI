@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 
 /**
  * OpenAI-compatible chat completions, so OpenAI-API clients (Open WebUI, the
- * OpenAI SDKs, LangChain, etc.) can talk to KodaAI.
+ * OpenAI SDKs, LangChain, etc.) can talk to VectoSiloAI.
  *
- * Point the client at base URL `<origin>/api/v1` with the key `sk-koda-…`.
+ * Point the client at base URL `<origin>/api/v1` with the key `sk-vectosilo-…`.
  * Supports streaming + non-streaming and is metered against prepaid credits.
  */
 
@@ -205,7 +205,7 @@ export async function POST(req: Request) {
       prompt_tokens: promptTokens,
       completion_tokens: completionTokens,
       total_tokens: promptTokens + completionTokens,
-      // KodaAI extension: credits charged + remaining (US cents).
+      // VectoSiloAI extension: credits charged + remaining (US cents).
       credits_charged: cost,
       credits_remaining: remaining,
     },

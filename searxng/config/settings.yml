@@ -1,6 +1,3 @@
-# Read the documentation before extending the defaults:
-# https://docs.searxng.org/admin/settings/
-
 use_default_settings: true
 
 server:
@@ -8,8 +5,63 @@ server:
   image_proxy: true
   limiter: false
   method: GET
+  default_http_headers:
+    User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  request_timeout: 10.0
+  max_request_timeout: 15.0
 
 search:
   formats:
     - html
     - json
+
+engines:
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+    timeout: 10.0
+    display_error_messages: false
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: false
+    timeout: 8.0
+    display_error_messages: false
+  - name: bing
+    engine: bing
+    shortcut: bi
+    disabled: false
+    timeout: 8.0
+    display_error_messages: false
+  - name: mojeek
+    engine: mojeek
+    shortcut: mo
+    disabled: false
+    timeout: 8.0
+    display_error_messages: false
+  - name: qwant
+    engine: qwant
+    shortcut: qw
+    disabled: false
+    timeout: 8.0
+    display_error_messages: false
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    disabled: false
+    timeout: 5.0
+  - name: stackoverflow
+    engine: stackoverflow
+    shortcut: so
+    disabled: false
+    timeout: 5.0
+    display_error_messages: false
+
+outgoing:
+  request_timeout: 10.0
+  max_request_timeout: 15.0
+
+ui:
+  static_use_hash: true
+  default_theme: simple

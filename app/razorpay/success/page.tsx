@@ -9,8 +9,8 @@ export default function RazorpaySuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-koda-bg">
-          <Loader2 className="h-6 w-6 animate-spin text-koda-accent" />
+        <div className="flex min-h-dvh items-center justify-center bg-vectosilo-bg">
+          <Loader2 className="h-6 w-6 animate-spin text-vectosilo-accent" />
         </div>
       }
     >
@@ -62,11 +62,11 @@ function RazorpaySuccessInner() {
   }, [sessionId, refresh]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-koda-bg px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-vectosilo-bg px-4 text-center">
       {status === "verifying" && (
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-10 w-10 animate-spin text-koda-accent" />
-          <p className="text-koda-text">
+          <Loader2 className="h-10 w-10 animate-spin text-vectosilo-accent" />
+          <p className="text-vectosilo-text">
             {isCredits ? "Adding your credits…" : isOrgSeat ? "Assigning seat…" : "Activating your plan…"}
           </p>
         </div>
@@ -75,15 +75,15 @@ function RazorpaySuccessInner() {
       {status === "success" && isCredits && (
         <div className="flex flex-col items-center gap-4">
           <CheckCircle className="h-12 w-12 text-green-400" />
-          <h1 className="text-2xl font-bold text-koda-text">Credits added!</h1>
-          <p className="max-w-sm text-koda-muted">
+          <h1 className="text-2xl font-bold text-vectosilo-text">Credits added!</h1>
+          <p className="max-w-sm text-vectosilo-muted">
             {credits !== null
               ? `Your API credit balance is now $${(credits / 100).toFixed(2)}.`
               : "Your API credits are now available."} Credits never expire.
           </p>
           <button
             onClick={() => router.push("/developers")}
-            className="mt-2 rounded-xl bg-koda-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-koda-accent-soft"
+            className="mt-2 rounded-xl bg-vectosilo-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft"
           >
             Back to Developers
           </button>
@@ -93,27 +93,27 @@ function RazorpaySuccessInner() {
       {status === "success" && isGift && giftCode && (
         <div className="flex flex-col items-center gap-4">
           <CheckCircle className="h-12 w-12 text-green-400" />
-          <h1 className="text-2xl font-bold text-koda-text">Gift purchased!</h1>
-          <p className="max-w-sm text-koda-muted">
+          <h1 className="text-2xl font-bold text-vectosilo-text">Gift purchased!</h1>
+          <p className="max-w-sm text-vectosilo-muted">
             Your gift has been purchased. Share the code below with the recipient.
           </p>
-          <div className="rounded-xl bg-koda-surface-2 px-6 py-4">
-            <p className="text-xs text-koda-muted mb-1">Gift code</p>
-            <p className="text-2xl font-mono font-bold text-koda-accent select-all tracking-wider">
+          <div className="rounded-xl bg-vectosilo-surface-2 px-6 py-4">
+            <p className="text-xs text-vectosilo-muted mb-1">Gift code</p>
+            <p className="text-2xl font-mono font-bold text-vectosilo-accent select-all tracking-wider">
               {giftCode}
             </p>
           </div>
           <button
             onClick={() => { navigator.clipboard.writeText(giftCode); }}
-            className="rounded-lg border border-koda-border px-4 py-2 text-sm text-koda-text hover:bg-koda-surface-2"
+            className="rounded-lg border border-vectosilo-border px-4 py-2 text-sm text-vectosilo-text hover:bg-vectosilo-surface-2"
           >
             Copy code
           </button>
           <button
             onClick={() => router.push("/")}
-            className="rounded-xl bg-koda-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-koda-accent-soft"
+            className="rounded-xl bg-vectosilo-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft"
           >
-            Back to Koda AI
+            Back to VectoSilo AI
           </button>
         </div>
       )}
@@ -121,13 +121,13 @@ function RazorpaySuccessInner() {
       {status === "success" && isOrgSeat && (
         <div className="flex flex-col items-center gap-4">
           <CheckCircle className="h-12 w-12 text-green-400" />
-          <h1 className="text-2xl font-bold text-koda-text">Seat assigned!</h1>
-          <p className="max-w-sm text-koda-muted">
-            {targetName ? <>{targetName} is now on <span className="font-semibold text-koda-text uppercase">{targetPlan}</span> &mdash; paid by you.</> : "Member added to your organization."}
+          <h1 className="text-2xl font-bold text-vectosilo-text">Seat assigned!</h1>
+          <p className="max-w-sm text-vectosilo-muted">
+            {targetName ? <>{targetName} is now on <span className="font-semibold text-vectosilo-text uppercase">{targetPlan}</span> &mdash; paid by you.</> : "Member added to your organization."}
           </p>
           <button
             onClick={() => router.push("/pricing")}
-            className="mt-2 rounded-xl bg-koda-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-koda-accent-soft"
+            className="mt-2 rounded-xl bg-vectosilo-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft"
           >
             Back to organization
           </button>
@@ -137,15 +137,15 @@ function RazorpaySuccessInner() {
       {status === "success" && !isCredits && !isGift && !isOrgSeat && (
         <div className="flex flex-col items-center gap-4">
           <CheckCircle className="h-12 w-12 text-green-400" />
-          <h1 className="text-2xl font-bold text-koda-text">
+          <h1 className="text-2xl font-bold text-vectosilo-text">
             You&apos;re on {plan ? plan.toUpperCase() : "your new plan"}!
           </h1>
-          <p className="max-w-sm text-koda-muted">
+          <p className="max-w-sm text-vectosilo-muted">
             Your upgrade is active. Enjoy all the new features — welcome to the next level.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-2 rounded-xl bg-koda-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-koda-accent-soft"
+            className="mt-2 rounded-xl bg-vectosilo-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft"
           >
             Start exploring
           </button>
@@ -155,14 +155,14 @@ function RazorpaySuccessInner() {
       {status === "error" && (
         <div className="flex flex-col items-center gap-4">
           <AlertTriangle className="h-10 w-10 text-amber-400" />
-          <h1 className="text-xl font-bold text-koda-text">Something went wrong</h1>
-          <p className="max-w-sm text-koda-muted">
+          <h1 className="text-xl font-bold text-vectosilo-text">Something went wrong</h1>
+          <p className="max-w-sm text-vectosilo-muted">
             Your payment may have gone through but we couldn&apos;t confirm it automatically.
             Please refresh your account or contact support.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-2 rounded-xl border border-koda-border px-5 py-2 text-sm text-koda-muted hover:bg-koda-surface-2"
+            className="mt-2 rounded-xl border border-vectosilo-border px-5 py-2 text-sm text-vectosilo-muted hover:bg-vectosilo-surface-2"
           >
             Go home
           </button>

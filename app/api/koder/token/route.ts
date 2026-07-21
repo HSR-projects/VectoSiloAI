@@ -2,7 +2,7 @@
  * Koder auth token exchange.
  * Accepts either:
  *   - { type: "oauth", code: "<one-time code from /koder/authorize>" }
- *   - { type: "apikey", key: "sk-koda-..." }
+ *   - { type: "apikey", key: "sk-vectosilo-..." }
  * Returns: { token: "kd-...", authType, userId }
  */
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   // ── API key auth ──────────────────────────────────────────────────────────
   if (type === "apikey") {
     const { key } = body;
-    if (!key?.startsWith("sk-koda-")) {
+    if (!key?.startsWith("sk-vectosilo-")) {
       return NextResponse.json({ error: "Invalid API key format." }, { status: 401 });
     }
     const auth = await getApiKeyAuth(key);

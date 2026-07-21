@@ -4,20 +4,20 @@ export interface Provider {
   defaultBaseUrl?: string
   apiKeyHint: string
   recommended: boolean
-  type: "kodaai" | "openai" | "anthropic" | "gemini" | "openai-compat"
+  type: "vectosiloai" | "openai" | "anthropic" | "gemini" | "openai-compat"
   docsUrl?: string
 }
 
-const RECOMMENDED_LABEL = "Recommended — your data never leaves KodaAI Cloud"
+const RECOMMENDED_LABEL = "Recommended — your data never leaves VectoSiloAI Cloud"
 const EXTERNAL_WARN = "Not recommended unless you want to keep your data with a third party"
 
 export const PROVIDERS: Provider[] = [
   {
-    id: "kodaai",
-    name: "KodaAI Cloud (Recommended)",
+    id: "vectosiloai",
+    name: "VectoSiloAI Cloud (Recommended)",
     apiKeyHint: "No API key needed (included with your plan)",
     recommended: true,
-    type: "kodaai",
+    type: "vectosiloai",
     docsUrl: "",
   },
 
@@ -681,4 +681,4 @@ export function getProvider(id: string): Provider | undefined {
   return PROVIDER_MAP.get(id)
 }
 
-export const DEFAULT_PROVIDER = "kodaai"
+export const DEFAULT_PROVIDER = "vectosiloai"

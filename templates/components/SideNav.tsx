@@ -53,13 +53,13 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
             className={cn(
               "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
               active
-                ? "bg-koda-accent/10 text-koda-accent"
-                : "text-koda-muted hover:bg-koda-surface hover:text-koda-text",
+                ? "bg-vectosilo-accent/10 text-vectosilo-accent"
+                : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text",
               depth > 0 && "ml-6"
             )}
           >
             {item.icon && (
-              <span className={cn("flex-shrink-0", active && "text-koda-accent")}>
+              <span className={cn("flex-shrink-0", active && "text-vectosilo-accent")}>
                 {item.icon}
               </span>
             )}
@@ -69,8 +69,8 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
                 className={cn(
                   "flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
                   active
-                    ? "bg-koda-accent text-white"
-                    : "bg-koda-surface-2 text-koda-muted"
+                    ? "bg-vectosilo-accent text-white"
+                    : "bg-vectosilo-surface-2 text-vectosilo-muted"
                 )}
               >
                 {item.badge}
@@ -80,7 +80,7 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
               <motion.span
                 animate={{ rotate: isExpanded ? 90 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-koda-muted"
+                className="text-vectosilo-muted"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path
@@ -113,7 +113,7 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
   return (
     <nav
       className={cn(
-        "flex flex-col gap-1 rounded-xl border border-koda-border bg-koda-surface p-3",
+        "flex flex-col gap-1 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-3",
         className
       )}
     >

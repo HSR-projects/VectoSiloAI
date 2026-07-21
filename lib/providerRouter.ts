@@ -87,7 +87,7 @@ async function geminiChat(opts: ProviderRouteOptions): Promise<Response> {
   })
 }
 
-async function kodaaiChat(opts: ProviderRouteOptions): Promise<Response> {
+async function vectosiloaiChat(opts: ProviderRouteOptions): Promise<Response> {
   const baseUrl = OLLAMA_BASE_URL
   const headers: Record<string, string> = { "Content-Type": "application/json" }
   if (OLLAMA_API_KEY) headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`
@@ -107,8 +107,8 @@ async function kodaaiChat(opts: ProviderRouteOptions): Promise<Response> {
 export async function routeToProvider(opts: ProviderRouteOptions): Promise<Response> {
   const provider = getProvider(opts.provider)
 
-  if (!provider || opts.provider === "kodaai") {
-    return kodaaiChat(opts)
+  if (!provider || opts.provider === "vectosiloai") {
+    return vectosiloaiChat(opts)
   }
 
   switch (provider.type) {

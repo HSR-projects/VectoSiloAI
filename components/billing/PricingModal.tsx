@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Sparkles, Zap } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,11 +30,11 @@ export function PlanBadge() {
       className={cn(
         "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors",
         isPaid
-          ? "border-koda-accent/50 bg-koda-accent/15 text-koda-accent-soft"
-          : "border-koda-border bg-koda-surface text-koda-text hover:bg-koda-surface-2"
+          ? "border-vectosilo-accent/50 bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+          : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-text hover:bg-vectosilo-surface-2"
       )}
     >
-      {isPaid ? <Zap className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5 text-koda-accent" />}
+      {isPaid ? <Zap className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5 text-vectosilo-accent" />}
       {isPaid ? plan.toUpperCase() : "Upgrade"}
     </button>
   );

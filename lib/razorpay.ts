@@ -21,14 +21,14 @@ export const PLAN_PRICES: Record<string, number> = {
 };
 
 export const PLAN_NAMES: Record<string, string> = {
-  go: "Koda AI Go",
-  pro: "Koda AI Pro",
-  max: "Koda AI Max",
-  ultra: "Koda AI Ultra",
+  go: "VectoSilo AI Go",
+  pro: "VectoSilo AI Pro",
+  max: "VectoSilo AI Max",
+  ultra: "VectoSilo AI Ultra",
 };
 
 export const PLAN_DESCRIPTIONS: Record<string, string> = {
-  go: "Agents, model choice, and Koda's Computer at an entry price.",
+  go: "Agents, model choice, and VectoSilo's Computer at an entry price.",
   pro: "Autonomous research agents, multi-step tasks, and priority features.",
   max: "Maximum depth — the deepest research runs and early access.",
   ultra: "Enterprise org — manage teams, share chats, gift seats, and more.",

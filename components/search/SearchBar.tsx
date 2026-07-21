@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import type { Attachment, FocusMode } from "@/types";
 import { FocusModes } from "./FocusModes";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import {
   ACCEPT_ATTACHMENTS, MAX_ATTACHMENTS, fileToAttachment, humanSize,
@@ -151,12 +151,12 @@ export function SearchBar({
     if (autoFocus) ref.current?.focus();
   }, [autoFocus]);
 
-  // Pick up externally-seeded composer text (e.g. "Ask Koda AI" on a selection).
-  const composerDraft = useKodaStore((s) => s.composerDraft);
-  const clearDraft = useKodaStore((s) => s.setComposerDraft);
-  const dictationEnabled = useKodaStore((s) => s.dictationEnabled);
-  const thinkMode = useKodaStore((s) => s.thinkMode);
-  const setThinkMode = useKodaStore((s) => s.setThinkMode);
+  // Pick up externally-seeded composer text (e.g. "Ask VectoSilo AI" on a selection).
+  const composerDraft = useVectoSiloStore((s) => s.composerDraft);
+  const clearDraft = useVectoSiloStore((s) => s.setComposerDraft);
+  const dictationEnabled = useVectoSiloStore((s) => s.dictationEnabled);
+  const thinkMode = useVectoSiloStore((s) => s.thinkMode);
+  const setThinkMode = useVectoSiloStore((s) => s.setThinkMode);
   useEffect(() => {
     if (!composerDraft) return;
     setValue((v) => (v ? v + "\n\n" : "") + composerDraft);
@@ -315,7 +315,7 @@ export function SearchBar({
       return;
     }
     const rec = new Ctor();
-    rec.lang = useKodaStore.getState().dictationLang || navigator.language || "en-US";
+    rec.lang = useVectoSiloStore.getState().dictationLang || navigator.language || "en-US";
     rec.interimResults = true;
     rec.continuous = true;
     rec.onresult = (e: SpeechRecEvent) => {
@@ -405,8 +405,8 @@ export function SearchBar({
     <div className={cn("flex flex-col gap-3", className)}>
       <div
         className={cn(
-          "group relative flex flex-col gap-2 rounded-2xl border bg-koda-surface px-4 py-3 transition-shadow focus-within:border-koda-accent/50 focus-within:shadow-glow",
-          dragging ? "border-koda-accent shadow-glow" : "border-koda-border"
+          "group relative flex flex-col gap-2 rounded-2xl border bg-vectosilo-surface px-4 py-3 transition-shadow focus-within:border-vectosilo-accent/50 focus-within:shadow-glow",
+          dragging ? "border-vectosilo-accent shadow-glow" : "border-vectosilo-border"
         )}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
@@ -414,9 +414,9 @@ export function SearchBar({
       >
         {/* Drag-over overlay */}
         {dragging && (
-          <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-koda-accent/10 backdrop-blur-sm">
-            <Paperclip className="h-6 w-6 text-koda-accent" />
-            <span className="text-sm font-medium text-koda-accent">Drop to attach</span>
+          <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-vectosilo-accent/10 backdrop-blur-sm">
+            <Paperclip className="h-6 w-6 text-vectosilo-accent" />
+            <span className="text-sm font-medium text-vectosilo-accent">Drop to attach</span>
           </div>
         )}
         {/* Attachment previews */}
@@ -426,21 +426,21 @@ export function SearchBar({
               <AttachmentChip key={a.id} attachment={a} onRemove={() => removeAttachment(a.id)} />
             ))}
             {attachLoading && (
-              <div className="flex items-center gap-2 rounded-lg border border-koda-border bg-koda-surface-2 px-2.5 py-1.5">
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-koda-accent" />
-                <span className="text-xs text-koda-muted">Reading image…</span>
+              <div className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1.5">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-vectosilo-accent" />
+                <span className="text-xs text-vectosilo-muted">Reading image…</span>
               </div>
             )}
           </div>
         )}
 
         <div className="flex items-end gap-2 relative">
-          <Search className="mb-1.5 h-5 w-5 shrink-0 text-koda-muted" />
+          <Search className="mb-1.5 h-5 w-5 shrink-0 text-vectosilo-muted" />
 
           {slashOpen && filteredSlash.length > 0 && (
             <div
               ref={slashRef}
-              className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-koda-border bg-koda-surface shadow-xl"
+              className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface shadow-xl"
             >
               {filteredSlash.map((cmd, i) => (
                 <button
@@ -449,8 +449,8 @@ export function SearchBar({
                   className={cn(
                     "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors",
                     i === slashIdxRef.current
-                      ? "bg-koda-accent/15 text-koda-accent"
-                      : "text-koda-text hover:bg-koda-surface-2"
+                      ? "bg-vectosilo-accent/15 text-vectosilo-accent"
+                      : "text-vectosilo-text hover:bg-vectosilo-surface-2"
                   )}
                   onMouseEnter={() => { slashIdxRef.current = i; }}
                   onMouseDown={(e) => { e.preventDefault(); execSlash(cmd); }}
@@ -458,7 +458,7 @@ export function SearchBar({
                   <span className="text-lg">{cmd.icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium">{cmd.label}</div>
-                    <div className="text-xs text-koda-muted truncate">{cmd.desc}</div>
+                    <div className="text-xs text-vectosilo-muted truncate">{cmd.desc}</div>
                   </div>
                 </button>
               ))}
@@ -474,7 +474,7 @@ export function SearchBar({
             onPaste={onPaste}
             placeholder={placeholder}
             aria-label="Search query"
-            className="max-h-[140px] flex-1 resize-none bg-transparent py-1 text-[15px] leading-relaxed text-koda-text placeholder:text-koda-muted focus:outline-none"
+            className="max-h-[140px] flex-1 resize-none bg-transparent py-1 text-[15px] leading-relaxed text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none"
           />
 
           {showAttach && (
@@ -496,7 +496,7 @@ export function SearchBar({
                 disabled={loading}
                 aria-label="Attach files"
                 title="Attach images, text, or audio"
-                className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text disabled:opacity-50"
+                className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text disabled:opacity-50"
               >
                 <Paperclip className="h-[18px] w-[18px]" />
               </button>
@@ -509,7 +509,7 @@ export function SearchBar({
               onClick={onVoiceRecord}
               aria-label="Voice record"
               title="Record voice message"
-              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
             >
               <Mic className="h-[18px] w-[18px]" />
             </button>
@@ -524,8 +524,8 @@ export function SearchBar({
               className={cn(
                 "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
                 voiceMode
-                  ? "bg-koda-accent/20 text-koda-accent animate-pulse shadow-[0_0_12px_rgba(167,139,250,0.5)]"
-                  : "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                  ? "bg-vectosilo-accent/20 text-vectosilo-accent animate-pulse shadow-[0_0_12px_rgba(167,139,250,0.5)]"
+                  : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
               )}
             >
               <Mic className="h-[18px] w-[18px]" />
@@ -538,7 +538,7 @@ export function SearchBar({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop"
-              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-koda-text text-koda-bg transition-all hover:opacity-90"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-vectosilo-text text-vectosilo-bg transition-all hover:opacity-90"
             >
               <Square className="h-3.5 w-3.5 fill-current" />
             </button>
@@ -551,8 +551,8 @@ export function SearchBar({
               className={cn(
                 "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all",
                 (value.trim() || attachments.length > 0) && !loading
-                  ? "bg-koda-accent text-black hover:bg-koda-accent-soft hover:shadow-glow"
-                  : "bg-koda-surface-2 text-koda-muted"
+                  ? "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft hover:shadow-glow"
+                  : "bg-vectosilo-surface-2 text-vectosilo-muted"
               )}
             >
               {loading ? (
@@ -571,8 +571,8 @@ export function SearchBar({
 
       {/* URL input row — shown when toggled open and no URL is set yet */}
       {urlOpen && !targetUrl && (
-        <div className="flex items-center gap-2 rounded-xl border border-koda-border bg-koda-surface px-3 py-2">
-          <Link className="h-4 w-4 shrink-0 text-koda-muted" />
+        <div className="flex items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface px-3 py-2">
+          <Link className="h-4 w-4 shrink-0 text-vectosilo-muted" />
           <input
             ref={urlRef}
             type="url"
@@ -584,11 +584,11 @@ export function SearchBar({
             }}
             onBlur={commitUrl}
             placeholder="Paste a URL — AI reads that page instead of searching"
-            className="flex-1 bg-transparent text-sm text-koda-text placeholder:text-koda-muted focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none"
           />
           <button
             onClick={() => { setUrlOpen(false); setUrlDraft(""); }}
-            className="text-koda-muted hover:text-koda-text"
+            className="text-vectosilo-muted hover:text-vectosilo-text"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -612,8 +612,8 @@ export function SearchBar({
                 targetUrl
                   ? "border-blue-500/40 bg-blue-500/10 text-blue-300"
                   : urlOpen
-                    ? "border-koda-accent/40 bg-koda-accent/10 text-koda-accent-soft"
-                    : "border-koda-border bg-koda-surface text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                    ? "border-vectosilo-accent/40 bg-vectosilo-accent/10 text-vectosilo-accent-soft"
+                    : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
               )}
             >
               <Link className="h-3.5 w-3.5" />
@@ -638,8 +638,8 @@ export function SearchBar({
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 agentMode && !agentLocked
-                  ? "border-koda-accent/50 bg-koda-accent/15 text-koda-accent-soft"
-                  : "border-koda-border bg-koda-surface text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                  ? "border-vectosilo-accent/50 bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+                  : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
               )}
             >
               <Bot className="h-3.5 w-3.5" />
@@ -647,7 +647,7 @@ export function SearchBar({
               {agentLocked ? (
                 <Lock className="h-3 w-3" />
               ) : agentMode ? (
-                <span className="h-1.5 w-1.5 rounded-full bg-koda-accent" aria-hidden />
+                <span className="h-1.5 w-1.5 rounded-full bg-vectosilo-accent" aria-hidden />
               ) : null}
             </button>
           )}
@@ -663,7 +663,7 @@ export function SearchBar({
                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 swarmMode && !swarmLocked
                   ? "border-violet-500/50 bg-violet-500/15 text-violet-300"
-                  : "border-koda-border bg-koda-surface text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                  : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
               )}
             >
               <Network className="h-3.5 w-3.5" />
@@ -686,7 +686,7 @@ export function SearchBar({
               "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               thinkMode
                 ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
-                : "border-koda-border bg-koda-surface text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
             )}
           >
             <Brain className="h-3.5 w-3.5" />
@@ -710,7 +710,7 @@ function AttachmentChip({
 
   if (kind === "image" && thumbUrl) {
     return (
-      <div className="group/att relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-koda-border">
+      <div className="group/att relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-vectosilo-border">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={thumbUrl} alt={name} className="h-full w-full object-cover" />
         <button
@@ -728,17 +728,17 @@ function AttachmentChip({
   const Icon = kind === "audio" ? Music : kind === "image" ? ImageIcon : FileText;
 
   return (
-    <div className="flex max-w-[220px] items-center gap-2 rounded-lg border border-koda-border bg-koda-surface-2 px-2.5 py-1.5">
-      <Icon className="h-4 w-4 shrink-0 text-koda-muted" />
+    <div className="flex max-w-[220px] items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1.5">
+      <Icon className="h-4 w-4 shrink-0 text-vectosilo-muted" />
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-xs text-koda-text">{name}</span>
-        <span className="text-[10px] text-koda-muted">{humanSize(size)}</span>
+        <span className="truncate text-xs text-vectosilo-text">{name}</span>
+        <span className="text-[10px] text-vectosilo-muted">{humanSize(size)}</span>
       </span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${name}`}
-        className="shrink-0 text-koda-muted hover:text-koda-text"
+        className="shrink-0 text-vectosilo-muted hover:text-vectosilo-text"
       >
         <X className="h-3.5 w-3.5" />
       </button>

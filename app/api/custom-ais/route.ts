@@ -34,6 +34,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, ai });
   } catch (err: any) {
+    if (err.message.startsWith("Unauthorized")) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

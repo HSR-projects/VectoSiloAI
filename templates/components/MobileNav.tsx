@@ -66,13 +66,13 @@ export function MobileNav({ open, onClose, links, className }: MobileNavProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              className="w-full max-w-md rounded-t-2xl border border-koda-border bg-koda-surface p-6 shadow-2xl sm:rounded-2xl"
+              className="w-full max-w-md rounded-t-2xl border border-vectosilo-border bg-vectosilo-surface p-6 shadow-2xl sm:rounded-2xl"
             >
               <div className="mb-6 flex items-center justify-between">
-                <span className="text-lg font-semibold text-koda-text">Menu</span>
+                <span className="text-lg font-semibold text-vectosilo-text">Menu</span>
                 <button
                   onClick={onClose}
-                  className="rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+                  className="rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
                   aria-label="Close navigation"
                 >
                   <X size={20} />
@@ -91,7 +91,7 @@ export function MobileNav({ open, onClose, links, className }: MobileNavProps) {
                     <a
                       href={link.href}
                       onClick={onClose}
-                      className="block rounded-lg px-4 py-3 text-base font-medium text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+                      className="block rounded-lg px-4 py-3 text-base font-medium text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
                     >
                       {link.label}
                     </a>

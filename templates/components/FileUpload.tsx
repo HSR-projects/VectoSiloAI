@@ -113,7 +113,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
           transition={{ duration: 0.2 }}
           className={cn(
             "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors",
-            "hover:border-koda-muted"
+            "hover:border-vectosilo-muted"
           )}
         >
           <motion.div
@@ -125,19 +125,19 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
           >
             <Upload
               size={36}
-              className={dragOver ? "text-koda-accent" : "text-koda-muted"}
+              className={dragOver ? "text-vectosilo-accent" : "text-vectosilo-muted"}
             />
           </motion.div>
-          <p className="text-sm text-koda-text">
+          <p className="text-sm text-vectosilo-text">
             {dragOver
               ? "Drop files here"
               : "Drag & drop files or click to browse"}
           </p>
           {accept && (
-            <p className="text-xs text-koda-muted">Accepted: {accept}</p>
+            <p className="text-xs text-vectosilo-muted">Accepted: {accept}</p>
           )}
           {maxSize && (
-            <p className="text-xs text-koda-muted">
+            <p className="text-xs text-vectosilo-muted">
               Max size: {formatSize(maxSize)}
             </p>
           )}
@@ -181,13 +181,13 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 12, height: 0, marginBottom: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 rounded-lg border border-koda-border bg-koda-surface px-3 py-2 text-sm"
+                  className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm"
                 >
-                  <FileText size={16} className="shrink-0 text-koda-accent" />
-                  <span className="flex-1 truncate text-koda-text">
+                  <FileText size={16} className="shrink-0 text-vectosilo-accent" />
+                  <span className="flex-1 truncate text-vectosilo-text">
                     {f.name}
                   </span>
-                  <span className="shrink-0 text-xs text-koda-muted">
+                  <span className="shrink-0 text-xs text-vectosilo-muted">
                     {formatSize(f.size)}
                   </span>
                   <button
@@ -196,7 +196,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
                       e.stopPropagation();
                       removeFile(i);
                     }}
-                    className="shrink-0 rounded p-0.5 text-koda-muted transition-colors hover:bg-koda-border hover:text-koda-text"
+                    className="shrink-0 rounded p-0.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-border hover:text-vectosilo-text"
                   >
                     <X size={14} />
                   </button>

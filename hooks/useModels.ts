@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { AUTO_MODEL } from "@/lib/autoModel";
 
 interface ModelsResponse {
@@ -28,8 +28,8 @@ function fetchModels(): Promise<ModelsResponse> {
 
 /** Fetches the list of Ollama Cloud models and hydrates the store. */
 export function useModels() {
-  const setAvailableModels = useKodaStore((s) => s.setAvailableModels);
-  const setSelectedModel = useKodaStore((s) => s.setSelectedModel);
+  const setAvailableModels = useVectoSiloStore((s) => s.setAvailableModels);
+  const setSelectedModel = useVectoSiloStore((s) => s.setSelectedModel);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +43,7 @@ export function useModels() {
       const models = data.models ?? [];
       setAvailableModels(models);
 
-      const current = useKodaStore.getState().selectedModel;
+      const current = useVectoSiloStore.getState().selectedModel;
       // "Auto" is a valid selection even though it isn't a real model id.
       if (current !== AUTO_MODEL && (!current || !models.includes(current))) {
         const pick =

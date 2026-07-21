@@ -8,7 +8,7 @@ import { spawn } from "node:child_process";
  * engine backs its play.
  */
 export const ENGINE_PATH =
-  process.env.STOCKFISH_PATH || "/opt/homebrew/bin/stockfish";
+  process.env.STOCKFISH_PATH || "/usr/games/stockfish";
 
 export class EngineError extends Error {
   constructor(message: string) {

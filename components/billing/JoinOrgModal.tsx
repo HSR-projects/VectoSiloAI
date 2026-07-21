@@ -57,13 +57,13 @@ export function JoinOrgModal({ onClose }: JoinOrgModalProps) {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/20">
               <Check className="h-6 w-6 text-green-400" />
             </div>
-            <p className="text-sm text-koda-text">Request sent!</p>
-            <p className="text-xs text-koda-muted">
+            <p className="text-sm text-vectosilo-text">Request sent!</p>
+            <p className="text-xs text-vectosilo-muted">
               Your organization admin will review your request.
             </p>
             <button
               onClick={onClose}
-              className="rounded-lg bg-koda-accent px-4 py-2 text-sm font-semibold text-black"
+              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-black"
             >
               Done
             </button>
@@ -75,7 +75,7 @@ export function JoinOrgModal({ onClose }: JoinOrgModalProps) {
               placeholder="Paste org ID here..."
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
-              className="w-full rounded-lg border border-koda-border bg-koda-surface px-3 py-2 text-sm text-koda-text placeholder:text-koda-muted focus:outline-none focus:border-koda-accent font-mono"
+              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none focus:border-vectosilo-accent font-mono"
             />
             {error && (
               <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">{error}</div>

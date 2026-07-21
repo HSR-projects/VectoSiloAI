@@ -131,7 +131,7 @@ export function Chart({
             {data.map((d, i) => (
               <span
                 key={i}
-                className="text-[10px] text-koda-muted truncate"
+                className="text-[10px] text-vectosilo-muted truncate"
                 style={{ maxWidth: `${100 / data.length}%` }}
               >
                 {d.label}
@@ -157,7 +157,7 @@ export function Chart({
               className="flex flex-1 flex-col items-center justify-end h-full"
             >
               {showValues && (
-                <span className="mb-1 text-[10px] font-medium text-koda-muted">
+                <span className="mb-1 text-[10px] font-medium text-vectosilo-muted">
                   {d.value}
                 </span>
               )}
@@ -189,7 +189,7 @@ export function Chart({
           {data.map((d, i) => (
             <span
               key={i}
-              className="flex-1 text-center text-[10px] text-koda-muted truncate"
+              className="flex-1 text-center text-[10px] text-vectosilo-muted truncate"
             >
               {d.label}
             </span>

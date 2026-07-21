@@ -1,17 +1,38 @@
-# KodaAI Template Registry — AI Reference
+# VectoSiloAI Template Registry — AI Reference
 
-You have access to **100+ premium animated templates** (Framer Motion + Tailwind). Use `[[template:ID]]` to compose websites from these building blocks.
+You have access to **100+ premium animated templates** (Framer Motion + Tailwind). Use `[[scaffold:ID:Title]]` to auto-build a complete website in the sandbox without writing any code.
 
 ## How to Use
 
-When building a website:
-1. Pick a page template from `pages-landing`, `pages-dashboard`, `pages-auth`, `pages-content`, or `pages-pricing` categories
-2. Customize sections by mixing in component templates from other categories
-3. The template system handles all animations — you just configure props
+### Option 1: Auto-scaffold (easiest — 1 line)
+When the user asks you to build a website, just emit:
+```
+[[scaffold:page-landing-saas:My SaaS Site]]
+```
+The system will automatically:
+1. Scaffold a complete Vite + React project from the template
+2. Install dependencies (framer-motion, lucide-react, tailwindcss)
+3. Start the dev server
+4. Show the live preview
 
-**Never include the full template code.** Just reference the ID and say what props to customize.
+You don't need to write any code — just pick the right template and customize with a brief description.
 
-## Quick Reference by Category
+### Option 2: Manual scaffold with customization
+For custom content, just describe what you want:
+```
+[[scaffold:page-landing-saas:My App]]
+The title should be "Build Great Products", features should be [Analytics, Security, Speed, Collaboration, API, Support], pricing should have 3 tiers starting at $19/mo.
+```
+The scaffold will use defaults — you can then customize via follow-up edits.
+
+### Option 3: Mixing components
+You can also scaffold individual sections:
+```
+[[scaffold:page-landing-startup:Startup]]
+But swap the hero to hero-gradient with more dramatic colors and make the team section show 6 members.
+```
+
+## Template Catalog
 
 ### Layout & Containers (10)
 | ID | What it does |

@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       amount: order.amount,
       currency: order.currency,
       key: process.env.RAZORPAY_KEY_ID!,
-      name: "KodaAI Save Card",
+      name: "VectoSiloAI Save Card",
       description: "Verify and save your card for auto-recharge. This $1.00 will be credited to your balance.",
       prefill: {
         email: current.email,

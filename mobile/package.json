@@ -1,8 +1,8 @@
 {
-  "name": "kodaai-mobile",
+  "name": "vectosiloai-mobile",
   "version": "1.0.0",
   "private": true,
-  "description": "KodaAI Android wrapper (Capacitor) — native shell around the hosted web app.",
+  "description": "VectoSiloAI Android wrapper (Capacitor) — native shell around the hosted web app.",
   "scripts": {
     "sync": "cap sync android",
     "open": "cap open android",

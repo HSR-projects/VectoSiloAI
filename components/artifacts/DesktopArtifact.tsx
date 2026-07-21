@@ -188,12 +188,12 @@ export function DesktopArtifact() {
   if (!containerId && !creating) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
-        <Monitor className="h-12 w-12 text-koda-muted" />
-        <p className="text-sm text-koda-muted">Launch a desktop sandbox to get started.</p>
-        <p className="text-xs text-koda-muted/60">1GB RAM · 2GB storage · X11 + VNC</p>
+        <Monitor className="h-12 w-12 text-vectosilo-muted" />
+        <p className="text-sm text-vectosilo-muted">Launch a desktop sandbox to get started.</p>
+        <p className="text-xs text-vectosilo-muted/60">1GB RAM · 2GB storage · X11 + VNC</p>
         <button
           onClick={create}
-          className="inline-flex items-center gap-2 rounded-lg bg-koda-accent px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-koda-accent-soft"
+          className="inline-flex items-center gap-2 rounded-lg bg-vectosilo-accent px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft"
         >
           <Play className="h-4 w-4" /> Launch Desktop
         </button>
@@ -205,9 +205,9 @@ export function DesktopArtifact() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-koda-accent" />
-          <p className="text-sm text-koda-muted">Creating desktop sandbox…</p>
-          <p className="text-xs text-koda-muted/60">Installing X11, VNC, and dev tools</p>
+          <Loader2 className="h-8 w-8 animate-spin text-vectosilo-accent" />
+          <p className="text-sm text-vectosilo-muted">Creating desktop sandbox…</p>
+          <p className="text-xs text-vectosilo-muted/60">Installing X11, VNC, and dev tools</p>
         </div>
       </div>
     );
@@ -215,14 +215,14 @@ export function DesktopArtifact() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-koda-border px-3 py-2">
+      <div className="flex items-center justify-between border-b border-vectosilo-border px-3 py-2">
         <div className="flex gap-1">
           <button
             onClick={() => setTab("terminal")}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === "terminal"
-                ? "bg-koda-accent/15 text-koda-accent-soft"
-                : "text-koda-muted hover:text-koda-text"
+                ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+                : "text-vectosilo-muted hover:text-vectosilo-text"
             }`}
           >
             <TerminalSquare className="h-3.5 w-3.5" /> Terminal
@@ -231,8 +231,8 @@ export function DesktopArtifact() {
             onClick={() => setTab("desktop")}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === "desktop"
-                ? "bg-koda-accent/15 text-koda-accent-soft"
-                : "text-koda-muted hover:text-koda-text"
+                ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+                : "text-vectosilo-muted hover:text-vectosilo-text"
             }`}
           >
             <Monitor className="h-3.5 w-3.5" /> Desktop
@@ -241,8 +241,8 @@ export function DesktopArtifact() {
             onClick={() => setTab("assist")}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === "assist"
-                ? "bg-koda-accent/15 text-koda-accent-soft"
-                : "text-koda-muted hover:text-koda-text"
+                ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft"
+                : "text-vectosilo-muted hover:text-vectosilo-text"
             }`}
           >
             <Bot className="h-3.5 w-3.5" /> AI Assist
@@ -267,19 +267,19 @@ export function DesktopArtifact() {
               <span key={i}>{line}</span>
             ))}
           </div>
-          <div className="flex border-t border-koda-border bg-koda-surface-2">
-            <span className="flex items-center pl-3 font-mono text-xs text-koda-muted">$</span>
+          <div className="flex border-t border-vectosilo-border bg-vectosilo-surface-2">
+            <span className="flex items-center pl-3 font-mono text-xs text-vectosilo-muted">$</span>
             <input
               value={cmd}
               onChange={(e) => setCmd(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") run(); }}
               placeholder="Type a command…"
-              className="flex-1 bg-transparent px-2 py-2.5 font-mono text-sm text-koda-text outline-none placeholder:text-koda-muted/40"
+              className="flex-1 bg-transparent px-2 py-2.5 font-mono text-sm text-vectosilo-text outline-none placeholder:text-vectosilo-muted/40"
             />
             <button
               onClick={run}
               disabled={!cmd.trim()}
-              className="px-3 text-koda-muted hover:text-koda-accent-soft disabled:opacity-40"
+              className="px-3 text-vectosilo-muted hover:text-vectosilo-accent-soft disabled:opacity-40"
             >
               <Play className="h-4 w-4" />
             </button>
@@ -292,19 +292,19 @@ export function DesktopArtifact() {
           {noVncUrl ? (
             <iframe
               src={noVncUrl}
-              className="h-full w-full rounded-lg border border-koda-border"
+              className="h-full w-full rounded-lg border border-vectosilo-border"
               sandbox="allow-scripts allow-same-origin"
               title="Desktop"
             />
           ) : (
-            <p className="text-sm text-koda-muted">Desktop not available.</p>
+            <p className="text-sm text-vectosilo-muted">Desktop not available.</p>
           )}
         </div>
       )}
 
       {tab === "assist" && (
         <div className="flex flex-1 flex-col">
-          <div className="border-b border-koda-border/50 px-3 py-2 text-xs text-koda-muted">
+          <div className="border-b border-vectosilo-border/50 px-3 py-2 text-xs text-vectosilo-muted">
             AI can see your desktop and control it — type, click, run commands.
           </div>
           <div
@@ -312,21 +312,21 @@ export function DesktopArtifact() {
             className="flex-1 overflow-y-auto whitespace-pre-wrap bg-black/60 p-3 font-mono text-xs leading-5 text-gray-200 [scrollbar-width:thin]"
           >
             {assistOutput.length === 0 && (
-              <span className="text-koda-muted/60">Ask the AI to do something on your desktop.</span>
+              <span className="text-vectosilo-muted/60">Ask the AI to do something on your desktop.</span>
             )}
             {assistOutput.map((line, i) => (
               <span key={i}>{line}</span>
             ))}
-            {assistBusy && <span className="inline-block h-3 w-1.5 animate-pulse bg-koda-accent" />}
+            {assistBusy && <span className="inline-block h-3 w-1.5 animate-pulse bg-vectosilo-accent" />}
           </div>
-          <div className="flex border-t border-koda-border bg-koda-surface-2">
+          <div className="flex border-t border-vectosilo-border bg-vectosilo-surface-2">
             <input
               value={assistQuery}
               onChange={(e) => setAssistQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !assistBusy) assist(); }}
               placeholder="Ask AI to do something…"
               disabled={assistBusy}
-              className="flex-1 bg-transparent px-3 py-2.5 text-sm text-koda-text outline-none placeholder:text-koda-muted/40 disabled:opacity-50"
+              className="flex-1 bg-transparent px-3 py-2.5 text-sm text-vectosilo-text outline-none placeholder:text-vectosilo-muted/40 disabled:opacity-50"
             />
             {assistBusy ? (
               <button onClick={stopAssist} className="px-3 text-red-400 hover:text-red-300">
@@ -336,7 +336,7 @@ export function DesktopArtifact() {
               <button
                 onClick={assist}
                 disabled={!assistQuery.trim()}
-                className="px-3 text-koda-muted hover:text-koda-accent-soft disabled:opacity-40"
+                className="px-3 text-vectosilo-muted hover:text-vectosilo-accent-soft disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>

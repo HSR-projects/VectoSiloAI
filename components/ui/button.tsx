@@ -3,17 +3,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-koda-accent focus-visible:ring-offset-2 focus-visible:ring-offset-koda-bg disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vectosilo-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vectosilo-bg disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-koda-accent text-black hover:bg-koda-accent-soft shadow-sm",
+          "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft shadow-sm",
         secondary:
-          "bg-koda-surface-2 text-koda-text hover:bg-koda-border border border-koda-border",
-        ghost: "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text",
+          "bg-vectosilo-surface-2 text-vectosilo-text hover:bg-vectosilo-border border border-vectosilo-border",
+        ghost: "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
         outline:
-          "border border-koda-border bg-transparent text-koda-text hover:bg-koda-surface-2",
+          "border border-vectosilo-border bg-transparent text-vectosilo-text hover:bg-vectosilo-surface-2",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -9,8 +9,8 @@ export default function VerifyPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-koda-bg">
-          <Loader2 className="h-6 w-6 animate-spin text-koda-accent" />
+        <div className="flex min-h-dvh items-center justify-center bg-vectosilo-bg">
+          <Loader2 className="h-6 w-6 animate-spin text-vectosilo-accent" />
         </div>
       }
     >
@@ -59,19 +59,19 @@ function VerifyInner() {
   }, [token, refresh, router]);
 
   return (
-    <div className="koda-hero-glow flex min-h-dvh flex-col items-center justify-center px-4 text-center">
+    <div className="vectosilo-hero-glow flex min-h-dvh flex-col items-center justify-center px-4 text-center">
       {status === "verifying" && (
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-10 w-10 animate-spin text-koda-accent" />
-          <p className="text-koda-text">Verifying your email…</p>
+          <Loader2 className="h-10 w-10 animate-spin text-vectosilo-accent" />
+          <p className="text-vectosilo-text">Verifying your email…</p>
         </div>
       )}
 
       {status === "success" && (
         <div className="flex flex-col items-center gap-4">
           <CheckCircle className="h-12 w-12 text-green-400" />
-          <h1 className="text-2xl font-bold text-koda-text">Email verified!</h1>
-          <p className="max-w-sm text-koda-muted">
+          <h1 className="text-2xl font-bold text-vectosilo-text">Email verified!</h1>
+          <p className="max-w-sm text-vectosilo-muted">
             Your account is active. Taking you in…
           </p>
         </div>
@@ -80,13 +80,13 @@ function VerifyInner() {
       {status === "error" && (
         <div className="flex flex-col items-center gap-4">
           <AlertTriangle className="h-10 w-10 text-amber-400" />
-          <h1 className="text-xl font-bold text-koda-text">Verification failed</h1>
-          <p className="max-w-sm text-koda-muted">
+          <h1 className="text-xl font-bold text-vectosilo-text">Verification failed</h1>
+          <p className="max-w-sm text-vectosilo-muted">
             {message ?? "This link is invalid or has expired."}
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-2 rounded-xl bg-koda-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-koda-accent-soft"
+            className="mt-2 rounded-xl bg-vectosilo-accent px-6 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft"
           >
             Go to sign in
           </button>

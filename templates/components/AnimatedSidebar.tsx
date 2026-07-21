@@ -41,18 +41,18 @@ export function AnimatedSidebar({
       animate={{ width: collapsed ? 64 : 256 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
-        "flex flex-col border-r border-koda-border bg-koda-surface h-full overflow-hidden",
+        "flex flex-col border-r border-vectosilo-border bg-vectosilo-surface h-full overflow-hidden",
         className
       )}
     >
-      <div className="flex h-14 items-center justify-between px-3 border-b border-koda-border">
+      <div className="flex h-14 items-center justify-between px-3 border-b border-vectosilo-border">
         <AnimatePresence>
           {!collapsed && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="truncate text-sm font-semibold text-koda-text"
+              className="truncate text-sm font-semibold text-vectosilo-text"
             >
               {logo}
             </motion.div>
@@ -60,7 +60,7 @@ export function AnimatedSidebar({
         </AnimatePresence>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-lg p-1.5 text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+          className="rounded-lg p-1.5 text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
@@ -74,7 +74,7 @@ export function AnimatedSidebar({
               onClick={() => item.children ? toggleExpand(item.label) : undefined}
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text",
+                "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
                 collapsed && "justify-center px-0"
               )}
             >
@@ -112,7 +112,7 @@ export function AnimatedSidebar({
                   <a
                     key={child.label}
                     href={child.href || "#"}
-                    className="block rounded-lg px-3 py-1.5 text-sm text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+                    className="block rounded-lg px-3 py-1.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
                   >
                     {child.label}
                   </a>

@@ -36,7 +36,7 @@ function sanitizeError(error: Error): string {
   msg = msg.replace(/[/\\]Users[/\\][^/\\]+/g, "[USERS]");
   msg = msg.replace(/[/\\]tmp[/\\][^/\\]+/g, "[TMP]");
   msg = msg.replace(/[/\\]var[/\\]www[/\\][^/\\]+/g, "[WWW]");
-  msg = msg.replace(/\/home\/hemesh\/KodaAI\/KodaAI/g, "[APP]");
+  msg = msg.replace(/\/home\/hemesh\/VectoSiloAI\/VectoSiloAI/g, "[APP]");
   msg = msg.replace(/\/home\/hemesh/g, "[HOME]");
   return msg;
 }
@@ -147,7 +147,7 @@ export async function connectWhatsApp(userId: string): Promise<{ qrCode: string 
     try {
       const client = new WhatsAppClient({
         authStrategy: new LocalAuth({ 
-          clientId: `koda-${userId}`,
+          clientId: `vectosilo-${userId}`,
           dataPath: path.join(process.cwd(), ".wwebjs_auth"),
         }),
         puppeteer: {
@@ -264,13 +264,13 @@ async function handleIncomingMessage(userId: string, msg: any): Promise<void> {
 
     if (msg.from !== targetChat && !isSelfChat) return;
 
-    await forwardToKodaAI(userId, text, mediaData, msg.from);
+    await forwardToVectoSiloAI(userId, text, mediaData, msg.from);
   } catch (error) {
     console.error("[WhatsApp] Error handling message:", error);
   }
 }
 
-async function forwardToKodaAI(
+async function forwardToVectoSiloAI(
   userId: string,
   text: string,
   media: { mimeType: string; data: string; filename?: string } | null,
@@ -284,7 +284,7 @@ async function forwardToKodaAI(
         query: text,
         threadHistory: [],
         focusMode: "all",
-        provider: "kodaai",
+        provider: "vectosiloai",
         whatsappUserId: userId,
         whatsappContext: {
           from: fromNumber,
@@ -330,7 +330,7 @@ async function forwardToKodaAI(
       }
     }
   } catch (error) {
-    console.error("[WhatsApp] Error forwarding to KodaAI:", error);
+    console.error("[WhatsApp] Error forwarding to VectoSiloAI:", error);
   }
 }
 
@@ -398,7 +398,7 @@ export async function restoreSessions(): Promise<void> {
   
   const entries = fs.readdirSync(authDir);
   for (const entry of entries) {
-    const match = entry.match(/^session-koda-(.+)$/);
+    const match = entry.match(/^session-vectosilo-(.+)$/);
     if (match) {
       const userId = match[1];
       console.log(`[WhatsApp] Restoring session for user ${userId}`);

@@ -53,17 +53,17 @@ export function PricingTable({
     <section className={cn("py-16 px-4", className)}>
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-koda-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
             Pricing
           </h2>
-          <p className="mt-4 text-lg text-koda-muted">
+          <p className="mt-4 text-lg text-vectosilo-muted">
             Choose the plan that fits your needs
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <span
               className={cn(
                 "text-sm transition-colors",
-                !isYearly ? "text-koda-text" : "text-koda-muted",
+                !isYearly ? "text-vectosilo-text" : "text-vectosilo-muted",
               )}
             >
               Monthly
@@ -76,11 +76,11 @@ export function PricingTable({
             <span
               className={cn(
                 "text-sm transition-colors",
-                isYearly ? "text-koda-text" : "text-koda-muted",
+                isYearly ? "text-vectosilo-text" : "text-vectosilo-muted",
               )}
             >
               Yearly
-              <span className="ml-1.5 rounded-full bg-koda-accent/20 px-2 py-0.5 text-xs text-koda-accent">
+              <span className="ml-1.5 rounded-full bg-vectosilo-accent/20 px-2 py-0.5 text-xs text-vectosilo-accent">
                 Save 20%
               </span>
             </span>
@@ -105,32 +105,32 @@ export function PricingTable({
               className={cn(
                 "relative flex flex-col rounded-xl border p-6 transition-shadow",
                 plan.popular
-                  ? "border-koda-accent bg-koda-surface shadow-[0_0_30px_rgba(16,163,127,0.12)] scale-105 lg:scale-110"
+                  ? "border-vectosilo-accent bg-vectosilo-surface shadow-[0_0_30px_rgba(16,163,127,0.12)] scale-105 lg:scale-110"
                   : plan.highlighted
-                    ? "border-koda-accent/40 bg-koda-surface"
-                    : "border-koda-border bg-koda-surface",
+                    ? "border-vectosilo-accent/40 bg-vectosilo-surface"
+                    : "border-vectosilo-border bg-vectosilo-surface",
               )}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-koda-accent px-3 py-1 text-xs font-semibold text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-vectosilo-accent px-3 py-1 text-xs font-semibold text-white">
                   Most Popular
                 </span>
               )}
-              <h3 className="text-xl font-bold text-koda-text">
+              <h3 className="text-xl font-bold text-vectosilo-text">
                 {plan.name}
               </h3>
-              <p className="mt-1 text-sm text-koda-muted">{plan.description}</p>
+              <p className="mt-1 text-sm text-vectosilo-muted">{plan.description}</p>
               <div className="mt-6 flex items-baseline gap-1">
                 <motion.span
                   key={isYearly ? "yearly" : "monthly"}
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-4xl font-bold text-koda-text"
+                  className="text-4xl font-bold text-vectosilo-text"
                 >
                   {isYearly ? plan.price.yearly : plan.price.monthly}
                 </motion.span>
-                <span className="text-sm text-koda-muted">
+                <span className="text-sm text-vectosilo-muted">
                   /{plan.period ?? (isYearly ? "year" : "month")}
                 </span>
               </div>
@@ -138,11 +138,11 @@ export function PricingTable({
                 {plan.features.map((feature, j) => (
                   <li
                     key={j}
-                    className="flex items-start gap-2 text-sm text-koda-muted"
+                    className="flex items-start gap-2 text-sm text-vectosilo-muted"
                   >
                     <Check
                       size={16}
-                      className="mt-0.5 shrink-0 text-koda-accent"
+                      className="mt-0.5 shrink-0 text-vectosilo-accent"
                     />
                     <span>{feature}</span>
                   </li>
@@ -153,8 +153,8 @@ export function PricingTable({
                 className={cn(
                   "mt-8 block w-full text-center rounded-lg py-2.5 text-sm font-semibold transition-colors",
                   plan.popular
-                    ? "bg-koda-accent text-white hover:bg-koda-accent/90"
-                    : "border border-koda-border text-koda-text hover:bg-koda-surface-2",
+                    ? "bg-vectosilo-accent text-white hover:bg-vectosilo-accent/90"
+                    : "border border-vectosilo-border text-vectosilo-text hover:bg-vectosilo-surface-2",
                 )}
               >
                 {plan.cta.label}

@@ -9,7 +9,7 @@ import {
   ArrowRight, QrCode, AlertCircle, Zap,
 } from "lucide-react";
 import { useModels } from "@/hooks/useModels";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { modelLabel, cn } from "@/lib/utils";
 import { AUTO_MODEL } from "@/lib/autoModel";
@@ -74,7 +74,7 @@ export function SettingsModal() {
     focusMode, setFocusMode, chessDifficulty, setChessDifficulty,
     settingsOpen, setSettingsOpen, settingsTab, setSettingsTab,
     dictationEnabled, setDictationEnabled, dictationLang, setDictationLang,
-  } = useKodaStore();
+  } = useVectoSiloStore();
 
   const [tab, setTab] = useState<TabId>(settingsTab as TabId);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -235,7 +235,7 @@ export function SettingsModal() {
       <DialogTrigger asChild>
         <button
           aria-label="Settings"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-koda-border bg-koda-surface text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
         >
           <Settings className="h-4 w-4" />
         </button>
@@ -245,15 +245,15 @@ export function SettingsModal() {
         <DialogTitle className="sr-only">Settings</DialogTitle>
 
         {/* Left nav */}
-        <nav className="hidden flex-col gap-0.5 overflow-y-auto border-r border-koda-border bg-koda-surface/60 p-2 md:flex">
-          <p className="px-3 py-2 text-sm font-semibold text-koda-text">Settings</p>
+        <nav className="hidden flex-col gap-0.5 overflow-y-auto border-r border-vectosilo-border bg-vectosilo-surface/60 p-2 md:flex">
+          <p className="px-3 py-2 text-sm font-semibold text-vectosilo-text">Settings</p>
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => { setTab(t.id); setSettingsTab(t.id); }}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                tab === t.id ? "bg-koda-surface-2 text-koda-text" : "text-koda-muted hover:bg-koda-surface-2/60 hover:text-koda-text"
+                tab === t.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted hover:bg-vectosilo-surface-2/60 hover:text-vectosilo-text"
               )}
             >
               {t.icon}
@@ -263,14 +263,14 @@ export function SettingsModal() {
         </nav>
 
         {/* Mobile tab strip */}
-        <div className="flex gap-1 overflow-x-auto border-b border-koda-border p-2 md:hidden [scrollbar-width:none]">
+        <div className="flex gap-1 overflow-x-auto border-b border-vectosilo-border p-2 md:hidden [scrollbar-width:none]">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => { setTab(t.id); setSettingsTab(t.id); }}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-colors",
-                tab === t.id ? "bg-koda-surface-2 text-koda-text" : "text-koda-muted"
+                tab === t.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted"
               )}
             >
               {t.icon}{t.label}
@@ -280,7 +280,7 @@ export function SettingsModal() {
 
         {/* Content */}
         <div className="overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 [scrollbar-width:thin]">
-          <h2 className="mb-1 text-lg font-semibold text-koda-text">
+          <h2 className="mb-1 text-lg font-semibold text-vectosilo-text">
             {TABS.find((t) => t.id === tab)?.label}
           </h2>
 
@@ -297,7 +297,7 @@ export function SettingsModal() {
                   disabled={!dictationEnabled}
                 />
               </Row>
-              <Row label="Default search mode" desc="How Koda decides when to search the web.">
+              <Row label="Default search mode" desc="How VectoSilo decides when to search the web.">
                 <FocusModes value={focusMode} onChange={setFocusMode} />
               </Row>
               <Row
@@ -308,7 +308,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setSettingsTab("account"); setTab("account"); setTwoFactorStep("disable"); setTwoFactorError(null); setTwoFactorPassword(""); setTwoFactorCode(""); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2"
                   >
                     <Shield className="h-3.5 w-3.5 text-green-400" />
                     <span className="text-green-400">Active</span>
@@ -317,7 +317,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setSettingsTab("account"); setTab("account"); setTwoFactorStep("password"); setTwoFactorError(null); setTwoFactorPassword(""); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent/15 px-3 py-1.5 text-xs font-medium text-koda-accent-soft transition-colors hover:bg-koda-accent/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent/15 px-3 py-1.5 text-xs font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/25"
                   >
                     <Shield className="h-3.5 w-3.5" /> Enable
                   </button>
@@ -335,13 +335,13 @@ export function SettingsModal() {
                     onChange={(e) => setNameDraft(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveName()}
                     maxLength={40}
-                    className="w-full sm:w-40 rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none"
+                    className="w-full sm:w-40 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none"
                     placeholder="Your name"
                   />
                   <button
                     onClick={saveName}
                     disabled={savingName || !nameDraft.trim() || nameDraft.trim() === user.name}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-40"
                   >
                     {savingName ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : nameSaved ? <Check className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
                     {nameSaved ? "Saved" : "Save"}
@@ -357,7 +357,7 @@ export function SettingsModal() {
                         key={c.value}
                         title={c.label}
                         onClick={() => updateAccount({ avatarColor: c.value }).catch(() => {})}
-                        className={cn("relative h-7 w-7 rounded-full transition-transform hover:scale-110 sm:h-6 sm:w-6", active && "ring-2 ring-white ring-offset-1 ring-offset-koda-surface")}
+                        className={cn("relative h-7 w-7 rounded-full transition-transform hover:scale-110 sm:h-6 sm:w-6", active && "ring-2 ring-white ring-offset-1 ring-offset-vectosilo-surface")}
                         style={{ backgroundColor: c.value }}
                       >
                         {active && <Check className="absolute inset-0 m-auto h-3 w-3 text-white" />}
@@ -371,27 +371,27 @@ export function SettingsModal() {
 
           {tab === "model" && (
             <div className="pt-2">
-              {loading && <p className="mb-2 flex items-center gap-1.5 text-xs text-koda-muted"><Loader2 className="h-3 w-3 animate-spin" /> Loading models…</p>}
+              {loading && <p className="mb-2 flex items-center gap-1.5 text-xs text-vectosilo-muted"><Loader2 className="h-3 w-3 animate-spin" /> Loading models…</p>}
               {caps.allModels ? (
-                <div className="grid max-h-[420px] gap-1 overflow-y-auto rounded-xl border border-koda-border bg-koda-surface-2 p-1 [scrollbar-width:thin]">
-                  <ModelRow active={selectedModel === AUTO_MODEL} onClick={() => setSelectedModel(AUTO_MODEL)} icon={<Sparkles className="h-3.5 w-3.5 text-koda-accent" />} title="Auto" sub="Best model per task" />
+                <div className="grid max-h-[420px] gap-1 overflow-y-auto rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-1 [scrollbar-width:thin]">
+                  <ModelRow active={selectedModel === AUTO_MODEL} onClick={() => setSelectedModel(AUTO_MODEL)} icon={<Sparkles className="h-3.5 w-3.5 text-vectosilo-accent" />} title="Auto" sub="Best model per task" />
                   {availableModels.length === 0 && !loading && (
-                    <p className="px-2 py-1.5 text-xs text-koda-muted">No models found — check your Koda AI configuration.</p>
+                    <p className="px-2 py-1.5 text-xs text-vectosilo-muted">No models found — check your VectoSilo AI configuration.</p>
                   )}
                   {availableModels.map((m) => (
                     <ModelRow key={m} active={m === selectedModel} onClick={() => setSelectedModel(m)} title={modelLabel(m)} />
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl border border-koda-border bg-koda-surface-2 p-3">
+                <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-koda-text">Auto</p>
-                      <p className="text-xs text-koda-muted">{selectedModel ? modelLabel(selectedModel) : "Loading…"}</p>
+                      <p className="text-sm font-medium text-vectosilo-text">Auto</p>
+                      <p className="text-xs text-vectosilo-muted">{selectedModel ? modelLabel(selectedModel) : "Loading…"}</p>
                     </div>
-                    <Lock className="h-4 w-4 text-koda-muted" />
+                    <Lock className="h-4 w-4 text-vectosilo-muted" />
                   </div>
-                  <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-koda-accent-soft hover:underline">
+                  <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-vectosilo-accent-soft hover:underline">
                     <Lock className="h-3 w-3" /> Upgrade to Pro to choose any model
                   </button>
                 </div>
@@ -406,13 +406,13 @@ export function SettingsModal() {
                   <input
                     type="range" min={1} max={caps.chessMax} step={1} value={sliderValue}
                     onChange={(e) => setChessDifficulty(Number(e.target.value))}
-                    className="w-full accent-koda-accent" aria-label="Chess difficulty"
+                    className="w-full accent-vectosilo-accent" aria-label="Chess difficulty"
                   />
-                  <div className="mt-1 flex justify-between text-[10px] text-koda-muted/70"><span>Easy</span><span>Hard</span></div>
+                  <div className="mt-1 flex justify-between text-[10px] text-vectosilo-muted/70"><span>Easy</span><span>Hard</span></div>
                 </div>
               </Row>
               {caps.chessMax < 10 && (
-                <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-koda-accent-soft hover:underline">
+                <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-vectosilo-accent-soft hover:underline">
                   <Lock className="h-3 w-3" /> Upgrade for full-strength play
                 </button>
               )}
@@ -445,7 +445,7 @@ export function SettingsModal() {
                         {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                         Yes, delete everything
                       </button>
-                      <button onClick={() => { setDeleteConfirm(false); setDeleteError(null); }} disabled={deleting} className="w-full inline-flex items-center justify-center rounded-lg border border-koda-border px-3 py-1.5 text-sm text-koda-muted transition-colors hover:bg-koda-surface-2 sm:w-auto">
+                      <button onClick={() => { setDeleteConfirm(false); setDeleteError(null); }} disabled={deleting} className="w-full inline-flex items-center justify-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 sm:w-auto">
                         Cancel
                       </button>
                     </div>
@@ -457,15 +457,15 @@ export function SettingsModal() {
 
           {tab === "account" && user && (
             <div className="pt-2">
-              <div className="flex items-center gap-2 rounded-xl border border-koda-border bg-koda-surface-2 p-3 sm:gap-3">
+              <div className="flex items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-3 sm:gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white" style={{ backgroundColor: user.avatarColor ?? "#7c3aed" }}>
                   {(user.name || user.email || "?").charAt(0).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-koda-text">{user.name || "—"}</p>
-                  <p className="flex items-center gap-1 truncate text-xs text-koda-muted"><Mail className="h-3 w-3 shrink-0" /> {user.email}</p>
+                  <p className="truncate text-sm font-medium text-vectosilo-text">{user.name || "—"}</p>
+                  <p className="flex items-center gap-1 truncate text-xs text-vectosilo-muted"><Mail className="h-3 w-3 shrink-0" /> {user.email}</p>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-koda-accent/30 bg-koda-accent/10 px-2.5 py-1 text-xs font-medium text-koda-accent-soft">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-vectosilo-accent/30 bg-vectosilo-accent/10 px-2.5 py-1 text-xs font-medium text-vectosilo-accent-soft">
                   <Crown className="h-3 w-3" /> {PLAN_LABEL[user.plan] ?? user.plan}
                 </span>
               </div>
@@ -484,7 +484,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => setTwoFactorStep("password")}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent/15 px-3 py-1.5 text-xs font-medium text-koda-accent-soft transition-colors hover:bg-koda-accent/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent/15 px-3 py-1.5 text-xs font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/25"
                   >
                     <Shield className="h-3.5 w-3.5" /> Enable
                   </button>
@@ -495,22 +495,22 @@ export function SettingsModal() {
               {twoFactorStep !== "idle" && (() => {
                 if (twoFactorStep === "password") {
                   return (
-                    <div className="mb-3 rounded-xl border border-koda-border bg-koda-surface-2/50 p-4">
-                      <p className="mb-2 text-xs text-koda-muted">Confirm your password to continue.</p>
+                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
+                      <p className="mb-2 text-xs text-vectosilo-muted">Confirm your password to continue.</p>
                       <input
                         type="password"
                         value={twoFactorPassword}
                         onChange={(e) => setTwoFactorPassword(e.target.value)}
                         placeholder="Current password"
-                        className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                        className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
-                        <button onClick={start2FASetup} disabled={twoFactorBusy} className="inline-flex items-center gap-1 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-60">
+                        <button onClick={start2FASetup} disabled={twoFactorBusy} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Continue
                         </button>
-                        <button onClick={() => { setTwoFactorStep("idle"); setTwoFactorError(null); setTwoFactorPassword(""); }} className="inline-flex items-center rounded-lg border border-koda-border px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2">
+                        <button onClick={() => { setTwoFactorStep("idle"); setTwoFactorError(null); setTwoFactorPassword(""); }} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -519,17 +519,17 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "qr") {
                   return (
-                    <div className="mb-3 rounded-xl border border-koda-border bg-koda-surface-2/50 p-4">
-                      <p className="mb-3 text-xs text-koda-muted">Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
+                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
+                      <p className="mb-3 text-xs text-vectosilo-muted">Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
                       <div className="flex justify-center">
                         {twoFactorQR && (
-                          <img src={twoFactorQR} alt="QR code" className="h-40 w-40 rounded-lg border border-koda-border" />
+                          <img src={twoFactorQR} alt="QR code" className="h-40 w-40 rounded-lg border border-vectosilo-border" />
                         )}
                       </div>
-                      <p className="mt-2 text-center text-xs text-koda-muted">
-                        Or enter key manually: <span className="font-mono text-koda-text">{twoFactorSecret}</span>
+                      <p className="mt-2 text-center text-xs text-vectosilo-muted">
+                        Or enter key manually: <span className="font-mono text-vectosilo-text">{twoFactorSecret}</span>
                       </p>
-                      <p className="mt-3 text-xs text-koda-muted">Enter the 6-digit code from the app:</p>
+                      <p className="mt-3 text-xs text-vectosilo-muted">Enter the 6-digit code from the app:</p>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -537,15 +537,15 @@ export function SettingsModal() {
                         value={twoFactorCode}
                         onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                         placeholder="000 000"
-                        className="mt-1.5 w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-center text-base tracking-[0.3em] text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                        className="mt-1.5 w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-center text-base tracking-[0.3em] text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
-                        <button onClick={verify2FASetup} disabled={twoFactorBusy || twoFactorCode.length !== 6} className="inline-flex items-center gap-1 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-60">
+                        <button onClick={verify2FASetup} disabled={twoFactorBusy || twoFactorCode.length !== 6} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Verify & enable
                         </button>
-                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-koda-border px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2">
+                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -554,21 +554,21 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "backup") {
                   return (
-                    <div className="mb-3 rounded-xl border border-koda-border bg-koda-surface-2/50 p-4">
+                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
                       <p className="mb-2 text-xs font-medium text-amber-400">
                         Save these backup codes! Each can be used once if you lose access to your authenticator app.
                       </p>
-                      <div className="rounded-lg border border-koda-border bg-black/20 p-3 font-mono text-xs leading-6">
+                      <div className="rounded-lg border border-vectosilo-border bg-black/20 p-3 font-mono text-xs leading-6">
                         {twoFactorBackupCodes.map((code, i) => (
-                          <div key={i} className="text-koda-text">{code}</div>
+                          <div key={i} className="text-vectosilo-text">{code}</div>
                         ))}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button onClick={copyBackupCodes} className="inline-flex items-center gap-1.5 rounded-lg border border-koda-border px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2">
+                        <button onClick={copyBackupCodes} className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
                           {twoFactorCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                           {twoFactorCopied ? "Copied!" : "Copy codes"}
                         </button>
-                        <button onClick={() => window.location.reload()} className="inline-flex items-center gap-1.5 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-koda-accent-soft">
+                        <button onClick={() => window.location.reload()} className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft">
                           <ShieldCheck className="h-3.5 w-3.5" /> Done — 2FA is now active
                         </button>
                       </div>
@@ -577,14 +577,14 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "disable") {
                   return (
-                    <div className="mb-3 rounded-xl border border-koda-border bg-koda-surface-2/50 p-4">
-                      <p className="mb-2 text-xs text-koda-muted">Enter your password and a 2FA code to disable.</p>
+                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
+                      <p className="mb-2 text-xs text-vectosilo-muted">Enter your password and a 2FA code to disable.</p>
                       <input
                         type="password"
                         value={twoFactorPassword}
                         onChange={(e) => setTwoFactorPassword(e.target.value)}
                         placeholder="Current password"
-                        className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                        className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                       />
                       <input
                         type="text"
@@ -593,7 +593,7 @@ export function SettingsModal() {
                         value={twoFactorCode}
                         onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                         placeholder="2FA code or backup code"
-                        className="mt-2 w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                        className="mt-2 w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
@@ -601,7 +601,7 @@ export function SettingsModal() {
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Disable 2FA
                         </button>
-                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-koda-border px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2">
+                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -616,7 +616,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setChangePassOpen(true); setChangePassError(null); setChangePassDone(false); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2"
                   >
                     <Lock className="h-3.5 w-3.5" /> Change
                   </button>
@@ -631,29 +631,29 @@ export function SettingsModal() {
                       value={changePassCurrent}
                       onChange={(e) => setChangePassCurrent(e.target.value)}
                       placeholder="Current password"
-                      className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                     />
                     <input
                       type="password"
                       value={changePassNew}
                       onChange={(e) => setChangePassNew(e.target.value)}
                       placeholder="New password (min 8 chars)"
-                      className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                     />
                     <input
                       type="password"
                       value={changePassConfirm}
                       onChange={(e) => setChangePassConfirm(e.target.value)}
                       placeholder="Confirm new password"
-                      className="w-full rounded-lg border border-koda-border bg-koda-bg px-3 py-1.5 text-sm text-koda-text placeholder:text-koda-muted/40 focus:border-koda-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
                     />
                     {changePassError && <p className="text-xs text-red-400">{changePassError}</p>}
                     <div className="flex gap-2">
-                      <button onClick={changePassword} disabled={changePassBusy} className="inline-flex items-center gap-1 rounded-lg bg-koda-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-koda-accent-soft disabled:opacity-60">
+                      <button onClick={changePassword} disabled={changePassBusy} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
                         {changePassBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                         Save
                       </button>
-                      <button onClick={() => { setChangePassOpen(false); setChangePassError(null); setChangePassCurrent(""); setChangePassNew(""); setChangePassConfirm(""); }} className="inline-flex items-center rounded-lg border border-koda-border px-3 py-1.5 text-xs text-koda-muted transition-colors hover:bg-koda-surface-2">
+                      <button onClick={() => { setChangePassOpen(false); setChangePassError(null); setChangePassCurrent(""); setChangePassNew(""); setChangePassConfirm(""); }} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
                         Cancel
                       </button>
                     </div>
@@ -662,10 +662,10 @@ export function SettingsModal() {
               </Row>
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button onClick={goUpgrade} className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:flex-1", user.plan === "free" ? "border border-koda-accent/40 bg-koda-accent/10 text-koda-accent-soft hover:bg-koda-accent/20" : "border border-koda-border bg-koda-surface text-koda-text hover:bg-koda-surface-2")}>
+                <button onClick={goUpgrade} className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:flex-1", user.plan === "free" ? "border border-vectosilo-accent/40 bg-vectosilo-accent/10 text-vectosilo-accent-soft hover:bg-vectosilo-accent/20" : "border border-vectosilo-border bg-vectosilo-surface text-vectosilo-text hover:bg-vectosilo-surface-2")}>
                   {user.plan === "free" ? <><Crown className="h-3.5 w-3.5" /> Upgrade to Pro or Max</> : "Manage plan"}
                 </button>
-                <button onClick={signOut} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-sm text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text">
+                <button onClick={signOut} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </div>
@@ -681,10 +681,10 @@ export function SettingsModal() {
 
 function Row({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-koda-border/50 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-2 border-b border-vectosilo-border/50 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <p className="text-sm text-koda-text">{label}</p>
-        {desc && <p className="text-xs text-koda-muted">{desc}</p>}
+        <p className="text-sm text-vectosilo-text">{label}</p>
+        {desc && <p className="text-xs text-vectosilo-muted">{desc}</p>}
       </div>
       <div className="self-start sm:self-auto sm:shrink-0">{children}</div>
     </div>
@@ -700,7 +700,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         "relative h-6 w-10 shrink-0 rounded-full transition-colors",
-        checked ? "bg-koda-accent" : "bg-koda-border"
+        checked ? "bg-vectosilo-accent" : "bg-vectosilo-border"
       )}
     >
       <span
@@ -719,10 +719,10 @@ function Select({ value, onChange, options, disabled }: { value: string; onChang
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-sm text-koda-text focus:border-koda-accent/50 focus:outline-none disabled:opacity-40"
+      className="rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none disabled:opacity-40"
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-koda-surface text-koda-text">{o.label}</option>
+        <option key={o.value} value={o.value} className="bg-vectosilo-surface text-vectosilo-text">{o.label}</option>
       ))}
     </select>
   );
@@ -732,13 +732,13 @@ function ModelRow({ active, onClick, icon, title, sub }: { active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={cn("flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm transition-colors", active ? "bg-koda-accent/15 text-koda-accent-soft" : "text-koda-text hover:bg-koda-surface")}
+      className={cn("flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm transition-colors", active ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft" : "text-vectosilo-text hover:bg-vectosilo-surface")}
     >
       <span className="flex items-center gap-2">
         {icon}
         <span className="flex flex-col leading-tight">
           <span className="font-medium">{title}</span>
-          {sub && <span className="text-xs text-koda-muted">{sub}</span>}
+          {sub && <span className="text-xs text-vectosilo-muted">{sub}</span>}
         </span>
       </span>
       {active && <Check className="h-3.5 w-3.5" />}

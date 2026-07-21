@@ -33,11 +33,11 @@ function CodeBlock({ code, lang = "bash" }: { code: string; lang?: string }) {
 
 const PLANS = [
   {
-    name: "KodaAI sign-in",
+    name: "VectoSiloAI sign-in",
     price: "Included",
     period: "requires Pro or Max",
     color: "emerald",
-    description: "Use your KodaAI subscription from the local CLI.",
+    description: "Use your VectoSiloAI subscription from the local CLI.",
     features: [
       "80 AI requests per 5-hour window",
       "Auto-refills every 5 hours",
@@ -46,13 +46,13 @@ const PLANS = [
       "Auto Mode & Ask Manually modes",
       "File read/write/edit tools",
       "Shell command execution",
-      "KodaAI models only",
+      "VectoSiloAI models only",
     ],
     cta: "See login command",
     href: "#quick-start",
   },
   {
-    name: "KodaAI API key",
+    name: "VectoSiloAI API key",
     price: "Credit capped",
     period: "pay from prepaid credits",
     color: "blue",
@@ -60,12 +60,12 @@ const PLANS = [
     description: "For CLI, CI, and scripted coding work with a per-key budget.",
     features: [
       "Per-key credit limit",
-      "KodaAI API key authentication",
+      "VectoSiloAI API key authentication",
       "Spend visible in developer console",
       "Works without browser login",
       "Usage tracked in /developers dashboard",
       "Suitable for CI/CD pipelines",
-      "KodaAI models only",
+      "VectoSiloAI models only",
     ],
     cta: "Get API key",
     href: "/developers",
@@ -94,7 +94,7 @@ const MODES = [
     icon: <Lock className="h-5 w-5" />,
     color: "amber",
     description:
-      "Koder connects only through chat.hsrprojects.org using a KodaAI subscription session or a capped KodaAI API key.",
+      "Koder connects only through chat.hsrprojects.org using a VectoSiloAI subscription session or a capped VectoSiloAI API key.",
     flag: "login",
   },
 ];
@@ -103,9 +103,9 @@ const FEATURES = [
   { icon: <Terminal className="h-5 w-5" />, title: "Terminal IDE", desc: "Full terminal interface with syntax-aware file editing, diff previews, and shell integration." },
   { icon: <Code2 className="h-5 w-5" />, title: "Codebase-aware", desc: "Reads your project structure, imports, and context before making changes." },
   { icon: <GitBranch className="h-5 w-5" />, title: "Git-integrated", desc: "Understands your git state, suggests commits, and can create branches." },
-  { icon: <Cpu className="h-5 w-5" />, title: "KodaAI powered", desc: "Backed by KodaAI models through chat.hsrprojects.org — fast, grounded, and capable." },
+  { icon: <Cpu className="h-5 w-5" />, title: "VectoSiloAI powered", desc: "Backed by VectoSiloAI models through chat.hsrprojects.org — fast, grounded, and capable." },
   { icon: <Layers className="h-5 w-5" />, title: "Multi-file edits", desc: "Refactors across multiple files in a single pass with atomic rollback." },
-  { icon: <Star className="h-5 w-5" />, title: "Local-first", desc: "Runs on your machine. Koder sends prompts to KodaAI and keeps auth scoped to your account or key budget." },
+  { icon: <Star className="h-5 w-5" />, title: "Local-first", desc: "Runs on your machine. Koder sends prompts to VectoSiloAI and keeps auth scoped to your account or key budget." },
 ];
 
 export default function KoderPage() {
@@ -114,7 +114,7 @@ export default function KoderPage() {
       {/* Nav */}
       <nav className="border-b border-white/5 px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
-          ← KodaAI
+          ← VectoSiloAI
         </Link>
         <div className="flex items-center gap-2">
           <Terminal className="h-5 w-5 text-emerald-400" />
@@ -132,19 +132,19 @@ export default function KoderPage() {
         <section className="text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm">
             <Terminal className="h-4 w-4" />
-            KodaAI coding agent for your terminal
+            VectoSiloAI coding agent for your terminal
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tight">
             Meet <span className="text-emerald-400">Koder</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            A local terminal agent for real code changes, connected only to KodaAI. Sign in with a subscription or use a capped KodaAI API key.
+            A local terminal agent for real code changes, connected only to VectoSiloAI. Sign in with a subscription or use a capped VectoSiloAI API key.
           </p>
           <div className="mx-auto grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
               <Shield className="mb-2 h-5 w-5 text-emerald-400" />
               <p className="text-sm font-semibold">Secure sign-in</p>
-              <p className="mt-1 text-xs leading-relaxed text-gray-400">Browser sign-in uses chat.hsrprojects.org and requires an active KodaAI subscription.</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-400">Browser sign-in uses chat.hsrprojects.org and requires an active VectoSiloAI subscription.</p>
             </div>
             <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
               <KeyRound className="mb-2 h-5 w-5 text-blue-400" />
@@ -154,7 +154,7 @@ export default function KoderPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <div className="w-full sm:w-auto">
-              <CodeBlock code="npm install -g @kodaai/koder" />
+              <CodeBlock code="npm install -g @vectosiloai/koder" />
             </div>
             <Link
               href="/developers"
@@ -170,8 +170,8 @@ export default function KoderPage() {
           <h2 className="text-2xl font-bold">Quick start</h2>
           <div className="space-y-3">
             {[
-              { step: "1", label: "Install", code: "npm install -g @kodaai/koder" },
-              { step: "2", label: "Login with a KodaAI subscription or capped API key", code: "koder login  # or: koder login --key sk-koda-..." },
+              { step: "1", label: "Install", code: "npm install -g @vectosiloai/koder" },
+              { step: "2", label: "Login with a VectoSiloAI subscription or capped API key", code: "koder login  # or: koder login --key sk-vectosilo-..." },
               { step: "3", label: "Open your project and start coding", code: "cd my-project && koder" },
             ].map(({ step, label, code }) => (
               <div key={step} className="flex items-start gap-4">
@@ -232,7 +232,7 @@ export default function KoderPage() {
         <section className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold">Choose your plan</h2>
-            <p className="text-gray-400 mt-1">Use a KodaAI subscription or a KodaAI API key with a credit limit.</p>
+            <p className="text-gray-400 mt-1">Use a VectoSiloAI subscription or a VectoSiloAI API key with a credit limit.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             {PLANS.map((p) => (
@@ -281,10 +281,10 @@ export default function KoderPage() {
             {[
               ["koder", "Start interactive session in current directory"],
               ["koder login", "Sign in through chat.hsrprojects.org"],
-              ["koder login --key sk-koda-…", "Authenticate with a capped KodaAI API key"],
+              ["koder login --key sk-vectosilo-…", "Authenticate with a capped VectoSiloAI API key"],
               ["koder --auto", "Auto mode — no confirmations"],
               ["koder --ask", "Ask manually before each action"],
-              ["koder --model koda", "Use a KodaAI model"],
+              ["koder --model vectosilo", "Use a VectoSiloAI model"],
               ["koder status", "Show usage, quota, and auth info"],
               ["koder logout", "Sign out and clear credentials"],
             ].map(([cmd, desc]) => (
@@ -300,10 +300,10 @@ export default function KoderPage() {
         <section className="text-center space-y-6 py-10 border border-white/8 rounded-3xl bg-white/2">
           <Download className="h-10 w-10 text-emerald-400 mx-auto" />
           <h2 className="text-3xl font-black">Ready to code with AI?</h2>
-          <p className="text-gray-400 max-w-md mx-auto">Install Koder in seconds. Connect through chat.hsrprojects.org with subscription sign-in or a KodaAI API key.</p>
+          <p className="text-gray-400 max-w-md mx-auto">Install Koder in seconds. Connect through chat.hsrprojects.org with subscription sign-in or a VectoSiloAI API key.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto px-6">
             <div className="flex-1 w-full">
-              <CodeBlock code="npm install -g @kodaai/koder" />
+              <CodeBlock code="npm install -g @vectosiloai/koder" />
             </div>
             <Link
               href="/developers"

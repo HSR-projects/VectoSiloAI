@@ -53,7 +53,7 @@ export default function KoderAuthorizePage() {
         <div className="max-w-md w-full text-center space-y-4">
           <Terminal className="h-12 w-12 text-emerald-400 mx-auto" />
           <h1 className="text-2xl font-bold">Sign in required</h1>
-          <p className="text-gray-400">You need a KodaAI account to connect the CLI.</p>
+          <p className="text-gray-400">You need a VectoSiloAI account to connect the CLI.</p>
           <button
             onClick={() => {
               const redirect = `/koder/authorize?state=${encodeURIComponent(callbackState)}`;
@@ -61,7 +61,7 @@ export default function KoderAuthorizePage() {
             }}
             className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 rounded-xl font-semibold transition-colors"
           >
-            Sign in to KodaAI
+            Sign in to VectoSiloAI
           </button>
         </div>
       </div>
@@ -79,9 +79,9 @@ export default function KoderAuthorizePage() {
               <Terminal className="h-6 w-6 text-emerald-400" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Connect to KodaAI</h1>
+          <h1 className="text-2xl font-bold">Connect to VectoSiloAI</h1>
           <p className="text-gray-400 text-sm">
-            The Koder CLI will use your KodaAI account for coding requests.
+            The Koder CLI will use your VectoSiloAI account for coding requests.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export default function KoderAuthorizePage() {
             {[
               "Send AI requests on your behalf using your subscription",
               "80 requests per 5-hour window, auto-refills",
-              "Access all KodaAI models for coding assistance",
+              "Access all VectoSiloAI models for coding assistance",
             ].map((p) => (
               <div key={p} className="flex items-start gap-2 text-sm text-gray-300">
                 <ShieldCheck className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
@@ -154,7 +154,7 @@ export default function KoderAuthorizePage() {
               Deny
             </button>
             <button onClick={authorize} className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-colors">
-              Connect to KodaAI
+              Connect to VectoSiloAI
             </button>
           </div>
         )}
@@ -168,7 +168,7 @@ export default function KoderAuthorizePage() {
         {state === "done" && (
           <div className="text-center space-y-3">
             <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto" />
-            <p className="font-semibold text-emerald-400">Connected to KodaAI.</p>
+            <p className="font-semibold text-emerald-400">Connected to VectoSiloAI.</p>
             <p className="text-sm text-gray-400">You can close this tab and return to your terminal.</p>
           </div>
         )}
@@ -191,7 +191,7 @@ export default function KoderAuthorizePage() {
         )}
 
         <p className="text-center text-xs text-gray-600">
-          Powered by <span className="text-gray-400">KodaAI</span> · chat.hsrprojects.org
+          Powered by <span className="text-gray-400">VectoSiloAI</span> · chat.hsrprojects.org
         </p>
       </div>
     </div>

@@ -11,7 +11,7 @@ import {
 } from "react";
 import type { Plan, User } from "@/types";
 import { CAPS, effectiveCaps, type PlanCaps } from "@/lib/plans";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 
 interface AuthContextValue {
   user: User | null;
@@ -63,15 +63,15 @@ async function loadServerThreads() {
     const res = await fetch("/api/threads", { cache: "no-store" });
     if (!res.ok) {
       // Not authorized / error — never leave another user's threads visible.
-      useKodaStore.getState().setThreads([]);
+      useVectoSiloStore.getState().setThreads([]);
       return;
     }
     const { threads } = await res.json();
     // Authoritatively REPLACE — even with an empty list — so a fresh account
     // can never inherit the previous user's chats from in-memory state.
-    useKodaStore.getState().setThreads(Array.isArray(threads) ? threads : []);
+    useVectoSiloStore.getState().setThreads(Array.isArray(threads) ? threads : []);
   } catch {
-    useKodaStore.getState().setThreads([]);
+    useVectoSiloStore.getState().setThreads([]);
   }
 }
 
@@ -86,10 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = data?.user ?? null;
       setUser(u);
       if (u) await loadServerThreads();
-      else useKodaStore.getState().setThreads([]);
+      else useVectoSiloStore.getState().setThreads([]);
     } catch {
       setUser(null);
-      useKodaStore.getState().setThreads([]);
+      useVectoSiloStore.getState().setThreads([]);
     } finally {
       setLoading(false);
     }
@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { needsVerification: true, email: data.email ?? email };
       }
       setUser(data.user);
-      useKodaStore.getState().setThreads([]);
+      useVectoSiloStore.getState().setThreads([]);
       return {};
     },
     []
@@ -164,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await postJSON("/api/auth/logout");
     setUser(null);
-    useKodaStore.getState().setThreads([]);
+    useVectoSiloStore.getState().setThreads([]);
   }, []);
 
   const updateAccount = useCallback(
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         key: order.key,
         amount: String(order.amount),
         currency: order.currency || "INR",
-        name: order.name || "Koda AI",
+        name: order.name || "VectoSilo AI",
         description: order.description || `${plan} plan`,
         email: order.prefill?.email || "",
         callback: `${window.location.origin}/razorpay/success?order_id=${order.id}&plan=${plan}`,
@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data?.error || "Could not delete account.");
     }
     setUser(null);
-    useKodaStore.getState().setThreads([]);
+    useVectoSiloStore.getState().setThreads([]);
   }, []);
 
   const value = useMemo<AuthContextValue>(

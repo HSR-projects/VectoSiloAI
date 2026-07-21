@@ -15,7 +15,7 @@ page.on("request", (r) => {
 });
 page.on("console", (m) => {
   const t = m.text();
-  if (t.includes("KODA")) console.log("  [browser]", t);
+  if (t.includes("VECTOSILO")) console.log("  [browser]", t);
 });
 
 // Start fresh — no stale localStorage.
@@ -25,7 +25,7 @@ await page.reload({ waitUntil: "networkidle2" });
 
 // Read the persisted/initial focus mode from the store.
 const focusBefore = await page.evaluate(() => {
-  try { return JSON.parse(localStorage.getItem("kodaai-store"))?.state?.focusMode; }
+  try { return JSON.parse(localStorage.getItem("vectosiloai-store"))?.state?.focusMode; }
   catch { return "(none persisted)"; }
 });
 console.log("focusMode persisted before search:", focusBefore);
@@ -43,7 +43,7 @@ console.log("navigated to:", await page.evaluate(() => location.pathname));
 await new Promise((r) => setTimeout(r, 18000));
 
 const result = await page.evaluate(() => {
-  const store = JSON.parse(localStorage.getItem("kodaai-store") || "{}")?.state;
+  const store = JSON.parse(localStorage.getItem("vectosiloai-store") || "{}")?.state;
   const thread = store?.threads?.[0];
   const assistant = thread?.messages?.find((m) => m.role === "assistant");
   return {

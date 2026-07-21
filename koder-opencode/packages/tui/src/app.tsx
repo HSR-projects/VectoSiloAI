@@ -727,13 +727,13 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
       },
       {
         name: "provider.connect",
-        title: "Connect KodaAI",
+        title: "Connect VectoSiloAI",
         suggested: !connected(),
         slashName: "connect",
         run: () => {
           dialog.replace(() => <DialogProviderList />)
         },
-        category: "KodaAI",
+        category: "VectoSiloAI",
       },
       ...(sync.data.console_state.switchableOrgCount > 1
         ? [
@@ -746,7 +746,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
               run: () => {
                 dialog.replace(() => <DialogConsoleOrg />)
               },
-              category: "KodaAI",
+              category: "VectoSiloAI",
             },
           ]
         : []),

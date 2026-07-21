@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp, Volume2, Square } from "lucide-react";
 import type { Message } from "@/types";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { speak, stopSpeaking } from "@/lib/tts";
 
@@ -22,7 +22,7 @@ export function MessageActions({
 }) {
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const updateMessage = useKodaStore((s) => s.updateMessage);
+  const updateMessage = useVectoSiloStore((s) => s.updateMessage);
   const feedback = message.feedback;
 
   // Stop any playback if this message unmounts.
@@ -57,9 +57,9 @@ export function MessageActions({
     });
 
   return (
-    <div className="mt-1 flex items-center gap-0.5 text-koda-muted">
+    <div className="mt-1 flex items-center gap-0.5 text-vectosilo-muted">
       <ActionButton label={copied ? "Copied" : "Copy"} onClick={copy}>
-        {copied ? <Check className="h-4 w-4 text-koda-accent" /> : <Copy className="h-4 w-4" />}
+        {copied ? <Check className="h-4 w-4 text-vectosilo-accent" /> : <Copy className="h-4 w-4" />}
       </ActionButton>
 
       <ActionButton
@@ -68,7 +68,7 @@ export function MessageActions({
         onClick={toggleSpeak}
       >
         {speaking ? (
-          <Square className="h-4 w-4 fill-current text-koda-accent" />
+          <Square className="h-4 w-4 fill-current text-vectosilo-accent" />
         ) : (
           <Volume2 className="h-4 w-4" />
         )}
@@ -79,7 +79,7 @@ export function MessageActions({
         active={feedback === "up"}
         onClick={() => setFeedback("up")}
       >
-        <ThumbsUp className={cn("h-4 w-4", feedback === "up" && "fill-current text-koda-accent")} />
+        <ThumbsUp className={cn("h-4 w-4", feedback === "up" && "fill-current text-vectosilo-accent")} />
       </ActionButton>
 
       <ActionButton
@@ -119,8 +119,8 @@ function ActionButton({
       aria-label={label}
       title={label}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-koda-surface-2 hover:text-koda-text",
-        active && "text-koda-text"
+        "flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
+        active && "text-vectosilo-text"
       )}
     >
       {children}

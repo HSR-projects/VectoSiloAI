@@ -1,7 +1,7 @@
 import type { ProjectFile } from "@/types";
 
 /**
- * In-browser preview for Koda's Computer.
+ * In-browser preview for VectoSilo's Computer.
  *
  * Two strategies, picked from the project shape:
  *  • Static site  → assemble index.html, inlining local CSS/JS, render in iframe.
@@ -42,7 +42,7 @@ export function isReactProject(files: ProjectFile[]): boolean {
 
 const RESET_CSS = `*,*::before,*::after{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}#root,#app{min-height:100vh}`;
 
-const ERROR_STYLE = `<style>.koda-err{position:fixed;inset:0;background:#1a1014;color:#ffb4b4;font:13px/1.5 ui-monospace,Menlo,monospace;padding:20px;white-space:pre-wrap;overflow:auto;z-index:99999}</style>`;
+const ERROR_STYLE = `<style>.vectosilo-err{position:fixed;inset:0;background:#1a1014;color:#ffb4b4;font:13px/1.5 ui-monospace,Menlo,monospace;padding:20px;white-space:pre-wrap;overflow:auto;z-index:99999}</style>`;
 
 /**
  * Keeps the preview from escaping its iframe. The sandbox is same-origin (so
@@ -162,8 +162,8 @@ function build(path){
   return url;
 }
 function showError(msg){
-  var d=document.querySelector('.koda-err');
-  if(!d){d=document.createElement('div');d.className='koda-err';document.body.appendChild(d);}
+  var d=document.querySelector('.vectosilo-err');
+  if(!d){d=document.createElement('div');d.className='vectosilo-err';document.body.appendChild(d);}
   d.textContent='⚠ Preview error\\n\\n'+msg;
 }
 window.addEventListener('error',function(e){
@@ -188,8 +188,8 @@ function boot(){
         '});'+
       '}'+
     '},80);'+
-  '}).catch(function(e){window.__kodaShowError(e&&e.stack?e.stack:String(e));});';
-  window.__kodaShowError=showError;
+  '}).catch(function(e){window.__vectosiloShowError(e&&e.stack?e.stack:String(e));});';
+  window.__vectosiloShowError=showError;
   var s=document.createElement('script');s.type='module';s.textContent=run;document.body.appendChild(s);
 }
 boot();

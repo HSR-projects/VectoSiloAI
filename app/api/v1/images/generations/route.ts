@@ -129,7 +129,7 @@ export async function POST(req: Request) {
   return json({
     created: Math.floor(Date.now() / 1000),
     data,
-    // KodaAI extension fields.
+    // VectoSiloAI extension fields.
     credits_charged: charged,
     credits_remaining: remaining,
   });

@@ -18,7 +18,7 @@ export interface SpeakHandlers {
 export function cleanForSpeech(raw: string): string {
   return raw
     .replace(/```[\s\S]*?```/g, " (code block) ")
-    .replace(/<koda-file[^>]*>[\s\S]*?<\/koda-file>/gi, " ")
+    .replace(/<vectosilo-file[^>]*>[\s\S]*?<\/vectosilo-file>/gi, " ")
     .replace(/\[\[[^\]]*\]\]/g, " ")
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")

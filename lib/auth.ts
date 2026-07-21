@@ -21,10 +21,10 @@ import { checkEmailDomain } from "@/lib/disposableEmail";
  * stored user (dummy billing) until a real processor is wired in.
  */
 
-export const SESSION_COOKIE = "koda_session";
+export const SESSION_COOKIE = "vectosilo_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 const AUTH_SECRET =
-  process.env.AUTH_SECRET || "koda-dev-secret-change-me-in-production";
+  process.env.AUTH_SECRET || "vectosilo-dev-secret-change-me-in-production";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "auth.json");
@@ -545,7 +545,7 @@ export async function downgradeBySubscriptionId(subscriptionId: string): Promise
 }
 
 // ─── API keys ─────────────────────────────────────────────────
-const API_KEY_PREFIX = "sk-koda-";
+const API_KEY_PREFIX = "sk-vectosilo-";
 
 function hashApiKey(key: string): string {
   return createHash("sha256").update(key).digest("hex");
@@ -708,7 +708,7 @@ export async function deductCredits(
               token: user.razorpayTokenId,
               amount: Math.round(rechargeAmount),
               currency: "USD",
-              description: `Auto-recharge for KodaAI API credits`,
+              description: `Auto-recharge for VectoSiloAI API credits`,
               receipt: `autorecharge_${Date.now()}_${user.id.slice(0, 8)}`,
             });
             if (payment.status === "captured") {

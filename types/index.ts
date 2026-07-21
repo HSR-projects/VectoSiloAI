@@ -77,11 +77,12 @@ export interface CustomAI {
   instructions: string;
   createdAt: number;
   promptStarters?: string[];
+  avatarUrl?: string;
+  authorId?: string;
+  authorName?: string;
 }
 
 export interface PublicCustomAI extends CustomAI {
-  authorId?: string;
-  authorName?: string;
 }
 
 // ─── Accounts & billing ───────────────────────────────────────
@@ -130,7 +131,7 @@ export interface ApiKeyPublic {
   spentCents: number;
 }
 
-/** A registered "Sign in with KodaAI" OAuth application (safe to expose). */
+/** A registered "Sign in with VectoSiloAI" OAuth application (safe to expose). */
 export interface OAuthClientPublic {
   clientId: string;
   name: string;
@@ -235,7 +236,7 @@ export interface SlideDeck {
   template?: string;
 }
 
-// ─── Koda's Computer (sandboxed project workspace) ────────────
+// ─── VectoSilo's Computer (sandboxed project workspace) ────────────
 /** One file in a generated project. Path is relative, e.g. "src/App.jsx". */
 export interface ProjectFile {
   path: string;
@@ -267,7 +268,7 @@ export type ComputerStatus =
   | "error";
 
 /**
- * A project the model built inside Koda's Computer. This lives ONLY in the
+ * A project the model built inside VectoSilo's Computer. This lives ONLY in the
  * transient part of the store — it is never persisted to localStorage nor
  * written into thread history, so a sandbox can't leak into other chats.
  */
@@ -344,7 +345,7 @@ export interface Message {
   /** Files the user attached to this message (display metadata only). */
   attachments?: Attachment[];
   /**
-   * Snapshot of a Koda's Computer sandbox built in this answer. Persisted with
+   * Snapshot of a VectoSilo's Computer sandbox built in this answer. Persisted with
    * the thread so re-opening (or revisiting the chat later) restores the exact
    * project without re-generating it — but it stays scoped to THIS chat and is
    * never shared into other conversations.
@@ -479,7 +480,7 @@ export interface ChatRequestBody {
   githubInvoke?: boolean;
   /** Think mode — model reasons in a <think> block before answering. */
   think?: boolean;
-  /** Selected AI provider (defaults to kodaai). */
+  /** Selected AI provider (defaults to vectosiloai). */
   provider?: string;
   /** API key for external providers. */
   providerApiKey?: string;

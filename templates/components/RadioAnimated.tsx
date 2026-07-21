@@ -76,24 +76,24 @@ export const RadioAnimated = forwardRef<HTMLDivElement, RadioAnimatedProps>(
                   className={cn(
                     "absolute inset-0 rounded-full border-2 transition-colors",
                     selected
-                      ? "border-koda-accent"
-                      : "border-koda-muted"
+                      ? "border-vectosilo-accent"
+                      : "border-vectosilo-muted"
                   )}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full bg-koda-accent/30"
+                  className="absolute inset-0 rounded-full bg-vectosilo-accent/30"
                   variants={rippleVariants}
                   initial={false}
                   animate={selected ? "selected" : "idle"}
                 />
                 <motion.div
-                  className="z-10 h-2.5 w-2.5 rounded-full bg-koda-accent"
+                  className="z-10 h-2.5 w-2.5 rounded-full bg-vectosilo-accent"
                   variants={innerVariants}
                   initial={false}
                   animate={selected ? "selected" : "idle"}
                 />
               </div>
-              <span className="select-none text-sm text-koda-text">
+              <span className="select-none text-sm text-vectosilo-text">
                 {opt.label}
               </span>
             </label>

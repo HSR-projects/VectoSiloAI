@@ -5,9 +5,9 @@ import { listModels, DEFAULT_MODEL } from "@/lib/ollama";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function kodaModelName(id: string, index: number): string {
-  if (id === DEFAULT_MODEL || index === 0) return "KodaAI Koder";
-  return `KodaAI Model ${index + 1}`;
+function vectosiloModelName(id: string, index: number): string {
+  if (id === DEFAULT_MODEL || index === 0) return "VectoSiloAI Koder";
+  return `VectoSiloAI Model ${index + 1}`;
 }
 
 export async function GET(req: Request) {
@@ -22,13 +22,13 @@ export async function GET(req: Request) {
     const raw    = await listModels();
     const models = raw.map((m, i) => ({
       id: m.name,
-      name: kodaModelName(m.name, i),
+      name: vectosiloModelName(m.name, i),
       default: m.name === DEFAULT_MODEL,
     }));
     return NextResponse.json({ models, default: DEFAULT_MODEL });
   } catch {
     return NextResponse.json({
-      models: [{ id: DEFAULT_MODEL, name: "KodaAI Koder", default: true }],
+      models: [{ id: DEFAULT_MODEL, name: "VectoSiloAI Koder", default: true }],
       default: DEFAULT_MODEL,
     });
   }

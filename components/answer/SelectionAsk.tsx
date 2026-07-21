@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, BookOpen, FileText, Languages } from "lucide-react";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 
 interface PopState {
   text: string;
@@ -14,7 +14,7 @@ interface PopState {
 const ACTIONS = [
   {
     id: "ask",
-    label: "Ask Koda AI",
+    label: "Ask VectoSilo AI",
     icon: Sparkles,
     build: (text: string) =>
       `${text
@@ -48,7 +48,7 @@ const ACTIONS = [
 
 export function SelectionAsk({ containerRef }: { containerRef: React.RefObject<HTMLElement> }) {
   const [pop, setPop] = useState<PopState | null>(null);
-  const setComposerDraft = useKodaStore((s) => s.setComposerDraft);
+  const setComposerDraft = useVectoSiloStore((s) => s.setComposerDraft);
   const popRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export function SelectionAsk({ containerRef }: { containerRef: React.RefObject<H
           className="fixed z-50 -translate-x-1/2 -translate-y-full"
         >
           {/* Card */}
-          <div className="flex items-center gap-0.5 rounded-xl border border-koda-border bg-koda-surface/95 p-1 shadow-xl shadow-black/40 backdrop-blur-xl">
+          <div className="flex items-center gap-0.5 rounded-xl border border-vectosilo-border bg-vectosilo-surface/95 p-1 shadow-xl shadow-black/40 backdrop-blur-xl">
             {ACTIONS.map((action, i) => {
               const Icon = action.icon;
               return (
@@ -130,8 +130,8 @@ export function SelectionAsk({ containerRef }: { containerRef: React.RefObject<H
                   className={[
                     "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
                     action.primary
-                      ? "bg-koda-accent/20 text-koda-accent-soft hover:bg-koda-accent/30"
-                      : "text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text",
+                      ? "bg-vectosilo-accent/20 text-vectosilo-accent-soft hover:bg-vectosilo-accent/30"
+                      : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
                     i < ACTIONS.length - 1 ? "" : "",
                   ].join(" ")}
                 >
@@ -144,8 +144,8 @@ export function SelectionAsk({ containerRef }: { containerRef: React.RefObject<H
 
           {/* Caret pointing down toward the selection */}
           <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2">
-            <div className="h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-koda-border" />
-            <div className="absolute left-1/2 -translate-x-1/2 -top-[5px] h-0 w-0 border-x-[5px] border-t-[5px] border-x-transparent border-t-koda-surface/95" />
+            <div className="h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-vectosilo-border" />
+            <div className="absolute left-1/2 -translate-x-1/2 -top-[5px] h-0 w-0 border-x-[5px] border-t-[5px] border-x-transparent border-t-vectosilo-surface/95" />
           </div>
         </motion.div>
       )}

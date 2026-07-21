@@ -5,7 +5,7 @@ import type { OAuthClientPublic } from "@/types";
 
 /**
  * A minimal but real OAuth 2.0 authorization server powering "Sign in with
- * KodaAI". Authorization-code grant with PKCE (S256), confidential client
+ * VectoSiloAI". Authorization-code grant with PKCE (S256), confidential client
  * secrets, exact redirect-URI matching, single-use short-lived codes, and
  * bearer access tokens. Backed by a JSON file (mirrors lib/auth.ts) so there's
  * no external DB — swap the store later without touching callers.
@@ -97,9 +97,9 @@ export async function createClient(
   logoUrl?: string,
 ): Promise<{ client: OAuthClientPublic; secret: string }> {
   const db = await readDB();
-  const secret = `koda_sk_${randToken(24)}`;
+  const secret = `vectosilo_sk_${randToken(24)}`;
   const client: StoredClient = {
-    clientId: `koda_${randToken(12)}`,
+    clientId: `vectosilo_${randToken(12)}`,
     secretHash: sha256(secret),
     name: name.trim().slice(0, 80) || "Untitled app",
     ownerId,

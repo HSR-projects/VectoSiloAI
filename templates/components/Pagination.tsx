@@ -47,7 +47,7 @@ export function Pagination({
         disabled={currentPage === 1}
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors",
-          "text-koda-muted hover:bg-koda-surface hover:text-koda-text",
+          "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text",
           currentPage === 1 && "pointer-events-none opacity-40"
         )}
       >
@@ -58,7 +58,7 @@ export function Pagination({
         page === "ellipsis" ? (
           <span
             key={`e${i}`}
-            className="flex h-9 w-9 items-center justify-center text-koda-muted"
+            className="flex h-9 w-9 items-center justify-center text-vectosilo-muted"
           >
             <MoreHorizontal size={14} />
           </span>
@@ -71,13 +71,13 @@ export function Pagination({
               "relative flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-colors",
               page === currentPage
                 ? "text-white"
-                : "text-koda-muted hover:bg-koda-surface hover:text-koda-text"
+                : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
             )}
           >
             {page === currentPage && (
               <motion.span
                 layoutId="activePage"
-                className="absolute inset-0 rounded-lg bg-koda-accent"
+                className="absolute inset-0 rounded-lg bg-vectosilo-accent"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -91,7 +91,7 @@ export function Pagination({
         disabled={currentPage === totalPages}
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors",
-          "text-koda-muted hover:bg-koda-surface hover:text-koda-text",
+          "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text",
           currentPage === totalPages && "pointer-events-none opacity-40"
         )}
       >

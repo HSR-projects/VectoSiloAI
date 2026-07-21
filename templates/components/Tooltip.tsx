@@ -42,12 +42,12 @@ export function Tooltip({
   };
 
   const arrowClasses = {
-    top: "top-full left-1/2 -translate-x-1/2 border-l-koda-border border-r-koda-border border-t-koda-surface border-l-transparent border-r-transparent",
+    top: "top-full left-1/2 -translate-x-1/2 border-l-vectosilo-border border-r-vectosilo-border border-t-vectosilo-surface border-l-transparent border-r-transparent",
     bottom:
-      "bottom-full left-1/2 -translate-x-1/2 border-l-koda-border border-r-koda-border border-b-koda-surface border-l-transparent border-r-transparent",
-    left: "left-full top-1/2 -translate-y-1/2 border-t-koda-border border-b-koda-border border-l-koda-surface border-t-transparent border-b-transparent",
+      "bottom-full left-1/2 -translate-x-1/2 border-l-vectosilo-border border-r-vectosilo-border border-b-vectosilo-surface border-l-transparent border-r-transparent",
+    left: "left-full top-1/2 -translate-y-1/2 border-t-vectosilo-border border-b-vectosilo-border border-l-vectosilo-surface border-t-transparent border-b-transparent",
     right:
-      "right-full top-1/2 -translate-y-1/2 border-t-koda-border border-b-koda-border border-r-koda-surface border-t-transparent border-b-transparent",
+      "right-full top-1/2 -translate-y-1/2 border-t-vectosilo-border border-b-vectosilo-border border-r-vectosilo-surface border-t-transparent border-b-transparent",
   };
 
   return (
@@ -71,7 +71,7 @@ export function Tooltip({
               positionClasses[position]
             )}
           >
-            <div className="rounded-lg border border-koda-border bg-koda-surface px-3 py-1.5 text-xs font-medium text-koda-text shadow-lg">
+            <div className="rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs font-medium text-vectosilo-text shadow-lg">
               {content}
             </div>
             <div

@@ -40,7 +40,7 @@ export const AnimatedModal = forwardRef<HTMLDivElement, AnimatedModalProps>(
             <motion.div
               ref={ref}
               className={cn(
-                "relative z-10 w-full max-w-lg rounded-2xl border border-koda-border bg-koda-surface p-6 shadow-xl",
+                "relative z-10 w-full max-w-lg rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-6 shadow-xl",
                 className
               )}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -51,13 +51,13 @@ export const AnimatedModal = forwardRef<HTMLDivElement, AnimatedModalProps>(
             >
               <div className="mb-4 flex items-center justify-between">
                 {title && (
-                  <h2 className="text-lg font-semibold text-koda-text">
+                  <h2 className="text-lg font-semibold text-vectosilo-text">
                     {title}
                   </h2>
                 )}
                 <button
                   onClick={onClose}
-                  className="ml-auto rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+                  className="ml-auto rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
                   aria-label="Close modal"
                 >
                   <X size={18} />

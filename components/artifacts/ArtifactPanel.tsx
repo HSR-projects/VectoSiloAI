@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { Loader2, X, Puzzle, MonitorPlay, Presentation, FileSpreadsheet, Globe, FileText, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ArtifactType } from "@/types";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 
 // Remember the user's chosen panel width per artifact type for this session
 // (module scope survives the panel unmounting/remounting between opens).
@@ -24,7 +24,7 @@ const ChessArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -37,7 +37,7 @@ const ComputerArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -50,7 +50,7 @@ const SlidesArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -63,7 +63,7 @@ const SheetArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -76,7 +76,7 @@ const WebsiteArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -89,7 +89,7 @@ const DocArtifact = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center text-koda-muted">
+      <div className="flex h-full items-center justify-center text-vectosilo-muted">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     ),
@@ -101,8 +101,8 @@ const DocArtifact = dynamic(
  * covers the screen on mobile. Renders whatever artifact is active in the store.
  */
 export function ArtifactPanel() {
-  const artifact = useKodaStore((s) => s.artifact);
-  const close = useKodaStore((s) => s.closeArtifact);
+  const artifact = useVectoSiloStore((s) => s.artifact);
+  const close = useVectoSiloStore((s) => s.closeArtifact);
 
   const [isDesktop, setIsDesktop] = useState(false);
   const [width, setWidth] = useState<number | null>(null);
@@ -168,7 +168,7 @@ export function ArtifactPanel() {
           transition={{ type: "spring", stiffness: 320, damping: 34 }}
           style={isDesktop && width && !maximized ? { width } : undefined}
           className={cn(
-            "flex flex-col border-l border-koda-border bg-koda-bg",
+            "flex flex-col border-l border-vectosilo-border bg-vectosilo-bg",
             maximized
               ? "fixed inset-0 z-50 w-full"
               : "absolute inset-0 z-30 w-full md:relative md:inset-auto md:z-auto"
@@ -187,8 +187,8 @@ export function ArtifactPanel() {
                 className={
                   "h-full w-px transition-colors " +
                   (dragging
-                    ? "bg-koda-accent"
-                    : "bg-transparent group-hover:bg-koda-accent/50")
+                    ? "bg-vectosilo-accent"
+                    : "bg-transparent group-hover:bg-vectosilo-accent/50")
                 }
               />
             </div>
@@ -197,29 +197,29 @@ export function ArtifactPanel() {
           {/* While dragging, this overlay keeps pointer events off the iframe. */}
           {dragging && <div className="fixed inset-0 z-50 cursor-col-resize" />}
 
-          <header className="flex items-center gap-2 border-b border-koda-border px-4 py-3">
+          <header className="flex items-center gap-2 border-b border-vectosilo-border px-4 py-3">
             {artifact.type === "computer" ? (
-              <MonitorPlay className="h-4 w-4 text-koda-accent" />
+              <MonitorPlay className="h-4 w-4 text-vectosilo-accent" />
             ) : artifact.type === "slides" ? (
-              <Presentation className="h-4 w-4 text-koda-accent" />
+              <Presentation className="h-4 w-4 text-vectosilo-accent" />
             ) : artifact.type === "sheet" ? (
-              <FileSpreadsheet className="h-4 w-4 text-koda-accent" />
+              <FileSpreadsheet className="h-4 w-4 text-vectosilo-accent" />
             ) : artifact.type === "website" ? (
-              <Globe className="h-4 w-4 text-koda-accent" />
+              <Globe className="h-4 w-4 text-vectosilo-accent" />
             ) : artifact.type === "doc" ? (
-              <FileText className="h-4 w-4 text-koda-accent" />
+              <FileText className="h-4 w-4 text-vectosilo-accent" />
             ) : (
-              <Puzzle className="h-4 w-4 text-koda-accent" />
+              <Puzzle className="h-4 w-4 text-vectosilo-accent" />
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-koda-text">
+              <p className="truncate text-sm font-medium text-vectosilo-text">
                 {artifact.title}
               </p>
-              <p className="text-[11px] uppercase tracking-wide text-koda-muted">
+              <p className="text-[11px] uppercase tracking-wide text-vectosilo-muted">
                 {artifact.type === "chess"
                   ? "Interactive · Chess"
                   : artifact.type === "computer"
-                  ? "Koda's Computer · Sandbox"
+                  ? "VectoSilo's Computer · Sandbox"
                   : artifact.type === "slides"
                   ? "Presentation · Slides"
                   : artifact.type === "sheet"
@@ -234,14 +234,14 @@ export function ArtifactPanel() {
             <button
               onClick={() => setMaximized((v) => !v)}
               aria-label={maximized ? "Exit fullscreen" : "Fullscreen"}
-              className="ml-auto rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+              className="ml-auto rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
             >
               {maximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
             <button
               onClick={close}
               aria-label="Close artifact"
-              className="rounded-lg p-1.5 text-koda-muted transition-colors hover:bg-koda-surface-2 hover:text-koda-text"
+              className="rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
             >
               <X className="h-4 w-4" />
             </button>

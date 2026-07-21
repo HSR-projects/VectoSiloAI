@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rebuild the KodaAI debug APK. Pins JDK 17 + the user-local Android SDK so it
+# Rebuild the VectoSiloAI debug APK. Pins JDK 17 + the user-local Android SDK so it
 # works regardless of the system default Java (which is 25 here, too new for AGP).
 set -euo pipefail
 
@@ -17,6 +17,6 @@ chmod +x ./gradlew
 ./gradlew assembleDebug --no-daemon
 
 APK="app/build/outputs/apk/debug/app-debug.apk"
-cp "$APK" ../KodaAI-debug.apk
+cp "$APK" ../VectoSiloAI-debug.apk
 echo
-echo "APK ready: mobile/KodaAI-debug.apk"
+echo "APK ready: mobile/VectoSiloAI-debug.apk"

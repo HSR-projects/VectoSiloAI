@@ -66,6 +66,8 @@ const nextConfig = {
   },
   webpack: (config) => {
     config.resolve.alias.canvas = false;
+    config.resolve.alias["@mediapipe/pose"] = false;
+    config.resolve.alias["@tensorflow/tfjs-backend-webgpu"] = false;
     return config;
   },
 };

@@ -26,12 +26,12 @@ export function AuthLogin() {
   };
 
   return (
-    <div className="flex min-h-screen bg-koda-bg">
+    <div className="flex min-h-screen bg-vectosilo-bg">
       <div className="relative hidden flex-1 items-center justify-center overflow-hidden lg:flex">
-        <div className="absolute inset-0 bg-gradient-to-br from-koda-accent/20 via-koda-surface to-koda-bg" />
-        <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-koda-accent/10 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-vectosilo-accent/20 via-vectosilo-surface to-vectosilo-bg" />
+        <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-vectosilo-accent/10 blur-3xl" />
         <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-koda-accent/5 blur-2xl" />
+        <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-vectosilo-accent/5 blur-2xl" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -39,11 +39,11 @@ export function AuthLogin() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 text-center"
         >
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-koda-accent shadow-lg shadow-koda-accent/30">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-vectosilo-accent shadow-lg shadow-vectosilo-accent/30">
             <span className="text-2xl font-bold text-white">K</span>
           </div>
-          <h1 className="text-4xl font-bold text-koda-text">KodaAI</h1>
-          <p className="mt-3 text-lg text-koda-muted">Intelligent automation platform<br />for modern teams</p>
+          <h1 className="text-4xl font-bold text-vectosilo-text">VectoSiloAI</h1>
+          <p className="mt-3 text-lg text-vectosilo-muted">Intelligent automation platform<br />for modern teams</p>
 
           <div className="mt-12 flex items-center justify-center gap-4">
             {[0, 1, 2, 3].map((i) => (
@@ -54,7 +54,7 @@ export function AuthLogin() {
                 transition={{ delay: 0.3 + i * 0.1, duration: 0.4 }}
                 className={cn(
                   "h-3 w-3 rounded-full",
-                  i % 2 === 0 ? "bg-koda-accent" : "bg-koda-accent/40"
+                  i % 2 === 0 ? "bg-vectosilo-accent" : "bg-vectosilo-accent/40"
                 )}
               />
             ))}
@@ -62,7 +62,7 @@ export function AuthLogin() {
 
           <div className="mt-8 flex justify-center gap-8">
             {[
-              { shape: "rounded-full", bg: "bg-koda-accent/20", delay: 0.5 },
+              { shape: "rounded-full", bg: "bg-vectosilo-accent/20", delay: 0.5 },
               { shape: "rotate-45", bg: "bg-blue-500/20", delay: 0.7 },
               { shape: "rounded-xl", bg: "bg-purple-500/20", delay: 0.9 },
             ].map((item, i) => (
@@ -87,14 +87,14 @@ export function AuthLogin() {
             className="space-y-6"
           >
             <div className="text-center lg:hidden">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-koda-accent">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-vectosilo-accent">
                 <span className="text-xl font-bold text-white">K</span>
               </div>
             </div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-koda-text">Welcome Back</h2>
-              <p className="mt-1 text-sm text-koda-muted">Sign in to your account to continue</p>
+              <h2 className="text-2xl font-bold text-vectosilo-text">Welcome Back</h2>
+              <p className="mt-1 text-sm text-vectosilo-muted">Sign in to your account to continue</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,7 +124,7 @@ export function AuthLogin() {
                   onChange={setRemember}
                   size="sm"
                 />
-                <a href="#" className="text-xs text-koda-accent hover:underline">Forgot password?</a>
+                <a href="#" className="text-xs text-vectosilo-accent hover:underline">Forgot password?</a>
               </div>
 
               <CheckboxAnimated
@@ -136,7 +136,7 @@ export function AuthLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center rounded-lg bg-koda-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? <Spinner size="sm" variant="white" /> : "Sign In"}
               </button>
@@ -144,10 +144,10 @@ export function AuthLogin() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-koda-border" />
+                <div className="w-full border-t border-vectosilo-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-koda-bg px-2 text-koda-muted">Or continue with</span>
+                <span className="bg-vectosilo-bg px-2 text-vectosilo-muted">Or continue with</span>
               </div>
             </div>
 
@@ -160,7 +160,7 @@ export function AuthLogin() {
                 <button
                   key={btn.label}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg border border-koda-border bg-koda-surface py-2.5 text-sm text-koda-muted transition-colors",
+                    "flex items-center justify-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface py-2.5 text-sm text-vectosilo-muted transition-colors",
                     btn.color
                   )}
                 >
@@ -169,9 +169,9 @@ export function AuthLogin() {
               ))}
             </div>
 
-            <p className="text-center text-sm text-koda-muted">
+            <p className="text-center text-sm text-vectosilo-muted">
               Don&apos;t have an account?{" "}
-              <a href="#" className="font-medium text-koda-accent hover:underline">Sign up</a>
+              <a href="#" className="font-medium text-vectosilo-accent hover:underline">Sign up</a>
             </p>
           </motion.div>
         </PageTransition>

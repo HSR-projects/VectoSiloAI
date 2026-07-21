@@ -90,19 +90,19 @@ const docContent: Record<string, DocSection> = {
     content: [
       {
         type: "paragraph",
-        text: "Welcome to the KodaAI documentation. This guide will help you get started with our platform and make the most of its features. KodaAI is a powerful toolkit designed to streamline your workflow and boost productivity.",
+        text: "Welcome to the VectoSiloAI documentation. This guide will help you get started with our platform and make the most of its features. VectoSiloAI is a powerful toolkit designed to streamline your workflow and boost productivity.",
       },
       {
         type: "heading",
-        text: "What is KodaAI?",
+        text: "What is VectoSiloAI?",
       },
       {
         type: "paragraph",
-        text: "KodaAI is an all-in-one platform that provides tools for building, deploying, and scaling modern applications. With a focus on developer experience and performance, KodaAI helps teams ship faster and with confidence.",
+        text: "VectoSiloAI is an all-in-one platform that provides tools for building, deploying, and scaling modern applications. With a focus on developer experience and performance, VectoSiloAI helps teams ship faster and with confidence.",
       },
       {
         type: "note",
-        text: "KodaAI is currently in public beta. Some features may change as we continue to improve the platform.",
+        text: "VectoSiloAI is currently in public beta. Some features may change as we continue to improve the platform.",
       },
       {
         type: "heading",
@@ -120,7 +120,7 @@ const docContent: Record<string, DocSection> = {
     content: [
       {
         type: "paragraph",
-        text: "Get up and running with KodaAI in under 5 minutes. Follow these steps to create your first project and make your first API call.",
+        text: "Get up and running with VectoSiloAI in under 5 minutes. Follow these steps to create your first project and make your first API call.",
       },
       {
         type: "heading",
@@ -128,7 +128,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "paragraph",
-        text: "Visit the KodaAI dashboard and sign up for a free account. No credit card is required for the trial period.",
+        text: "Visit the VectoSiloAI dashboard and sign up for a free account. No credit card is required for the trial period.",
       },
       {
         type: "heading",
@@ -136,7 +136,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "code",
-        text: "npm install -g @kodaai/cli\n\nkodaai login\nkodaai init my-project",
+        text: "npm install -g @vectosiloai/cli\n\nvectosiloai login\nvectosiloai init my-project",
         language: "bash",
       },
       {
@@ -145,7 +145,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "code",
-        text: "import { KodaAI } from '@kodaai/sdk';\n\nconst client = new KodaAI({\n  apiKey: process.env.KODAI_API_KEY,\n});\n\nconst response = await client.query({\n  model: 'gpt-4',\n  messages: [{ role: 'user', content: 'Hello!' }],\n});\n\nconsole.log(response.data);",
+        text: "import { VectoSiloAI } from '@vectosiloai/sdk';\n\nconst client = new VectoSiloAI({\n  apiKey: process.env.VECTOSILOI_API_KEY,\n});\n\nconst response = await client.query({\n  model: 'gpt-4',\n  messages: [{ role: 'user', content: 'Hello!' }],\n});\n\nconsole.log(response.data);",
         language: "typescript",
       },
     ],
@@ -156,7 +156,7 @@ const docContent: Record<string, DocSection> = {
     content: [
       {
         type: "paragraph",
-        text: "Choose your preferred installation method. KodaAI supports npm, yarn, pnpm, and Docker installations.",
+        text: "Choose your preferred installation method. VectoSiloAI supports npm, yarn, pnpm, and Docker installations.",
       },
       {
         type: "heading",
@@ -164,7 +164,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "code",
-        text: "npm install @kodaai/sdk @kodaai/cli",
+        text: "npm install @vectosiloai/sdk @vectosiloai/cli",
         language: "bash",
       },
       {
@@ -173,7 +173,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "code",
-        text: "yarn add @kodaai/sdk @kodaai/cli",
+        text: "yarn add @vectosiloai/sdk @vectosiloai/cli",
         language: "bash",
       },
       {
@@ -182,7 +182,7 @@ const docContent: Record<string, DocSection> = {
       },
       {
         type: "code",
-        text: "docker pull kodaai/platform:latest\ndocker run -d -p 3000:3000 \\\n  -e KODAI_API_KEY=your_key \\\n  kodaai/platform:latest",
+        text: "docker pull vectosiloai/platform:latest\ndocker run -d -p 3000:3000 \\\n  -e VECTOSILOI_API_KEY=your_key \\\n  vectosiloai/platform:latest",
         language: "bash",
       },
     ],
@@ -191,7 +191,7 @@ const docContent: Record<string, DocSection> = {
     id: "system-requirements",
     title: "System Requirements",
     content: [
-      { type: "paragraph", text: "Before installing KodaAI, ensure your system meets the following requirements." },
+      { type: "paragraph", text: "Before installing VectoSiloAI, ensure your system meets the following requirements." },
       { type: "heading", text: "Minimum Requirements" },
       { type: "paragraph", text: "Node.js 18.0 or higher, 4 GB RAM, 2 CPU cores, 10 GB free disk space. macOS 12+, Ubuntu 20.04+, or Windows 10+ with WSL2." },
       { type: "heading", text: "Recommended Requirements" },
@@ -202,54 +202,54 @@ const docContent: Record<string, DocSection> = {
     id: "npm-setup",
     title: "npm Setup",
     content: [
-      { type: "paragraph", text: "Configure npm for optimal KodaAI performance and compatibility." },
+      { type: "paragraph", text: "Configure npm for optimal VectoSiloAI performance and compatibility." },
       { type: "heading", text: "Configuration" },
-      { type: "code", text: "npm config set registry https://registry.npmjs.org/\nnpm install -g @kodaai/cli", language: "bash" },
+      { type: "code", text: "npm config set registry https://registry.npmjs.org/\nnpm install -g @vectosiloai/cli", language: "bash" },
     ],
   },
   "docker-setup": {
     id: "docker-setup",
     title: "Docker Setup",
     content: [
-      { type: "paragraph", text: "Deploy KodaAI using Docker for containerized environments." },
+      { type: "paragraph", text: "Deploy VectoSiloAI using Docker for containerized environments." },
       { type: "heading", text: "Docker Compose" },
-      { type: "code", text: "version: '3.8'\nservices:\n  kodaai:\n    image: kodaai/platform:latest\n    ports:\n      - '3000:3000'\n    environment:\n      - KODAI_API_KEY=${KODAI_API_KEY}\n    volumes:\n      - ./data:/app/data", language: "yaml" },
+      { type: "code", text: "version: '3.8'\nservices:\n  vectosiloai:\n    image: vectosiloai/platform:latest\n    ports:\n      - '3000:3000'\n    environment:\n      - VECTOSILOI_API_KEY=${VECTOSILOI_API_KEY}\n    volumes:\n      - ./data:/app/data", language: "yaml" },
     ],
   },
   "configuration-overview": {
     id: "configuration-overview",
     title: "Configuration Overview",
     content: [
-      { type: "paragraph", text: "Learn how to configure KodaAI to match your specific needs and environment." },
+      { type: "paragraph", text: "Learn how to configure VectoSiloAI to match your specific needs and environment." },
       { type: "heading", text: "Configuration File" },
-      { type: "code", text: "// kodaai.config.ts\nexport default {\n  api: {\n    baseUrl: 'https://api.kodaai.dev',\n    timeout: 30000,\n    retries: 3,\n  },\n  cache: {\n    ttl: 3600,\n    provider: 'redis',\n  },\n  logging: {\n    level: 'info',\n    format: 'json',\n  },\n};", language: "typescript" },
+      { type: "code", text: "// vectosiloai.config.ts\nexport default {\n  api: {\n    baseUrl: 'https://api.vectosiloai.dev',\n    timeout: 30000,\n    retries: 3,\n  },\n  cache: {\n    ttl: 3600,\n    provider: 'redis',\n  },\n  logging: {\n    level: 'info',\n    format: 'json',\n  },\n};", language: "typescript" },
     ],
   },
   "environment-variables": {
     id: "environment-variables",
     title: "Environment Variables",
     content: [
-      { type: "paragraph", text: "Configure KodaAI behavior through environment variables for different deployment environments." },
+      { type: "paragraph", text: "Configure VectoSiloAI behavior through environment variables for different deployment environments." },
       { type: "heading", text: "Available Variables" },
-      { type: "code", text: "KODAI_API_KEY=sk-...\nKODAI_API_URL=https://api.kodaai.dev\nKODAI_LOG_LEVEL=debug\nKODAI_CACHE_TTL=3600\nKODAI_MAX_RETRIES=3", language: "bash" },
+      { type: "code", text: "VECTOSILOI_API_KEY=sk-...\nVECTOSILOI_API_URL=https://api.vectosiloai.dev\nVECTOSILOI_LOG_LEVEL=debug\nVECTOSILOI_CACHE_TTL=3600\nVECTOSILOI_MAX_RETRIES=3", language: "bash" },
     ],
   },
   "database-config": {
     id: "database-config",
     title: "Database Configuration",
     content: [
-      { type: "paragraph", text: "Configure database connections for KodaAI." },
+      { type: "paragraph", text: "Configure database connections for VectoSiloAI." },
       { type: "heading", text: "PostgreSQL" },
-      { type: "code", text: "DATABASE_URL=postgresql://user:password@localhost:5432/kodaai\nDATABASE_POOL_MIN=2\nDATABASE_POOL_MAX=10", language: "bash" },
+      { type: "code", text: "DATABASE_URL=postgresql://user:password@localhost:5432/vectosiloai\nDATABASE_POOL_MIN=2\nDATABASE_POOL_MAX=10", language: "bash" },
     ],
   },
   authentication: {
     id: "authentication",
     title: "Authentication",
     content: [
-      { type: "paragraph", text: "KodaAI uses API keys for authentication. All API requests must include a valid API key in the Authorization header." },
+      { type: "paragraph", text: "VectoSiloAI uses API keys for authentication. All API requests must include a valid API key in the Authorization header." },
       { type: "heading", text: "API Keys" },
-      { type: "code", text: "curl -H 'Authorization: Bearer sk-...' \\\n  https://api.kodaai.dev/v1/query", language: "bash" },
+      { type: "code", text: "curl -H 'Authorization: Bearer sk-...' \\\n  https://api.vectosiloai.dev/v1/query", language: "bash" },
       { type: "heading", text: "Rate Limits" },
       { type: "paragraph", text: "Free tier: 100 requests/hour. Pro tier: 10,000 requests/hour. Enterprise: Custom limits." },
     ],
@@ -269,7 +269,7 @@ const docContent: Record<string, DocSection> = {
     id: "rate-limiting",
     title: "Rate Limiting",
     content: [
-      { type: "paragraph", text: "KodaAI implements rate limiting to ensure fair usage and platform stability." },
+      { type: "paragraph", text: "VectoSiloAI implements rate limiting to ensure fair usage and platform stability." },
       { type: "heading", text: "Headers" },
       { type: "code", text: "X-RateLimit-Limit: 100\nX-RateLimit-Remaining: 95\nX-RateLimit-Reset: 1620000000", language: "text" },
       { type: "note", text: "When you exceed the rate limit, the API returns a 429 Too Many Requests status code." },
@@ -279,7 +279,7 @@ const docContent: Record<string, DocSection> = {
     id: "errors",
     title: "Errors",
     content: [
-      { type: "paragraph", text: "KodaAI uses conventional HTTP response codes to indicate success or failure." },
+      { type: "paragraph", text: "VectoSiloAI uses conventional HTTP response codes to indicate success or failure." },
       { type: "heading", text: "Error Codes" },
       { type: "code", text: "400 Bad Request - Invalid parameters\n401 Unauthorized - Missing or invalid API key\n429 Too Many Requests - Rate limit exceeded\n500 Internal Server Error - Server error", language: "text" },
     ],
@@ -288,9 +288,9 @@ const docContent: Record<string, DocSection> = {
     id: "basic-usage",
     title: "Basic Usage",
     content: [
-      { type: "paragraph", text: "Learn the basics of using KodaAI with simple examples." },
+      { type: "paragraph", text: "Learn the basics of using VectoSiloAI with simple examples." },
       { type: "heading", text: "Simple Query" },
-      { type: "code", text: "import { KodaAI } from '@kodaai/sdk';\n\nconst ai = new KodaAI({ apiKey: 'sk-...' });\n\nconst result = await ai.query({\n  model: 'gpt-4',\n  messages: [\n    { role: 'system', content: 'You are a helpful assistant.' },\n    { role: 'user', content: 'What is the capital of France?' },\n  ],\n});\n\nconsole.log(result.choices[0].message.content);", language: "typescript" },
+      { type: "code", text: "import { VectoSiloAI } from '@vectosiloai/sdk';\n\nconst ai = new VectoSiloAI({ apiKey: 'sk-...' });\n\nconst result = await ai.query({\n  model: 'gpt-4',\n  messages: [\n    { role: 'system', content: 'You are a helpful assistant.' },\n    { role: 'user', content: 'What is the capital of France?' },\n  ],\n});\n\nconsole.log(result.choices[0].message.content);", language: "typescript" },
     ],
   },
   "advanced-patterns": {
@@ -315,11 +315,11 @@ const docContent: Record<string, DocSection> = {
     id: "common-questions",
     title: "Common Questions",
     content: [
-      { type: "paragraph", text: "Find answers to the most frequently asked questions about KodaAI." },
-      { type: "heading", text: "Is KodaAI free to use?" },
-      { type: "paragraph", text: "Yes, KodaAI offers a free tier with limited usage. For higher limits, check our paid plans." },
-      { type: "heading", text: "Can I self-host KodaAI?" },
-      { type: "paragraph", text: "Yes, enterprise customers can self-host KodaAI using our Docker images." },
+      { type: "paragraph", text: "Find answers to the most frequently asked questions about VectoSiloAI." },
+      { type: "heading", text: "Is VectoSiloAI free to use?" },
+      { type: "paragraph", text: "Yes, VectoSiloAI offers a free tier with limited usage. For higher limits, check our paid plans." },
+      { type: "heading", text: "Can I self-host VectoSiloAI?" },
+      { type: "paragraph", text: "Yes, enterprise customers can self-host VectoSiloAI using our Docker images." },
     ],
   },
   troubleshooting: {
@@ -328,7 +328,7 @@ const docContent: Record<string, DocSection> = {
     content: [
       { type: "paragraph", text: "Common issues and their solutions." },
       { type: "heading", text: "Connection Issues" },
-      { type: "paragraph", text: "If you are experiencing connection issues, verify your API key is correct and your network allows outbound connections to api.kodaai.dev on port 443." },
+      { type: "paragraph", text: "If you are experiencing connection issues, verify your API key is correct and your network allows outbound connections to api.vectosiloai.dev on port 443." },
       { type: "heading", text: "Rate Limiting" },
       { type: "paragraph", text: "If you receive 429 errors, implement exponential backoff in your application or upgrade to a higher tier plan." },
     ],

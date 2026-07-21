@@ -1,6 +1,6 @@
 {
-  "appId": "org.hsrprojects.kodaai",
-  "appName": "KodaAI",
+  "appId": "org.hsrprojects.vectosiloai",
+  "appName": "VectoSiloAI",
   "webDir": "www",
   "server": {
     "url": "https://chat.hsrprojects.org",

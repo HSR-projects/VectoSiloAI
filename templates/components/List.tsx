@@ -41,24 +41,24 @@ const variantStyles: Record<
 > = {
   default: {
     item:
-      "flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-koda-surface",
-    icon: "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-koda-surface text-koda-accent",
-    title: "text-sm font-medium text-koda-text",
-    desc: "text-xs text-koda-muted mt-0.5",
+      "flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-vectosilo-surface",
+    icon: "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-surface text-vectosilo-accent",
+    title: "text-sm font-medium text-vectosilo-text",
+    desc: "text-xs text-vectosilo-muted mt-0.5",
   },
   compact: {
     item:
-      "flex items-center gap-2.5 rounded-md px-3 py-2 transition-colors hover:bg-koda-surface",
-    icon: "flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-koda-surface text-koda-accent",
-    title: "text-xs font-medium text-koda-text",
-    desc: "text-[11px] text-koda-muted mt-0.5",
+      "flex items-center gap-2.5 rounded-md px-3 py-2 transition-colors hover:bg-vectosilo-surface",
+    icon: "flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-vectosilo-surface text-vectosilo-accent",
+    title: "text-xs font-medium text-vectosilo-text",
+    desc: "text-[11px] text-vectosilo-muted mt-0.5",
   },
   card: {
     item:
-      "flex items-center gap-4 rounded-xl border border-koda-border p-4 transition-colors hover:bg-koda-surface/60",
-    icon: "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-koda-surface text-koda-accent",
-    title: "text-sm font-semibold text-koda-text",
-    desc: "text-xs text-koda-muted mt-1",
+      "flex items-center gap-4 rounded-xl border border-vectosilo-border p-4 transition-colors hover:bg-vectosilo-surface/60",
+    icon: "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-vectosilo-surface text-vectosilo-accent",
+    title: "text-sm font-semibold text-vectosilo-text",
+    desc: "text-xs text-vectosilo-muted mt-1",
   },
 };
 

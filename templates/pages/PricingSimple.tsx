@@ -188,7 +188,7 @@ export default function PricingSimple() {
 
         <footer className="border-t border-[#424242] bg-[#2f2f2f] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} KodaAI. All rights reserved.
+            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
           </div>
         </footer>
       </div>

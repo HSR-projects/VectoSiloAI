@@ -29,7 +29,7 @@ function CheckoutContent() {
     const key = searchParams.get("key");
     const amount = searchParams.get("amount");
     const currency = searchParams.get("currency") || "INR";
-    const name = searchParams.get("name") || "Koda AI";
+    const name = searchParams.get("name") || "VectoSilo AI";
     const description = searchParams.get("description") || "";
     const prefillEmail = searchParams.get("email") || undefined;
 

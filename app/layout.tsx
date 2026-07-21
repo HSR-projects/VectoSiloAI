@@ -6,10 +6,10 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthGate } from "@/components/auth/AuthGate";
 
 export const metadata: Metadata = {
-  title: "Koda AI — Private AI Search",
+  title: "VectoSilo AI — Private AI Search",
   description:
-    "Privacy-first AI search and chat by Koda AI. No OpenAI, no Anthropic, no telemetry.",
-  icons: { icon: "/koda-logo.svg" },
+    "Privacy-first AI search and chat by VectoSilo AI. No OpenAI, no Anthropic, no telemetry.",
+  icons: { icon: "/vectosilo-logo.svg" },
 };
 
 // `viewport-fit=cover` lets the app extend under the iOS notch/home indicator so

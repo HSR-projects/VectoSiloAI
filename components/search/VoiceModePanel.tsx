@@ -290,9 +290,9 @@ export function VoiceModePanel({
       exit={{ opacity: 0, y: 20, height: 0 }}
       className={cn('w-full max-w-2xl mx-auto mb-4 overflow-hidden', className)}
     >
-      <div className="relative rounded-2xl border border-koda-border bg-koda-surface overflow-hidden">
+      <div className="relative rounded-2xl border border-vectosilo-border bg-vectosilo-surface overflow-hidden">
         {/* 3D Robot + Bubbles */}
-        <div className="relative h-[320px] bg-gradient-to-b from-koda-surface-2 to-koda-surface">
+        <div className="relative h-[320px] bg-gradient-to-b from-vectosilo-surface-2 to-vectosilo-surface">
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="w-full h-full"
@@ -312,13 +312,13 @@ export function VoiceModePanel({
                   bubble.type === 'error'
                     ? 'bg-red-500/90 text-white'
                     : bubble.type === 'user'
-                      ? 'bg-koda-surface-2 text-koda-text border border-koda-border ml-auto'
+                      ? 'bg-vectosilo-surface-2 text-vectosilo-text border border-vectosilo-border ml-auto'
                       : bubble.type === 'think'
                         ? 'bg-white/10 text-neutral-200 border border-white/20 backdrop-blur-sm'
-                        : 'bg-koda-accent text-white'
+                        : 'bg-vectosilo-accent text-white'
                 )}
               >
-                {bubble.type === 'user' && <span className="text-[10px] text-koda-muted block mb-1">You said:</span>}
+                {bubble.type === 'user' && <span className="text-[10px] text-vectosilo-muted block mb-1">You said:</span>}
                 <p className="leading-relaxed">{bubble.text}</p>
               </motion.div>
             )}
@@ -326,17 +326,17 @@ export function VoiceModePanel({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-koda-border">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-vectosilo-border">
           <div className="flex items-center gap-2">
             <span className={cn(
               'h-2 w-2 rounded-full',
               state === 'listening' ? 'bg-green-400 animate-pulse' :
-              state === 'speaking' ? 'bg-koda-accent animate-pulse' :
+              state === 'speaking' ? 'bg-vectosilo-accent animate-pulse' :
               state === 'thinking' ? 'bg-yellow-400 animate-pulse' :
               state === 'error' ? 'bg-red-400' :
               'bg-neutral-500'
             )} />
-            <span className="text-xs text-koda-muted">{statusText}</span>
+            <span className="text-xs text-vectosilo-muted">{statusText}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export function VoiceModePanel({
                   'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
                   state === 'listening'
                     ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-koda-accent text-white hover:bg-koda-accent-soft'
+                    : 'bg-vectosilo-accent text-white hover:bg-vectosilo-accent-soft'
                 )}
               >
                 <MicOff className="h-5 w-5" />
@@ -355,13 +355,13 @@ export function VoiceModePanel({
             )}
             {(state === 'thinking' || state === 'greeting' || state === 'speaking') && (
               <div className="flex h-10 w-10 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-koda-accent" />
+                <Loader2 className="h-5 w-5 animate-spin text-vectosilo-accent" />
               </div>
             )}
 
             <button
               onClick={endSession}
-              className="flex items-center gap-1.5 rounded-lg border border-koda-border bg-koda-surface-2 px-3 py-2 text-xs text-koda-muted hover:bg-koda-border hover:text-koda-text transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-xs text-vectosilo-muted hover:bg-vectosilo-border hover:text-vectosilo-text transition-colors"
             >
               <PhoneOff className="h-3.5 w-3.5" />
               End

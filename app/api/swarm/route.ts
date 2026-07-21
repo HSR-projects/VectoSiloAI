@@ -2,7 +2,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { effectiveCaps } from "@/lib/plans";
 import { chatStream, DEFAULT_MODEL } from "@/lib/ollama";
 import { searchWeb } from "@/lib/searxng";
-import { scrapeUrls } from "@/lib/scraper";
 import {
   BEHAVIORAL_INSTRUCTIONS,
   buildSourceContext,
@@ -30,7 +29,7 @@ const CODING_SPECIALISTS: CodingSpecialistDef[] = [
     label: "Researcher",
     recommendedModel: "gpt-oss:20b",
     systemPrompt: (q) =>
-      `You are the Researcher in a KodaAI Coding Swarm building: "${q}".\n` +
+      `You are the Researcher in a VectoSiloAI Coding Swarm building: "${q}".\n` +
       "Your job: search the web for relevant documentation, examples, and best practices " +
       "for this project. Read the provided source materials carefully. " +
       "Identify the programming language, key libraries/algorithms, and build system needed. " +
@@ -47,9 +46,9 @@ const CODING_SPECIALISTS: CodingSpecialistDef[] = [
     label: "Architect",
     recommendedModel: "nemotron3-ultra",
     systemPrompt: (q) =>
-      `You are the Architect in a KodaAI Coding Swarm building: "${q}".\n` +
+      `You are the Architect in a VectoSiloAI Coding Swarm building: "${q}".\n` +
       "Based on the researcher's findings, design the project structure.\n" +
-      "Output ONLY <koda-file> blocks for the project skeleton:\n" +
+      "Output ONLY <vectosilo-file> blocks for the project skeleton:\n" +
       "  • For C: Makefile or CMakeLists.txt, main.c, header files\n" +
       "  • For Python: requirements.txt, main.py, module files\n" +
       "  • For Node.js: package.json, entry point files\n" +
@@ -61,9 +60,9 @@ const CODING_SPECIALISTS: CodingSpecialistDef[] = [
     label: "Developer",
     recommendedModel: "nemotron3-ultra",
     systemPrompt: (q) =>
-      `You are the Developer in a KodaAI Coding Swarm building: "${q}".\n` +
+      `You are the Developer in a VectoSiloAI Coding Swarm building: "${q}".\n` +
       "Your job: write the actual implementation files — all the logic, functions, and modules. " +
-      "Output ONLY <koda-file path=\"...\">...</koda-file> blocks with complete, " +
+      "Output ONLY <vectosilo-file path=\"...\">...</vectosilo-file> blocks with complete, " +
       "working code. Make it production-quality: proper error handling, clean code, " +
       "good comments. Use standard library functions where possible; avoid unnecessary dependencies.\n" +
       "Output ONLY the raw file blocks — no prose, no fences.",
@@ -71,27 +70,27 @@ const CODING_SPECIALISTS: CodingSpecialistDef[] = [
 ];
 
 const CODING_SYNTH_SYSTEM =
-  "You are the Integrator in a KodaAI Coding Swarm. " +
+  "You are the Integrator in a VectoSiloAI Coding Swarm. " +
   "A Researcher, an Architect, and a Developer have each contributed to a coding project. " +
   "Your job: merge everything into one complete, working project.\n" +
   "Rules:\n" +
   "1. Emit `[[computer:Project Title]]` as the VERY FIRST characters.\n" +
-  "2. Output every file from all three specialists using <koda-file path=\"...\">...</koda-file> tags. " +
+  "2. Output every file from all three specialists using <vectosilo-file path=\"...\">...</vectosilo-file> tags. " +
   "If files overlap, use the most complete version.\n" +
   "3. After the files, emit the shell commands needed to build and run the project as " +
-  "<koda-cmd>command</koda-cmd> tags, in order. You decide the commands based on the project " +
+  "<vectosilo-cmd>command</vectosilo-cmd> tags, in order. You decide the commands based on the project " +
   "type and language — the sandbox supports gcc, g++, python3, node, npm, make, pip, and standard Unix tools.\n" +
   "4. End with 1-2 short sentences describing what was built.\n" +
-  "Never show, mention, or explain the directive or koda tags.";
+  "Never show, mention, or explain the directive or vectosilo tags.";
 
 const COMPUTER_SPECIALISTS: CodingSpecialistDef[] = [
   {
     role: "researcher",
     label: "Architect",
     systemPrompt: (q) =>
-      `You are the Architect in a KodaAI Computer Swarm building: "${q}"\n` +
+      `You are the Architect in a VectoSiloAI Computer Swarm building: "${q}"\n` +
       "Your job: write ONLY the project skeleton files.\n" +
-      "Output EXACTLY these files using <koda-file path=\"...\">...</koda-file> tags:\n" +
+      "Output EXACTLY these files using <vectosilo-file path=\"...\">...</vectosilo-file> tags:\n" +
       "  • package.json (with name, version, scripts, dependencies — react + react-dom + vite)\n" +
       "  • vite.config.js\n" +
       "  • index.html (Vite entry, loads /src/main.jsx)\n" +
@@ -102,9 +101,9 @@ const COMPUTER_SPECIALISTS: CodingSpecialistDef[] = [
     role: "analyst",
     label: "UI Developer",
     systemPrompt: (q) =>
-      `You are the UI Developer in a KodaAI Computer Swarm building: "${q}"\n` +
+      `You are the UI Developer in a VectoSiloAI Computer Swarm building: "${q}"\n` +
       "Your job: write ONLY the main React component(s).\n" +
-      "Output ONLY <koda-file path=\"src/App.jsx\">...</koda-file> " +
+      "Output ONLY <vectosilo-file path=\"src/App.jsx\">...</vectosilo-file> " +
       "(and any additional src/components/*.jsx files if needed).\n" +
       "The component should be complete, functional, and well-structured.\n" +
       "Import styles from './index.css'. Use React hooks as needed.\n" +
@@ -114,9 +113,9 @@ const COMPUTER_SPECIALISTS: CodingSpecialistDef[] = [
     role: "critic",
     label: "Stylist",
     systemPrompt: (q) =>
-      `You are the Stylist in a KodaAI Computer Swarm building: "${q}"\n` +
+      `You are the Stylist in a VectoSiloAI Computer Swarm building: "${q}"\n` +
       "Your job: write ONLY the CSS styling.\n" +
-      "Output ONLY <koda-file path=\"src/index.css\">...</koda-file> " +
+      "Output ONLY <vectosilo-file path=\"src/index.css\">...</vectosilo-file> " +
       "(and optionally src/App.css).\n" +
       "Make it beautiful: modern design, good typography, responsive layout, " +
       "attractive color palette, hover states, smooth transitions.\n" +
@@ -125,17 +124,17 @@ const COMPUTER_SPECIALISTS: CodingSpecialistDef[] = [
 ];
 
 const COMPUTER_SYNTH_SYSTEM =
-  "You are the Integrator in a KodaAI Computer Swarm. " +
+  "You are the Integrator in a VectoSiloAI Computer Swarm. " +
   "Three specialists — an Architect, a UI Developer, and a Stylist — have each written " +
-  "their portion of a React/Vite project as <koda-file> blocks. " +
+  "their portion of a React/Vite project as <vectosilo-file> blocks. " +
   "Your job: merge ALL their files into one complete, working project.\n" +
   "Rules:\n" +
   "1. Emit `[[computer:Project Title]]` as the VERY FIRST characters.\n" +
-  "2. Output every file from all three specialists using <koda-file path=\"...\">...</koda-file> tags. " +
+  "2. Output every file from all three specialists using <vectosilo-file path=\"...\">...</vectosilo-file> tags. " +
   "If files overlap, use the most complete version (prefer UI Dev's App.jsx over Architect's).\n" +
-  "3. After the files, emit: <koda-cmd>npm install</koda-cmd><koda-cmd>npm run dev</koda-cmd>\n" +
+  "3. After the files, emit: <vectosilo-cmd>npm install</vectosilo-cmd><vectosilo-cmd>npm run dev</vectosilo-cmd>\n" +
   "4. End with 1-2 short sentences describing what was built.\n" +
-  "Never show, mention, or explain the directive or koda tags.";
+  "Never show, mention, or explain the directive or vectosilo tags.";
 
 interface SpecialistDef {
   role: Exclude<SwarmAgentRole, "synthesizer">;
@@ -150,7 +149,7 @@ const SPECIALISTS: SpecialistDef[] = [
     label: "Deep Researcher",
     searchQuery: (q) => q,
     systemPrompt:
-      "You are the Deep Researcher in a KodaAI Agent Swarm. " +
+      "You are the Deep Researcher in a VectoSiloAI Agent Swarm. " +
       "Your job is exhaustive fact-finding. Search multiple angles of the topic and surface concrete data: " +
       "numbers, dates, names, studies, statistics, direct quotes from primary sources. " +
       "Do NOT editorialize — stick to verifiable information. " +
@@ -162,7 +161,7 @@ const SPECIALISTS: SpecialistDef[] = [
     label: "Reasoner",
     searchQuery: (q) => `${q} mechanisms causes implications underlying factors`,
     systemPrompt:
-      "You are the Reasoner in a KodaAI Agent Swarm. " +
+      "You are the Reasoner in a VectoSiloAI Agent Swarm. " +
       "You think in first principles and logical chains. Do NOT just restate facts — explain the WHY behind them. " +
       "Break down root causes, trace cause-and-effect chains, identify hidden assumptions, and reason step by step to conclusions. " +
       "Use structured thinking: hypothesis → evidence → conclusion. Challenge surface-level narratives. " +
@@ -173,7 +172,7 @@ const SPECIALISTS: SpecialistDef[] = [
     label: "Media Scout",
     searchQuery: (q) => `${q} news coverage public opinion narrative media`,
     systemPrompt:
-      "You are the Media Scout in a KodaAI Agent Swarm. " +
+      "You are the Media Scout in a VectoSiloAI Agent Swarm. " +
       "Your job is to map how this topic is covered, framed, and debated in public discourse. " +
       "What is the dominant narrative? What are competing narratives? Who is pushing each angle? " +
       "What is underreported or sensationalized? What do different audiences believe? " +
@@ -184,7 +183,7 @@ const SPECIALISTS: SpecialistDef[] = [
 ];
 
 const SYNTH_SYSTEM =
-  "You are the Synthesizer in a KodaAI Agent Swarm. " +
+  "You are the Synthesizer in a VectoSiloAI Agent Swarm. " +
   "Three specialist agents — a Deep Researcher, a Reasoner, and a Media Scout — have each written a report on the user's query. " +
   "Your job: weave their findings into one authoritative, well-structured answer in markdown. " +
   "Lead with the strongest insight. Layer in research facts, the logical reasoning behind them, and the media/public context. " +
@@ -221,6 +220,7 @@ function resolveAgentModel(
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   const caps = effectiveCaps(user?.plan ?? "free");
+  const scrapeUrls = (urls: string[]) => import("@/lib/scraper").then(m => m.scrapeUrls(urls));
 
   if (!caps.swarm) {
     return new Response(
@@ -338,7 +338,7 @@ export async function POST(req: Request) {
               push({ type: "specialist_token", agentId: agent.id, content: token });
             }
             reports.push({ label: spec.label, output });
-            const fileCount = (output.match(/<koda-file/g) || []).length;
+            const fileCount = (output.match(/<vectosilo-file/g) || []).length;
             push({ type: "agent_update", agentId: agent.id, status: "done", output, sourceCount: fileCount || 1 });
           } catch {
             push({ type: "agent_update", agentId: agent.id, status: "error" });
@@ -385,7 +385,7 @@ export async function POST(req: Request) {
                 push({ type: "specialist_token", agentId: agent.id, content: token });
               }
               reports.push({ label: spec.label, output });
-              const fileCount = (output.match(/<koda-file/g) || []).length;
+              const fileCount = (output.match(/<vectosilo-file/g) || []).length;
               push({ type: "agent_update", agentId: agent.id, status: "done", output, sourceCount: fileCount });
             } catch {
               push({ type: "agent_update", agentId: agent.id, status: "error" });
@@ -398,7 +398,7 @@ export async function POST(req: Request) {
         const integratorMsg =
           `Project: "${query}"\n\n` +
           reports.map((r) => `=== ${r.label} ===\n${r.output}`).join("\n\n") +
-          `\n\nMerge all the above <koda-file> blocks into one complete [[computer:${query.slice(0, 40)}]] project. Output the directive + all files + commands.`;
+          `\n\nMerge all the above <vectosilo-file> blocks into one complete [[computer:${query.slice(0, 40)}]] project. Output the directive + all files + commands.`;
         try {
           for await (const token of chatStream({
             model: synthAgent.model || model,

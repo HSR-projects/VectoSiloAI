@@ -17,7 +17,7 @@ import { useBindings } from "../keymap"
 import { useClipboard } from "../context/clipboard"
 
 const PROVIDER_PRIORITY: Record<string, number> = {
-  kodaai: 0,
+  vectosiloai: 0,
 }
 
 const CUSTOM_PROVIDER_OPTION_VALUE = "__koder_custom_provider__"
@@ -41,15 +41,15 @@ type ProviderOption =
 
 export function providerOptions(list: { id: string; name: string }[]): ProviderOption[] {
   return pipe(
-    list.filter((provider) => provider.id === "kodaai"),
+    list.filter((provider) => provider.id === "vectosiloai"),
     sortBy((x) => PROVIDER_PRIORITY[x.id] ?? 99),
     map((provider) => ({
       type: "provider" as const,
-      title: "KodaAI",
+      title: "VectoSiloAI",
       value: provider.id,
       providerID: provider.id,
-      description: "Use Account login or a KodaAI API key from chat.hsrprojects.org",
-      category: "KodaAI",
+      description: "Use Account login or a VectoSiloAI API key from chat.hsrprojects.org",
+      category: "VectoSiloAI",
     })),
   )
 }
@@ -73,7 +73,7 @@ export function createDialogProviderOptions() {
       placeholder: "Provider id",
       description: () => (
         <text fg={theme.textMuted}>
-          Koder only supports KodaAI credentials.
+          Koder only supports VectoSiloAI credentials.
         </text>
       ),
     })

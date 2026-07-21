@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, CornerDownLeft, MessageSquare, X } from "lucide-react";
-import { useKodaStore } from "@/lib/store";
+import { useVectoSiloStore } from "@/lib/store";
 import { relativeTime, cn } from "@/lib/utils";
 import type { Thread } from "@/types";
 
@@ -21,10 +21,10 @@ interface Hit {
  */
 export function ThreadSearch() {
   const router = useRouter();
-  const open = useKodaStore((s) => s.searchOpen);
-  const setOpen = useKodaStore((s) => s.setSearchOpen);
-  const threads = useKodaStore((s) => s.threads);
-  const setActiveThread = useKodaStore((s) => s.setActiveThread);
+  const open = useVectoSiloStore((s) => s.searchOpen);
+  const setOpen = useVectoSiloStore((s) => s.setSearchOpen);
+  const threads = useVectoSiloStore((s) => s.threads);
+  const setActiveThread = useVectoSiloStore((s) => s.setActiveThread);
 
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
@@ -35,7 +35,7 @@ export function ThreadSearch() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen(!useKodaStore.getState().searchOpen);
+        setOpen(!useVectoSiloStore.getState().searchOpen);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -114,22 +114,22 @@ export function ThreadSearch() {
             exit={{ opacity: 0, scale: 0.97, y: -8 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-xl overflow-hidden rounded-2xl border border-koda-border bg-koda-surface shadow-2xl"
+            className="w-full max-w-xl overflow-hidden rounded-2xl border border-vectosilo-border bg-vectosilo-surface shadow-2xl"
           >
-            <div className="flex items-center gap-3 border-b border-koda-border px-4">
-              <Search className="h-5 w-5 shrink-0 text-koda-muted" />
+            <div className="flex items-center gap-3 border-b border-vectosilo-border px-4">
+              <Search className="h-5 w-5 shrink-0 text-vectosilo-muted" />
               <input
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Search your chats…"
-                className="flex-1 bg-transparent py-4 text-[15px] text-koda-text placeholder:text-koda-muted focus:outline-none"
+                className="flex-1 bg-transparent py-4 text-[15px] text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none"
               />
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close search"
-                className="rounded-md p-1 text-koda-muted hover:bg-koda-surface-2 hover:text-koda-text"
+                className="rounded-md p-1 text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -137,7 +137,7 @@ export function ThreadSearch() {
 
             <div className="max-h-[50vh] overflow-y-auto p-2 [scrollbar-width:thin]">
               {hits.length === 0 ? (
-                <p className="px-3 py-8 text-center text-sm text-koda-muted">
+                <p className="px-3 py-8 text-center text-sm text-vectosilo-muted">
                   {threads.length === 0 ? "No chats yet." : "No matching chats."}
                 </p>
               ) : (
@@ -149,20 +149,20 @@ export function ThreadSearch() {
                         onClick={() => go(hit.thread)}
                         className={cn(
                           "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
-                          i === active ? "bg-koda-surface-2" : "hover:bg-koda-surface-2/60"
+                          i === active ? "bg-vectosilo-surface-2" : "hover:bg-vectosilo-surface-2/60"
                         )}
                       >
-                        <MessageSquare className="h-4 w-4 shrink-0 text-koda-muted" />
+                        <MessageSquare className="h-4 w-4 shrink-0 text-vectosilo-muted" />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm text-koda-text">
+                          <span className="block truncate text-sm text-vectosilo-text">
                             {hit.thread.title}
                           </span>
-                          <span className="block truncate text-xs text-koda-muted">
+                          <span className="block truncate text-xs text-vectosilo-muted">
                             {hit.snippet || relativeTime(hit.thread.updatedAt)}
                           </span>
                         </span>
                         {i === active && (
-                          <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-koda-muted" />
+                          <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-vectosilo-muted" />
                         )}
                       </button>
                     </li>
@@ -171,7 +171,7 @@ export function ThreadSearch() {
               )}
             </div>
 
-            <div className="flex items-center justify-between border-t border-koda-border px-4 py-2 text-[11px] text-koda-muted">
+            <div className="flex items-center justify-between border-t border-vectosilo-border px-4 py-2 text-[11px] text-vectosilo-muted">
               <span>↑↓ to navigate · ↵ to open · esc to close</span>
               <span>⌘K</span>
             </div>

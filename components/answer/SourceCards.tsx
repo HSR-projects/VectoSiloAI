@@ -19,14 +19,14 @@ function SourceCard({ source, index }: { source: Source; index: number }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.25 }}
-      className="group flex w-56 shrink-0 flex-col gap-2 rounded-xl border border-koda-border bg-koda-surface p-3 transition-colors hover:border-koda-accent/50 hover:bg-koda-surface-2"
+      className="group flex w-56 shrink-0 flex-col gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-3 transition-colors hover:border-vectosilo-accent/50 hover:bg-vectosilo-surface-2"
     >
       <div className="flex items-center gap-2">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-koda-accent/15 text-[11px] font-semibold text-koda-accent-soft">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vectosilo-accent/15 text-[11px] font-semibold text-vectosilo-accent-soft">
           {index + 1}
         </span>
         {imgError ? (
-          <Globe className="h-4 w-4 text-koda-muted" />
+          <Globe className="h-4 w-4 text-vectosilo-muted" />
         ) : (
           <Image
             src={faviconUrl(source.url)}
@@ -38,13 +38,13 @@ function SourceCard({ source, index }: { source: Source; index: number }) {
             unoptimized
           />
         )}
-        <span className="truncate text-xs text-koda-muted">{domain}</span>
+        <span className="truncate text-xs text-vectosilo-muted">{domain}</span>
       </div>
-      <p className="line-clamp-2 text-sm font-medium leading-snug text-koda-text group-hover:text-koda-accent-soft">
+      <p className="line-clamp-2 text-sm font-medium leading-snug text-vectosilo-text group-hover:text-vectosilo-accent-soft">
         {source.title}
       </p>
       {source.snippet && (
-        <p className="line-clamp-2 text-xs text-koda-muted">{source.snippet}</p>
+        <p className="line-clamp-2 text-xs text-vectosilo-muted">{source.snippet}</p>
       )}
     </motion.a>
   );
@@ -54,10 +54,10 @@ export function SourceCards({ sources }: { sources: Source[] }) {
   if (!sources.length) return null;
   return (
     <div className="mb-4">
-      <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-koda-muted">
+      <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-vectosilo-muted">
         <Globe className="h-3.5 w-3.5" />
         Sources
-        <span className="text-koda-muted/60">· {sources.length}</span>
+        <span className="text-vectosilo-muted/60">· {sources.length}</span>
       </div>
       <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 [scrollbar-width:thin]">
         {sources.map((s, i) => (

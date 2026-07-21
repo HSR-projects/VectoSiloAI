@@ -102,7 +102,7 @@ OpenCode se može pokrenuti sljedećim GitHub događajima:
 | Vrsta događaja | Pokrenuo | Detalji
 |----------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `issue_comment` | Komentirajte problem ili PR | Navedite `/opencode` ili `/oc` u svom komentaru. OpenCode čita kontekst i može kreirati grane, otvarati PR-ove ili odgovarati. |
-| `pull_request_review_comment` | Komentirajte određene linije koda u PR-u | Navedite `/opencode` ili `/oc` dok pregledavate kod. OpenCode prima putanju datoteke, brojeve redova i kontekst razlike. |
+| `pull_request_review_comment` | Komentirajte određene linije vectosilo u PR-u | Navedite `/opencode` ili `/oc` dok pregledavate kod. OpenCode prima putanju datoteke, brojeve redova i kontekst razlike. |
 | `issues` | Broj otvoren ili uređen | Automatski pokrenite OpenCode kada se problemi kreiraju ili modificiraju. Zahtijeva `prompt` unos. |
 | `pull_request` | PR otvoren ili ažuriran | Automatski pokrenite OpenCode kada se PR-ovi otvore, sinkroniziraju ili ponovo otvore. Korisno za automatske recenzije. |
 | `schedule` | Cron baziran raspored | Pokrenite OpenCode prema rasporedu. Zahtijeva `prompt` unos. Izlaz ide u dnevnike i PR-ove (nema problema za komentarisanje). |
@@ -294,8 +294,8 @@ I OpenCode će kreirati novu granu, implementirati promjene i otvoriti PR sa pro
 
 OpenCode će implementirati traženu promjenu i posvetiti je istom PR-u.
 
-- **Pregledajte određene linije koda**
-  Ostavite komentar direktno na linije koda u PR kartici "Files". OpenCode automatski detektuje datoteku, brojeve redova i kontekst razlike kako bi pružio precizne odgovore.
+- **Pregledajte određene linije vectosilo**
+  Ostavite komentar direktno na linije vectosilo u PR kartici "Files". OpenCode automatski detektuje datoteku, brojeve redova i kontekst razlike kako bi pružio precizne odgovore.
 
 ```
   [Comment on specific lines in Files tab]
@@ -305,7 +305,7 @@ OpenCode će implementirati traženu promjenu i posvetiti je istom PR-u.
 Kada komentarišete određene linije, OpenCode prima:
 
 - Tačan fajl se pregleda
-- Specifične linije koda
+- Specifične linije vectosilo
 - Okolni diff kontekst
 - Informacije o broju linije
   Ovo omogućava više ciljanih zahtjeva bez potrebe za ručno specificiranjem putanja datoteka ili brojeva linija.
