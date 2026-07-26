@@ -118,7 +118,7 @@ export async function POST(req: Request) {
   const hasImageAttachments = Array.isArray(images) && images.length > 0;
   const caps = effectiveCaps(userPlan);
   const model = hasImageAttachments
-    ? "gemma4:31b"
+    ? "meta/llama-3.2-90b-vision-instruct"
     : caps.allModels
       ? (requestedModel === "auto" ? DEFAULT_MODEL : requestedModel)
       : DEFAULT_MODEL;
@@ -191,7 +191,7 @@ export async function POST(req: Request) {
   }
 
   if (hasImageAttachments) {
-    systemPrompt += `\n\n[Vision System Instruction: The user has attached image(s) to this turn. You are a vision-capable model (gemma4:31b). View, analyze, and describe the attached image(s) directly and accurately. Never refuse or say you cannot see the image.]`;
+    systemPrompt += `\n\n[Vision System Instruction: The user has attached image(s) to this turn. You are a vision-capable model. View, analyze, and describe the attached image(s) directly and accurately. Never refuse or say you cannot see the image.]`;
   }
 
   systemPrompt += `\n\n${STOCK_INSTRUCTIONS}`;

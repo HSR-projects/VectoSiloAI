@@ -54,13 +54,12 @@ function difficultyLabel(n: number): string {
 
 const PLAN_LABEL: Record<string, string> = { free: "Free", pro: "Pro", max: "Max" };
 
-type TabId = "general" | "personalization" | "model" | "developer" | "game" | "integrations" | "whatsapp" | "data" | "account";
+type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "whatsapp" | "data" | "account";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "general", label: "General", icon: <SlidersHorizontal className="h-4 w-4" /> },
   { id: "personalization", label: "Personalization", icon: <Palette className="h-4 w-4" /> },
   { id: "model", label: "Model", icon: <Cpu className="h-4 w-4" /> },
-  { id: "developer", label: "Developer Mode", icon: <Code2 className="h-4 w-4" /> },
   { id: "game", label: "Chess", icon: <Swords className="h-4 w-4" /> },
   { id: "integrations", label: "Integrations", icon: <Blocks className="h-4 w-4" /> },
   { id: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-4 w-4" /> },
@@ -412,10 +411,10 @@ export function SettingsModal() {
               {caps.allModels ? (
                 <div className="grid max-h-[420px] gap-1 overflow-y-auto rounded-xl border border-incogni-border bg-incogni-surface-2 p-1 [scrollbar-width:thin]">
                   <ModelRow active={selectedModel === AUTO_MODEL} onClick={() => setSelectedModel(AUTO_MODEL)} icon={<Sparkles className="h-3.5 w-3.5 text-incogni-accent" />} title="Auto" sub="Best model per task" />
-                  {(availableModels || []).length === 0 && !loading && (
+                  {(Array.isArray(availableModels) ? availableModels : []).length === 0 && !loading && (
                     <p className="px-2 py-1.5 text-xs text-incogni-muted">No models found — check your Incogni AI configuration.</p>
                   )}
-                  {(availableModels || []).map((m) => (
+                  {(Array.isArray(availableModels) ? availableModels : []).map((m) => (
                     <ModelRow key={m} active={m === selectedModel} onClick={() => setSelectedModel(m)} title={modelLabel(m)} />
                   ))}
                 </div>
@@ -433,277 +432,6 @@ export function SettingsModal() {
                   </button>
                 </div>
               )}
-            </div>
-          )}
-          {tab === "developer" && (
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between rounded-xl border border-incogni-border bg-incogni-surface-2 p-3.5 shadow-sm">
-                <div>
-                  <h3 className="text-sm font-semibold text-incogni-text flex items-center gap-1.5">
-                    <Code2 className="h-4 w-4 text-incogni-accent" />
-                    Developer Mode
-                  </h3>
-                  <p className="mt-0.5 text-xs text-incogni-muted">
-                    Unlock third-party cloud models (OpenAI, Anthropic, Gemini, DeepSeek, Meta Llama) using custom API keys.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={developerMode}
-                  onClick={() => setDeveloperMode(!developerMode)}
-                  className={cn(
-                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                    developerMode ? "bg-incogni-accent" : "bg-incogni-border"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                      developerMode ? "translate-x-5" : "translate-x-0"
-                    )}
-                  />
-                </button>
-              </div>
-
-              {developerMode && (
-                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-                  <div>
-                    <span className="font-semibold">NOTE:</span> Using Third-Party Providers (OpenAI, Anthropic, Google Gemini, OpenRouter) may put your data at risk as queries leave Incogni AI&apos;s private zero-data-leak infrastructure and use external APIs.
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-incogni-muted flex items-center gap-1.5 pt-1">
-                  <Key className="h-3.5 w-3.5 text-incogni-accent" />
-                  Third-Party API Keys
-                </h4>
-
-                <div className="space-y-3.5">
-                  {/* OpenAI Key */}
-                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
-                        OpenAI API Key
-                        {openaiApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
-                      </label>
-                      {savedKeySuccess === "openai" && (
-                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type={showKeys["openai"] ? "text" : "password"}
-                          placeholder="sk-proj-..."
-                          value={openaiApiKey}
-                          onChange={(e) => setOpenaiApiKey(e.target.value)}
-                          disabled={!developerMode}
-                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowKey("openai")}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
-                        >
-                          {showKeys["openai"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveSingleKey("openai")}
-                        disabled={!developerMode || !openaiApiKey.trim()}
-                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
-                      >
-                        Save
-                      </button>
-                      {openaiApiKey && (
-                        <button
-                          type="button"
-                          onClick={() => { setOpenaiApiKey(""); handleSaveSingleKey("openai_cleared"); }}
-                          title="Delete OpenAI Key"
-                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Anthropic Key */}
-                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
-                        Anthropic Claude API Key
-                        {anthropicApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
-                      </label>
-                      {savedKeySuccess === "anthropic" && (
-                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type={showKeys["anthropic"] ? "text" : "password"}
-                          placeholder="sk-ant-api03-..."
-                          value={anthropicApiKey}
-                          onChange={(e) => setAnthropicApiKey(e.target.value)}
-                          disabled={!developerMode}
-                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowKey("anthropic")}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
-                        >
-                          {showKeys["anthropic"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveSingleKey("anthropic")}
-                        disabled={!developerMode || !anthropicApiKey.trim()}
-                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
-                      >
-                        Save
-                      </button>
-                      {anthropicApiKey && (
-                        <button
-                          type="button"
-                          onClick={() => { setAnthropicApiKey(""); handleSaveSingleKey("anthropic_cleared"); }}
-                          title="Delete Anthropic Key"
-                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Gemini Key */}
-                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
-                        Google Gemini API Key
-                        {geminiApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
-                      </label>
-                      {savedKeySuccess === "gemini" && (
-                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type={showKeys["gemini"] ? "text" : "password"}
-                          placeholder="AIzaSy..."
-                          value={geminiApiKey}
-                          onChange={(e) => setGeminiApiKey(e.target.value)}
-                          disabled={!developerMode}
-                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowKey("gemini")}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
-                        >
-                          {showKeys["gemini"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveSingleKey("gemini")}
-                        disabled={!developerMode || !geminiApiKey.trim()}
-                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
-                      >
-                        Save
-                      </button>
-                      {geminiApiKey && (
-                        <button
-                          type="button"
-                          onClick={() => { setGeminiApiKey(""); handleSaveSingleKey("gemini_cleared"); }}
-                          title="Delete Gemini Key"
-                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* OpenRouter Key */}
-                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
-                        OpenRouter / DeepSeek API Key
-                        {openrouterApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
-                      </label>
-                      {savedKeySuccess === "openrouter" && (
-                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type={showKeys["openrouter"] ? "text" : "password"}
-                          placeholder="sk-or-v1-..."
-                          value={openrouterApiKey}
-                          onChange={(e) => setOpenrouterApiKey(e.target.value)}
-                          disabled={!developerMode}
-                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowKey("openrouter")}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
-                        >
-                          {showKeys["openrouter"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveSingleKey("openrouter")}
-                        disabled={!developerMode || !openrouterApiKey.trim()}
-                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
-                      >
-                        Save
-                      </button>
-                      {openrouterApiKey && (
-                        <button
-                          type="button"
-                          onClick={() => { setOpenrouterApiKey(""); handleSaveSingleKey("openrouter_cleared"); }}
-                          title="Delete OpenRouter Key"
-                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Save & Continue / Clear All Action Bar */}
-                <div className="pt-3 border-t border-incogni-border/60 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={handleClearAllKeys}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/15 transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Clear All Keys
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSettingsOpen(false)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2 text-xs font-semibold text-black hover:bg-incogni-accent-soft shadow-sm transition-all"
-                  >
-                    Save & Continue
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
             </div>
           )}
 

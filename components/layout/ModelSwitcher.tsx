@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Cpu, Loader2, Lock, Sparkles, Check, Plus, Trash2, EyeOff, Bot } from "lucide-react";
+import { ChevronDown, Loader2, Lock, Check, ChevronRight } from "lucide-react";
 import { useModels } from "@/hooks/useModels";
 import { useIncogniStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { modelLabel } from "@/lib/utils";
+import { modelLabel, cn } from "@/lib/utils";
 import { AUTO_MODEL } from "@/lib/autoModel";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 
 export function ModelSwitcher() {
@@ -34,80 +37,123 @@ export function ModelSwitcher() {
     return (
       <button
         onClick={() => router.push("/pricing")}
-        className="inline-flex items-center gap-1.5 px-2 py-1 text-lg font-semibold text-incogni-text transition-colors hover:bg-incogni-surface-2 rounded-lg"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-incogni-text transition-colors hover:bg-incogni-surface rounded-full border border-transparent hover:border-incogni-border/50"
       >
-        <span className="hidden sm:inline">IncogniAI</span>
-        <Lock className="h-4 w-4 text-incogni-muted" />
+        <span>IncogniAI</span>
+        <Lock className="h-3.5 w-3.5 text-incogni-muted" />
       </button>
     );
   }
 
-  // Pick top models for the clean UI
-  const topModels = (availableModels || []).filter(m => m === AUTO_MODEL || m.includes("gpt") || m.includes("claude")).slice(0, 5);
+  // Filter models
+  const safeModels = Array.isArray(availableModels) ? availableModels : [];
+  const validModels = safeModels.filter(m => m === AUTO_MODEL || !m.includes("embed"));
+  
   // Ensure selected model is in the list
-  if (selectedModel && !topModels.includes(selectedModel) && (availableModels || []).includes(selectedModel)) {
-    topModels.push(selectedModel);
+  if (selectedModel && !validModels.includes(selectedModel) && safeModels.includes(selectedModel)) {
+    validModels.push(selectedModel);
   }
+
+  // Split into Top 5 and "More models" to keep it clean like Claude
+  const topModels = validModels.slice(0, 5);
+  const moreModels = validModels.slice(5);
+
+  const getSubLabel = (m: string) => {
+    if (m === AUTO_MODEL) return "Most efficient for everyday tasks";
+    if (m.includes("70b") || m.includes("large")) return "For your toughest challenges";
+    if (m.includes("8b") || m.includes("mini") || m.includes("haiku")) return "Fastest for quick answers";
+    return "For complex tasks";
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           aria-label="Switch model"
-          className="inline-flex items-center gap-1.5 px-2 py-1 text-lg font-semibold text-incogni-text transition-colors hover:bg-incogni-surface-2 rounded-lg group"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-incogni-text transition-colors hover:bg-incogni-surface rounded-full border border-transparent hover:border-incogni-border/50 group bg-incogni-bg/50 backdrop-blur-sm"
         >
-          {loading ? (
-            <Loader2 className="h-5 w-5 animate-spin text-incogni-muted" />
-          ) : null}
-          <span className="truncate flex items-center gap-1.5">
-            <span>IncogniAI</span>
-            <span className="text-incogni-muted font-normal text-sm">{selectedModel ? modelLabel(selectedModel) : ""}</span>
+          {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-incogni-muted" />}
+          <span className="flex items-center gap-1.5">
+            <span className="truncate max-w-[120px] sm:max-w-[180px]">
+              {selectedModel ? modelLabel(selectedModel) : "Select model"}
+            </span>
+            <span className="text-incogni-muted/70 font-normal">High</span>
           </span>
-          <ChevronDown className="h-4 w-4 text-incogni-muted transition-transform group-data-[state=open]:rotate-180" />
+          <ChevronDown className="h-3.5 w-3.5 text-incogni-muted transition-transform group-data-[state=open]:rotate-180" />
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-[300px] p-2 bg-incogni-bg border-incogni-border shadow-xl rounded-xl">
+      <DropdownMenuContent align="start" className="w-[320px] p-2 bg-white dark:bg-incogni-surface border-incogni-border shadow-2xl rounded-2xl">
         
-        <div className="flex flex-col gap-1 mb-2">
+        <div className="flex flex-col mb-1">
           {topModels.length === 0 && !loading && (
-            <p className="px-2 py-2 text-sm text-incogni-muted">No models available</p>
+            <p className="px-3 py-3 text-sm text-incogni-muted">No models available</p>
           )}
           {topModels.map(m => (
             <DropdownMenuItem
               key={m}
               selected={m === selectedModel}
               onSelect={() => setSelectedModel(m)}
-              className="flex items-center justify-between p-3 cursor-pointer rounded-lg hover:bg-incogni-surface-2 focus:bg-incogni-surface-2"
+              className="flex items-center justify-between p-3 cursor-pointer rounded-xl hover:bg-incogni-surface-2 focus:bg-incogni-surface-2 data-[highlighted]:bg-incogni-surface-2"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-incogni-border bg-incogni-surface text-incogni-text">
-                   {m.includes("gpt") ? <Sparkles className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[15px] font-medium text-incogni-text">{modelLabel(m)}</span>
-                  <span className="text-xs text-incogni-muted">{m === AUTO_MODEL ? "Our smartest model" : "Advanced capabilities"}</span>
-                </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[14px] font-semibold text-incogni-text flex items-center gap-2">
+                  {modelLabel(m)}
+                  {(m.includes("70b") || m.includes("large") || m.includes("pro")) && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-500">
+                      Pro
+                    </span>
+                  )}
+                </span>
+                <span className="text-[12px] text-incogni-muted">{getSubLabel(m)}</span>
               </div>
-              {m === selectedModel && <Check className="h-4 w-4 text-incogni-text" />}
+              {m === selectedModel && <Check className="h-4 w-4 text-blue-500 shrink-0 ml-4" />}
             </DropdownMenuItem>
           ))}
         </div>
 
-        <DropdownMenuSeparator className="bg-incogni-border" />
+        {moreModels.length > 0 && (
+          <>
+            <DropdownMenuSeparator className="bg-incogni-border/50 my-1 mx-2" />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="flex items-center justify-between p-3 cursor-pointer rounded-xl hover:bg-incogni-surface-2 focus:bg-incogni-surface-2">
+                <span className="text-[14px] font-semibold text-incogni-text">More models</span>
+                <ChevronRight className="h-4 w-4 text-incogni-muted" />
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="w-[280px] p-1.5 max-h-[400px] overflow-y-auto overflow-x-hidden bg-white dark:bg-incogni-surface border-incogni-border shadow-2xl rounded-2xl custom-scrollbar">
+                  {moreModels.map(m => (
+                    <DropdownMenuItem
+                      key={m}
+                      selected={m === selectedModel}
+                      onSelect={() => setSelectedModel(m)}
+                      className="flex items-center justify-between p-2.5 cursor-pointer rounded-xl hover:bg-incogni-surface-2 focus:bg-incogni-surface-2 data-[highlighted]:bg-incogni-surface-2"
+                    >
+                      <div className="flex flex-col gap-0.5 max-w-[200px]">
+                        <span className="text-[13px] font-semibold text-incogni-text truncate">{modelLabel(m)}</span>
+                        <span className="text-[11px] text-incogni-muted truncate">{getSubLabel(m)}</span>
+                      </div>
+                      {m === selectedModel && <Check className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </>
+        )}
+        
+        <DropdownMenuSeparator className="bg-incogni-border/50 my-1 mx-2" />
 
-        <div className="p-1">
-          <div className="flex items-center justify-between p-2 rounded-lg hover:bg-incogni-surface-2 cursor-pointer" onClick={(e) => { e.preventDefault(); setIncognito(!incognito); }}>
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-surface text-incogni-text">
-                 <EyeOff className="h-4 w-4" />
-              </div>
-              <span className="text-[15px] font-medium text-incogni-text">Temporary chat</span>
-            </div>
-            <div className="relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors"
-                 style={{ backgroundColor: incognito ? "#10a37f" : "var(--color-incogni-border)" }}
+        <div className="px-1 py-0.5">
+          <div 
+            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-incogni-surface-2 cursor-pointer transition-colors" 
+            onClick={(e) => { e.preventDefault(); setIncognito(!incognito); }}
+          >
+            <span className="text-[14px] font-semibold text-incogni-text">Temporary chat</span>
+            <div className="relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors duration-200"
+                 style={{ backgroundColor: incognito ? "#3b82f6" : "var(--color-incogni-border)" }}
             >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${incognito ? "translate-x-4" : "translate-x-1"}`} />
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 shadow-sm ${incognito ? "translate-x-4.5" : "translate-x-0.5"}`} />
             </div>
           </div>
         </div>

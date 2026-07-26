@@ -211,13 +211,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <Folder className="h-4 w-4 text-incogni-muted" />
             <span className="flex-1 text-left">Projects</span>
           </button>
-          <button
-            onClick={() => { setCustomAIsOpen(true); onClose(); }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
-          >
-            <Bot className="h-4 w-4 text-incogni-muted" />
-            <span className="flex-1 text-left">My AIs</span>
-          </button>
         </div>
 
         {/* Chat history — time-grouped */}

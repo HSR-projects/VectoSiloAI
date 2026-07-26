@@ -11,6 +11,7 @@ import { BuilderChat } from "@/components/custom-ais/BuilderChat";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 
 export function CustomAIsModal() {
@@ -131,8 +132,8 @@ export function CustomAIsModal() {
     setCustomAIsOpen(false);
   };
 
-  const activeAI = (customAIs || []).find(ai => ai.id === activeCustomAIId);
-  const viewingPublicAI = (publicAIs || []).find(ai => ai.id === viewingPublicId);
+  const activeAI = (Array.isArray(customAIs) ? customAIs : []).find(ai => ai.id === activeCustomAIId);
+  const viewingPublicAI = (Array.isArray(publicAIs) ? publicAIs : []).find(ai => ai.id === viewingPublicId);
 
   const isEditingView = isCreating || editingId !== null;
 
@@ -145,7 +146,7 @@ export function CustomAIsModal() {
         "p-0 overflow-hidden bg-incogni-bg border-incogni-border text-incogni-text flex",
         isEditingView ? "max-w-7xl w-[95vw] h-[90vh] flex-col" : "max-w-4xl w-[95vw] md:w-full flex-col md:flex-row h-[80vh] max-h-[850px]"
       )}>
-        
+        <DialogTitle className="sr-only">Custom AIs</DialogTitle>
         {!isEditingView ? (
           // --- Standard List View (My AIs / Discover) ---
           <>
@@ -187,7 +188,7 @@ export function CustomAIsModal() {
                       <span className="flex-1 truncate">Standard IncogniAI</span>
                       {!activeCustomAIId && <Play className="h-3 w-3" />}
                     </button>
-                    {(customAIs || []).map((ai) => (
+                    {(Array.isArray(customAIs) ? customAIs : []).map((ai) => (
                       <div
                         key={ai.id}
                         className={cn(
@@ -226,7 +227,7 @@ export function CustomAIsModal() {
                         </div>
                       </div>
                     ))}
-                    {(customAIs || []).length === 0 && (
+                    {(Array.isArray(customAIs) ? customAIs : []).length === 0 && (
                       <p className="p-4 text-xs text-center text-incogni-muted">No custom AIs created yet.</p>
                     )}
                   </>
@@ -234,10 +235,10 @@ export function CustomAIsModal() {
                   <>
                     {isLoadingPublic ? (
                       <p className="p-4 text-xs text-center text-incogni-muted">Loading...</p>
-                    ) : (publicAIs || []).length === 0 ? (
+                    ) : (Array.isArray(publicAIs) ? publicAIs : []).length === 0 ? (
                       <p className="p-4 text-xs text-center text-incogni-muted">No public AIs found.</p>
                     ) : (
-                      (publicAIs || []).map((ai) => (
+                      (Array.isArray(publicAIs) ? publicAIs : []).map((ai) => (
                         <button
                           key={ai.id}
                           onClick={() => setViewingPublicId(ai.id)}

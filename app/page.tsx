@@ -32,6 +32,7 @@ export default function HomePage() {
     setTargetUrl,
     activeCustomAIId,
     customAIs,
+    incognito,
   } = useIncogniStore();
 
   const activeAI = activeCustomAIId ? customAIs.find(a => a.id === activeCustomAIId) : null;
@@ -143,7 +144,7 @@ export default function HomePage() {
                 variants={fadeUp}
                 className="text-balance text-3xl font-semibold tracking-tight text-incogni-text sm:text-4xl"
               >
-                Where should we begin?
+                {incognito ? "Hi stranger" : "Where should we begin?"}
               </motion.h1>
             </motion.div>
           )}

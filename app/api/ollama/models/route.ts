@@ -25,68 +25,6 @@ export async function GET(req: NextRequest) {
     console.error("[models-api] Ollama fetch error:", (e as Error).message);
   }
 
-  // 2. Dynamically fetch Google Gemini models if key is available
-  if (geminiKey) {
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`, {
-        signal: AbortSignal.timeout(5000),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.models)) {
-          const geminiModels = data.models
-            .map((m: { name?: string }) => (m.name || "").replace(/^models\//, ""))
-            .filter((name: string) => name && !isBlockedModel(name));
-          allModelNames.push(...geminiModels);
-        }
-      }
-    } catch (e) {
-      console.error("[models-api] Gemini fetch error:", (e as Error).message);
-    }
-  }
-
-  // 3. Dynamically fetch OpenAI models if key is available
-  if (openaiKey) {
-    try {
-      const res = await fetch("https://api.openai.com/v1/models", {
-        headers: { Authorization: `Bearer ${openaiKey}` },
-        signal: AbortSignal.timeout(5000),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.data)) {
-          const openAiModels = data.data
-            .map((m: { id?: string }) => m.id || "")
-            .filter((id: string) => id && !isBlockedModel(id));
-          allModelNames.push(...openAiModels);
-        }
-      }
-    } catch (e) {
-      console.error("[models-api] OpenAI fetch error:", (e as Error).message);
-    }
-  }
-
-  // 4. Dynamically fetch OpenRouter models if key is available
-  if (openrouterKey) {
-    try {
-      const res = await fetch("https://openrouter.ai/api/v1/models", {
-        headers: openrouterKey ? { Authorization: `Bearer ${openrouterKey}` } : {},
-        signal: AbortSignal.timeout(5000),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.data)) {
-          const openRouterModels = data.data
-            .map((m: { id?: string }) => m.id || "")
-            .filter((id: string) => id && !isBlockedModel(id));
-          allModelNames.push(...openRouterModels);
-        }
-      }
-    } catch (e) {
-      console.error("[models-api] OpenRouter fetch error:", (e as Error).message);
-    }
-  }
-
   // Deduplicate and ensure default model exists
   const uniqueModels = Array.from(new Set(allModelNames));
   if (DEFAULT_MODEL && !uniqueModels.includes(DEFAULT_MODEL)) {

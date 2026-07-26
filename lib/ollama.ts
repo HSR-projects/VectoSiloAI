@@ -16,7 +16,9 @@ export const OLLAMA_BASE_URL = (
 
 export const OLLAMA_API_KEY = process.env.VECTOSILO_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
 
-export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
+export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "meta/llama-3.1-70b-instruct";
+
+export const IS_OPENAI_COMPAT = OLLAMA_BASE_URL.includes("/v1") || OLLAMA_BASE_URL.includes("api.nvidia.com");
 
 /**
  * Optional hard override. When OLLAMA_FORCE_MODEL is set, EVERY chat call uses
@@ -27,12 +29,12 @@ export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.
 export const FORCE_MODEL = process.env.OLLAMA_FORCE_MODEL || "";
 
 /**
- * Models that are never offered or used — e.g. ones that log, train on, or
+ * Models that are never offered or used — e.g. ones that log,s train on, or
  * otherwise track prompt data. Matched as case-insensitive substrings.
  * Configurable via OLLAMA_BLOCKED_MODELS (comma-separated); falls back to a
  * sane default that excludes known data-retaining preview models.
  */
-const DEFAULT_BLOCKED = ["gemini", "glm", "deepseek", "rnj", "kimi", "mistral", "qwen"];
+const DEFAULT_BLOCKED = ["gemini"];
 const BLOCK_LIST = (process.env.OLLAMA_BLOCKED_MODELS || "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
@@ -151,8 +153,21 @@ export interface RichDelta {
 export async function* chatStreamRich(
   opts: ChatOptions
 ): AsyncGenerator<RichDelta, void, unknown> {
-  const doFetch = (think: boolean) =>
-    fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
+  const doFetch = (think: boolean) => {
+    if (IS_OPENAI_COMPAT) {
+      return fetchWithRetry(`${OLLAMA_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          model: resolveModel(opts.model),
+          messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
+          stream: true,
+          // OpenAI equivalent logic if needed, think is not standard OpenAI but might be supported by NIM
+        }),
+        signal: opts.signal,
+      });
+    }
+    return fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
       method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({
@@ -165,6 +180,7 @@ export async function* chatStreamRich(
       }),
       signal: opts.signal,
     });
+  };
 
   let res: Response;
   try {
@@ -205,11 +221,17 @@ export async function* chatStreamRich(
       if (!line) continue;
       try {
         const json = JSON.parse(line);
-        const thinking: string = json?.message?.thinking ?? "";
-        const content: string = json?.message?.content ?? "";
-        if (thinking) yield { thinking };
-        if (content) yield { content };
-        if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
+        if (IS_OPENAI_COMPAT) {
+          const content = json.choices?.[0]?.delta?.content || "";
+          // some APIs might stream reasoning differently, but we'll stick to standard content
+          if (content) yield { content };
+        } else {
+          const thinking = json.message?.thinking || json.thinking || "";
+          const content = json.message?.content || "";
+          if (thinking) yield { thinking };
+          if (content) yield { content };
+          if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
+        }
       } catch (e) {
         if (e instanceof OllamaError) throw e;
         // Ignore partial/non-JSON lines.
@@ -282,18 +304,31 @@ export async function* chatStream(
 export async function chat(opts: ChatOptions): Promise<string> {
   let res: Response;
   try {
-    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({
-        model: resolveModel(opts.model),
-        messages: opts.messages,
-        stream: false,
-        options: opts.options,
-        format: opts.format,
-      }),
-      signal: opts.signal,
-    });
+    if (IS_OPENAI_COMPAT) {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          model: resolveModel(opts.model),
+          messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
+          stream: false,
+        }),
+        signal: opts.signal,
+      });
+    } else {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          model: resolveModel(opts.model),
+          messages: opts.messages,
+          stream: false,
+          options: opts.options,
+          format: opts.format,
+        }),
+        signal: opts.signal,
+      });
+    }
   } catch {
     throw new OllamaError(connectionHint());
   }
@@ -307,6 +342,9 @@ export async function chat(opts: ChatOptions): Promise<string> {
   }
 
   const json = await res.json();
+  if (IS_OPENAI_COMPAT) {
+    return json?.choices?.[0]?.message?.content ?? "";
+  }
   return json?.message?.content ?? "";
 }
 
@@ -314,10 +352,17 @@ export async function chat(opts: ChatOptions): Promise<string> {
 export async function listModels(): Promise<OllamaModel[]> {
   let res: Response;
   try {
-    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/tags`, {
-      headers: authHeaders(),
-      cache: "no-store",
-    });
+    if (IS_OPENAI_COMPAT) {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/models`, {
+        headers: authHeaders(),
+        cache: "no-store",
+      });
+    } else {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/tags`, {
+        headers: authHeaders(),
+        cache: "no-store",
+      });
+    }
   } catch {
     throw new OllamaError(connectionHint());
   }
@@ -330,6 +375,12 @@ export async function listModels(): Promise<OllamaModel[]> {
   }
 
   const json = await res.json();
+  if (IS_OPENAI_COMPAT) {
+    if (Array.isArray(json?.data)) {
+      return json.data.map((m: any) => ({ name: m.id, modified_at: m.created ? new Date(m.created * 1000).toISOString() : "", size: 0, digest: "" }));
+    }
+    return [];
+  }
   const models: OllamaModel[] = Array.isArray(json?.models) ? json.models : [];
   return models;
 }
