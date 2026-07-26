@@ -216,9 +216,13 @@ export async function* chatStreamRich(
 
     let nl: number;
     while ((nl = buffer.indexOf("\n")) !== -1) {
-      const line = buffer.slice(0, nl).trim();
+      let line = buffer.slice(0, nl).trim();
       buffer = buffer.slice(nl + 1);
       if (!line) continue;
+      if (IS_OPENAI_COMPAT && line.startsWith("data: ")) {
+        line = line.slice(6).trim();
+        if (line === "[DONE]") continue;
+      }
       try {
         const json = JSON.parse(line);
         if (IS_OPENAI_COMPAT) {
@@ -249,18 +253,31 @@ export async function* chatStream(
 ): AsyncGenerator<string, void, unknown> {
   let res: Response;
   try {
-    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({
-        model: resolveModel(opts.model),
-        messages: opts.messages,
-        stream: true,
-        options: opts.options,
-        format: opts.format,
-      }),
-      signal: opts.signal,
-    });
+    if (IS_OPENAI_COMPAT) {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          model: resolveModel(opts.model),
+          messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
+          stream: true,
+        }),
+        signal: opts.signal,
+      });
+    } else {
+      res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          model: resolveModel(opts.model),
+          messages: opts.messages,
+          stream: true,
+          options: opts.options,
+          format: opts.format,
+        }),
+        signal: opts.signal,
+      });
+    }
   } catch {
     throw new OllamaError(connectionHint());
   }
@@ -284,14 +301,23 @@ export async function* chatStream(
 
     let nl: number;
     while ((nl = buffer.indexOf("\n")) !== -1) {
-      const line = buffer.slice(0, nl).trim();
+      let line = buffer.slice(0, nl).trim();
       buffer = buffer.slice(nl + 1);
       if (!line) continue;
+      if (IS_OPENAI_COMPAT && line.startsWith("data: ")) {
+        line = line.slice(6).trim();
+        if (line === "[DONE]") continue;
+      }
       try {
         const json = JSON.parse(line);
-        const delta: string = json?.message?.content ?? "";
-        if (delta) yield delta;
-        if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
+        if (IS_OPENAI_COMPAT) {
+          const delta = json.choices?.[0]?.delta?.content || "";
+          if (delta) yield delta;
+        } else {
+          const delta: string = json?.message?.content ?? "";
+          if (delta) yield delta;
+          if (json?.error) throw new OllamaError(sanitizeError(String(json.error)));
+        }
       } catch (e) {
         if (e instanceof OllamaError) throw e;
         // Ignore partial/non-JSON lines.
