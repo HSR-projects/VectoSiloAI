@@ -35,11 +35,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <AuthProvider>
             <TooltipProvider delayDuration={150}>
-              <AuthGate>{children}</AuthGate>
+              <AuthGate>
+                {children}
+                <GlobalModals />
+              </AuthGate>
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>
-        <GlobalModals />
       </body>
     </html>
   );
