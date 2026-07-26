@@ -16,7 +16,7 @@ export const OLLAMA_BASE_URL = (
 
 export const OLLAMA_API_KEY = process.env.VECTOSILO_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
 
-export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "meta/llama-3.1-70b-instruct";
+export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
 
 export const IS_OPENAI_COMPAT = OLLAMA_BASE_URL.includes("/v1") || OLLAMA_BASE_URL.includes("api.nvidia.com");
 
