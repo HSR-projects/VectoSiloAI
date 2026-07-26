@@ -506,10 +506,10 @@ function ThinkingBlock({
   const [open, setOpen] = useState(false);
   const expanded = open || streaming;
   const label = streaming
-    ? "Thinking…"
+    ? "Ruminating on it..."
     : ms && ms >= 1000
-    ? `Thought for ${Math.round(ms / 1000)}s`
-    : "Thought process";
+    ? `Ruminated for ${Math.round(ms / 1000)}s`
+    : "Ruminated";
 
   return (
     <div className="mb-3">
