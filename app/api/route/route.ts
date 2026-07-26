@@ -30,6 +30,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing query." }, { status: 400 });
   }
 
+  const fastResult = fastRouteCheck(query);
+  if (fastResult) {
+    return NextResponse.json(fastResult);
+  }
+
   const fallback: RouteDecision = {
     needsSearch: true,
     searchQuery: query,
@@ -50,6 +55,34 @@ export async function POST(req: Request) {
     }
     return NextResponse.json(fallback);
   }
+}
+
+function fastRouteCheck(query: string): RouteDecision | null {
+  const q = query.trim().toLowerCase();
+
+  // Greetings / simple conversational
+  if (/^(hi|hello|hey|greetings|good\s+(morning|afternoon|evening)|howdy|sup|yo|what's\s+up|how\s+are\s+you|who\s+are\s+you|what\s+is\s+your\s+name|thanks|thank\s+you)[.!?]*$/i.test(q)) {
+    return { needsSearch: false, searchQuery: query, reason: "conversational greeting" };
+  }
+
+  // Coding & development requests
+  if (/\b(code|build|write|create|implement|debug|refactor|fix|function|class|component|algorithm|script|css|html|js|ts|python|react|node|api|sql)\b/i.test(q) &&
+      !/\b(latest|version|news|release|update|documentation|doc|docs|api\s+changes|2025|2026)\b/i.test(q)) {
+    return { needsSearch: false, searchQuery: query, reason: "coding request" };
+  }
+
+  // General knowledge / math / creative writing / explanations
+  if (/\b(explain|what\s+is|how\s+does|why\s+is|tell\s+me\s+about|write\s+a\s+poem|essay|story|calculate|solve|convert)\b/i.test(q) &&
+      !/\b(today|now|current|latest|recent|news|weather|price|stock|score|winner|election|2025|2026)\b/i.test(q)) {
+    return { needsSearch: false, searchQuery: query, reason: "general knowledge prompt" };
+  }
+
+  // Explicit live info triggers (definitely needs search)
+  if (/\b(today|current|latest|now|recent|news|weather|price|stock|score|winner|election|release\s+date|2025|2026|who\s+is\s+the\s+current|what\s+is\s+the\s+price)\b/i.test(q)) {
+    return { needsSearch: true, searchQuery: query, reason: "real-time info query" };
+  }
+
+  return null;
 }
 
 function parseDecision(raw: string, query: string): RouteDecision | null {

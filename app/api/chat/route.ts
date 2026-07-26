@@ -219,38 +219,50 @@ export async function POST(req: Request) {
 
   if (focusMode !== "nosearch" && !plain && !githubInvoke && query.trim().length > 2) {
     const isMapOrLocationQuery = /\b(map|maps|location|place|places|city|cities|visit|travel|where\s+is|directions|distance|compare|hotel|restaurant|attraction|landmark|airport|park|weather|temperature)\b/i.test(query);
+    const isVisualQuery = /\b(buy|price|cost|\$|shop|product|show\s+me|what\s+does\s+.+\s+look\s+like|best\s+|cheap|affordable|review|worth|recommend|brand|model|gadget|phone|laptop|headphone|shoe|watch|camera|tv|monitor|keyboard|mouse|bag|jacket|dress|sneaker|picture|photo|image|diagram|chart|map)\b/i.test(query);
+
+    const tasks: Promise<void>[] = [];
+
     if (isMapOrLocationQuery) {
-      try {
-        const mapResults = await searchMaps(query, 5);
-        if (mapResults.length) {
-          fetchedMapPlaces = mapResults;
-          mapContext = "\n\n<SearXNG Maps & Location Context — places, coordinates, and OpenStreetMap data>\n";
-          for (const place of mapResults) {
-            mapContext += `- ${place.title}: Lat ${place.latitude}, Lon ${place.longitude} (${place.address || place.description || "Place"}) [Map Link](${place.url})\n`;
-          }
-          mapContext += "</SearXNG Maps>";
-        }
-      } catch {
-        // Map search non-fatal
-      }
+      tasks.push(
+        searchMaps(query, 5)
+          .then((mapResults) => {
+            if (mapResults.length) {
+              fetchedMapPlaces = mapResults;
+              mapContext = "\n\n<SearXNG Maps & Location Context — places, coordinates, and OpenStreetMap data>\n";
+              for (const place of mapResults) {
+                mapContext += `- ${place.title}: Lat ${place.latitude}, Lon ${place.longitude} (${place.address || place.description || "Place"}) [Map Link](${place.url})\n`;
+              }
+              mapContext += "</SearXNG Maps>";
+            }
+          })
+          .catch(() => {})
+      );
     }
 
-    try {
-      const imgResults = await searchImages(query, 6);
-      if (imgResults.length) {
-        fetchedSearchImages = imgResults;
-        const isVisualQuery = /\b(buy|price|cost|\$|shop|product|show\s+me|what\s+does\s+.+\s+look\s+like|best\s+|cheap|affordable|review|worth|recommend|brand|model|gadget|phone|laptop|headphone|shoe|watch|camera|tv|monitor|keyboard|mouse|bag|jacket|dress|sneaker|picture|photo|image|diagram|chart|map)\b/i.test(query);
-        if (isVisualQuery) {
-          imageContext = "\n\n<Images from image search — you can embed these in your reply using standard markdown image syntax>\n";
-          for (const img of imgResults) {
-            const label = img.title || img.description || "Image";
-            imageContext += `- ![${label}](${encodeURI(img.imgSrc)}) — ${img.description || img.title || ""} [source](${img.url})\n`;
-          }
-          imageContext += "</Images>";
-        }
-      }
-    } catch {
-      // Image search is non-fatal
+    if (isVisualQuery) {
+      tasks.push(
+        searchImages(query, 6)
+          .then((imgResults) => {
+            if (imgResults.length) {
+              fetchedSearchImages = imgResults;
+              imageContext = "\n\n<Images from image search — you can embed these in your reply using standard markdown image syntax>\n";
+              for (const img of imgResults) {
+                const label = img.title || img.description || "Image";
+                imageContext += `- ![${label}](${encodeURI(img.imgSrc)}) — ${img.description || img.title || ""} [source](${img.url})\n`;
+              }
+              imageContext += "</Images>";
+            }
+          })
+          .catch(() => {})
+      );
+    }
+
+    if (tasks.length > 0) {
+      await Promise.race([
+        Promise.all(tasks),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
     }
   }
 
