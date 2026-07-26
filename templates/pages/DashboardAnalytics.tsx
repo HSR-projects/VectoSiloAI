@@ -104,7 +104,7 @@ const userColumns = [
     label: "Name",
     render: (item: any) => (
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vectosilo-accent/20 text-xs font-medium text-vectosilo-accent">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-accent/20 text-xs font-medium text-incogni-accent">
           {item.name.split(" ").map((n: string) => n[0]).join("")}
         </div>
         <span>{item.name}</span>
@@ -132,12 +132,12 @@ export function DashboardAnalytics() {
   const [dateRange, setDateRange] = useState("Last 7 days");
 
   return (
-    <div className="flex min-h-screen flex-col bg-vectosilo-bg">
+    <div className="flex min-h-screen flex-col bg-incogni-bg">
       <Navbar
         logo={
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-accent text-sm font-bold text-white">K</div>
-            <span className="text-lg font-bold text-vectosilo-text">VectoSiloAI</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-accent text-sm font-bold text-white">K</div>
+            <span className="text-lg font-bold text-incogni-text">IncogniAI</span>
           </div>
         }
         links={[
@@ -148,20 +148,20 @@ export function DashboardAnalytics() {
         ]}
         cta={
           <div className="flex items-center gap-3">
-            <button className="rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text">
+            <button className="rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text">
               <Search size={18} />
             </button>
-            <button className="relative rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text">
+            <button className="relative rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text">
               <Bell size={18} />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-vectosilo-accent" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-incogni-accent" />
             </button>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vectosilo-accent/20 text-sm font-medium text-vectosilo-accent">JD</div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-accent/20 text-sm font-medium text-incogni-accent">JD</div>
           </div>
         }
       />
 
       <div className="flex flex-1">
-        <aside className="hidden w-60 flex-col border-r border-vectosilo-border bg-vectosilo-surface/50 p-4 lg:flex">
+        <aside className="hidden w-60 flex-col border-r border-incogni-border bg-incogni-surface/50 p-4 lg:flex">
           <nav className="flex flex-col gap-1">
             {sidebarNav.map((item) => (
               <a
@@ -170,8 +170,8 @@ export function DashboardAnalytics() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   item.active
-                    ? "bg-vectosilo-accent/10 text-vectosilo-accent"
-                    : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                    ? "bg-incogni-accent/10 text-incogni-accent"
+                    : "text-incogni-muted hover:bg-incogni-surface hover:text-incogni-text"
                 )}
               >
                 {item.label}
@@ -184,22 +184,22 @@ export function DashboardAnalytics() {
           <div className="mx-auto max-w-7xl space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-vectosilo-text">Analytics Dashboard</h1>
-                <p className="text-sm text-vectosilo-muted">Track your performance metrics</p>
+                <h1 className="text-2xl font-bold text-incogni-text">Analytics Dashboard</h1>
+                <p className="text-sm text-incogni-muted">Track your performance metrics</p>
               </div>
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:text-vectosilo-text">
+                <button className="flex items-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-2 text-sm text-incogni-muted transition-colors hover:text-incogni-text">
                   <Filter size={14} />
                   Filter
                 </button>
-                <button className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:text-vectosilo-text">
+                <button className="flex items-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-2 text-sm text-incogni-muted transition-colors hover:text-incogni-text">
                   <Download size={14} />
                   Export
                 </button>
                 <div className="relative">
-                  <button className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2">
+                  <button className="flex items-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2">
                     {dateRange}
-                    <ChevronDown size={14} className="text-vectosilo-muted" />
+                    <ChevronDown size={14} className="text-incogni-muted" />
                   </button>
                 </div>
               </div>
@@ -212,10 +212,10 @@ export function DashboardAnalytics() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08, duration: 0.4 }}
-                  className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5"
+                  className="rounded-xl border border-incogni-border bg-incogni-surface p-5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-vectosilo-muted">{stat.label}</span>
+                    <span className="text-xs font-medium text-incogni-muted">{stat.label}</span>
                     {stat.trend === "up" ? (
                       <ArrowUpRight size={16} className="text-green-500" />
                     ) : (
@@ -223,7 +223,7 @@ export function DashboardAnalytics() {
                     )}
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-vectosilo-text">
+                    <span className="text-2xl font-bold text-incogni-text">
                       {stat.prefix}
                       {stat.label === "Conversion" ? conversionValue : stat.value.toLocaleString()}
                       {stat.suffix}
@@ -236,8 +236,8 @@ export function DashboardAnalytics() {
               ))}
             </div>
 
-            <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
-              <h3 className="mb-4 text-sm font-semibold text-vectosilo-text">Revenue Overview</h3>
+            <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
+              <h3 className="mb-4 text-sm font-semibold text-incogni-text">Revenue Overview</h3>
               <div className="flex items-end gap-2">
                 {weeklyData.map((d) => (
                   <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
@@ -245,10 +245,10 @@ export function DashboardAnalytics() {
                       initial={{ height: 0 }}
                       animate={{ height: `${(d.revenue / maxRevenue) * 180}px` }}
                       transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="w-full rounded-t-md bg-gradient-to-t from-vectosilo-accent/60 to-vectosilo-accent/20"
+                      className="w-full rounded-t-md bg-gradient-to-t from-incogni-accent/60 to-incogni-accent/20"
                       style={{ minHeight: 4 }}
                     />
-                    <span className="text-[10px] text-vectosilo-muted">{d.day}</span>
+                    <span className="text-[10px] text-incogni-muted">{d.day}</span>
                   </div>
                 ))}
               </div>
@@ -256,12 +256,12 @@ export function DashboardAnalytics() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div>
-                <h3 className="mb-3 text-sm font-semibold text-vectosilo-text">Recent Transactions</h3>
+                <h3 className="mb-3 text-sm font-semibold text-incogni-text">Recent Transactions</h3>
                 <Table columns={transactionColumns} data={recentTransactions} />
               </div>
               <div>
-                <h3 className="mb-3 text-sm font-semibold text-vectosilo-text">Session Analytics</h3>
-                <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
+                <h3 className="mb-3 text-sm font-semibold text-incogni-text">Session Analytics</h3>
+                <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
                   <div className="flex items-end gap-2">
                     {weeklyData.map((d) => (
                       <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
@@ -272,7 +272,7 @@ export function DashboardAnalytics() {
                           className="w-full rounded-t-md bg-gradient-to-t from-blue-500/60 to-blue-500/20"
                           style={{ minHeight: 4 }}
                         />
-                        <span className="text-[10px] text-vectosilo-muted">{d.day}</span>
+                        <span className="text-[10px] text-incogni-muted">{d.day}</span>
                       </div>
                     ))}
                   </div>
@@ -282,8 +282,8 @@ export function DashboardAnalytics() {
 
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-vectosilo-text">Users</h3>
-                <button className="text-xs text-vectosilo-accent hover:underline">View All</button>
+                <h3 className="text-sm font-semibold text-incogni-text">Users</h3>
+                <button className="text-xs text-incogni-accent hover:underline">View All</button>
               </div>
               <DataGrid columns={userColumns} data={userListData} pageSize={5} />
             </div>

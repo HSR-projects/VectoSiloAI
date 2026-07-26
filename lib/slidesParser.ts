@@ -3,14 +3,14 @@ import type { Slide } from "@/types";
 /**
  * Parses a slide deck out of the streaming answer. The model emits
  * `[[slides:Deck Title]]` then one block per slide:
- *   <vectosilo-slide title="Slide title" notes="optional speaker notes">
+ *   <incogni-slide title="Slide title" notes="optional speaker notes">
  *   - bullet one
  *   - bullet two
- *   </vectosilo-slide>
+ *   </incogni-slide>
  */
 
 const DIRECTIVE_RE = /\[\[slides(?::\s*([^\]]*))?\]\]/i;
-const SLIDE_RE = /<vectosilo-slide\s+([^>]*)>([\s\S]*?)<\/vectosilo-slide>/gi;
+const SLIDE_RE = /<incogni-slide\s+([^>]*)>([\s\S]*?)<\/incogni-slide>/gi;
 
 function attr(attrs: string, name: string): string {
   const m = attrs.match(new RegExp(`${name}\\s*=\\s*["']([^"']*)["']`, "i"));
@@ -42,14 +42,14 @@ export function parseSlides(text: string): Slide[] {
 }
 
 export function hasSlidesSyntax(text: string): boolean {
-  return DIRECTIVE_RE.test(text) || /<vectosilo-slide/i.test(text);
+  return DIRECTIVE_RE.test(text) || /<incogni-slide/i.test(text);
 }
 
 export function stripSlidesSyntax(text: string): string {
   return text
     .replace(DIRECTIVE_RE, "")
     .replace(new RegExp(SLIDE_RE.source, "gi"), "")
-    .replace(/<vectosilo-slide[\s\S]*$/i, "") // trailing unclosed block while streaming
+    .replace(/<incogni-slide[\s\S]*$/i, "") // trailing unclosed block while streaming
     .replace(/\[\[slides[^\]]*$/i, "")
     .replace(/^\s+/, "");
 }

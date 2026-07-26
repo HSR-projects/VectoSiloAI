@@ -47,7 +47,7 @@ export function AvatarGroup({
           transition={{ delay: i * 0.05 }}
           style={{ marginLeft: i === 0 ? 0 : -overlap * 4 }}
           className={cn(
-            "relative rounded-full border-2 border-vectosilo-bg bg-vectosilo-surface-2 flex items-center justify-center overflow-hidden",
+            "relative rounded-full border-2 border-incogni-bg bg-incogni-surface-2 flex items-center justify-center overflow-hidden",
             sizeMap[size]
           )}
           title={avatar.alt}
@@ -59,9 +59,9 @@ export function AvatarGroup({
               className="h-full w-full object-cover"
             />
           ) : avatar.initials ? (
-            <span className="font-medium text-vectosilo-text">{avatar.initials}</span>
+            <span className="font-medium text-incogni-text">{avatar.initials}</span>
           ) : (
-            avatar.fallback || <span className="text-vectosilo-muted">?</span>
+            avatar.fallback || <span className="text-incogni-muted">?</span>
           )}
         </motion.div>
       ))}
@@ -72,11 +72,11 @@ export function AvatarGroup({
           transition={{ delay: visible.length * 0.05 }}
           style={{ marginLeft: -overlap * 4 }}
           className={cn(
-            "relative rounded-full border-2 border-vectosilo-bg bg-vectosilo-surface-2 flex items-center justify-center",
+            "relative rounded-full border-2 border-incogni-bg bg-incogni-surface-2 flex items-center justify-center",
             sizeMap[size]
           )}
         >
-          <span className="text-xs font-medium text-vectosilo-muted">+{remainder}</span>
+          <span className="text-xs font-medium text-incogni-muted">+{remainder}</span>
         </motion.div>
       )}
     </div>

@@ -15,7 +15,7 @@ import {
   Mic2,
 } from "lucide-react";
 import type { PlayerColor } from "@/types";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { chessSounds } from "@/lib/chessSounds";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ function CapturedRow({
   );
   return (
     <div className="flex items-center gap-1 text-sm leading-none">
-      <span className="mr-0.5 text-xs text-vectosilo-muted">
+      <span className="mr-0.5 text-xs text-incogni-muted">
         {color === "w" ? "W" : "B"}:
       </span>
       {sorted.map((p, i) => (
@@ -71,7 +71,7 @@ function CapturedRow({
         </span>
       ))}
       {advantage > 0 && (
-        <span className="ml-1 text-xs font-medium text-vectosilo-accent-soft">
+        <span className="ml-1 text-xs font-medium text-incogni-accent-soft">
           +{advantage}
         </span>
       )}
@@ -103,14 +103,14 @@ function fmt(ms: number): string {
 export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
   const { caps } = useAuth();
   const difficulty = Math.min(
-    useVectoSiloStore((s) => s.chessDifficulty),
+    useIncogniStore((s) => s.chessDifficulty),
     caps.chessMax
   );
-  const pendingMove = useVectoSiloStore((s) => s.pendingChessMove);
-  const setPendingChessMove = useVectoSiloStore((s) => s.setPendingChessMove);
-  const setChessFen = useVectoSiloStore((s) => s.setChessFen);
+  const pendingMove = useIncogniStore((s) => s.pendingChessMove);
+  const setPendingChessMove = useIncogniStore((s) => s.setPendingChessMove);
+  const setChessFen = useIncogniStore((s) => s.setChessFen);
 
-  const savedFen = useVectoSiloStore((s) => s.chessFen);
+  const savedFen = useIncogniStore((s) => s.chessFen);
 
   // Lazy-init: restore from persisted FEN if available, otherwise start fresh.
   const gameRef = useRef<Chess>(null!);
@@ -492,23 +492,23 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
             gameOver
-              ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft"
-              : "bg-vectosilo-surface-2 text-vectosilo-text"
+              ? "bg-incogni-accent/15 text-incogni-accent-soft"
+              : "bg-incogni-surface-2 text-incogni-text"
           )}
         >
           {thinking ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-vectosilo-accent" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-incogni-accent" />
           ) : gameOver ? (
             <Sparkles className="h-3.5 w-3.5" />
           ) : (
-            <Bot className="h-3.5 w-3.5 text-vectosilo-muted" />
+            <Bot className="h-3.5 w-3.5 text-incogni-muted" />
           )}
           {thinking ? "Thinking…" : status}
         </span>
         <button
           onClick={() => setMuted((v) => !v)}
           aria-label={muted ? "Unmute" : "Mute"}
-          className="ml-auto rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+          className="ml-auto rounded-lg p-1.5 text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
         >
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </button>
@@ -516,9 +516,9 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
 
       {/* AI Commentary bubble */}
       {commentary && (
-        <div className="flex items-start gap-2 rounded-xl border border-vectosilo-accent/20 bg-vectosilo-accent/5 px-3 py-2">
-          <Mic2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-vectosilo-accent" />
-          <p className="text-xs leading-relaxed text-vectosilo-text/80 italic">{commentary}</p>
+        <div className="flex items-start gap-2 rounded-xl border border-incogni-accent/20 bg-incogni-accent/5 px-3 py-2">
+          <Mic2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-incogni-accent" />
+          <p className="text-xs leading-relaxed text-incogni-text/80 italic">{commentary}</p>
         </div>
       )}
 
@@ -532,7 +532,7 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
 
       {/* Captured pieces — opponent's captures shown above the board */}
       {(captured.byWhite.length > 0 || captured.byBlack.length > 0) && (
-        <div className="space-y-1 rounded-lg border border-vectosilo-border bg-vectosilo-surface/40 px-3 py-1.5">
+        <div className="space-y-1 rounded-lg border border-incogni-border bg-incogni-surface/40 px-3 py-1.5">
           {captured.byWhite.length > 0 && (
             <CapturedRow
               pieces={captured.byWhite}
@@ -572,7 +572,7 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
 
       {/* Time control selector */}
       <div className="flex items-center gap-1.5">
-        <Clock className="h-3.5 w-3.5 text-vectosilo-muted" />
+        <Clock className="h-3.5 w-3.5 text-incogni-muted" />
         {TIME_CONTROLS.map((t) => (
           <button
             key={t.id}
@@ -580,8 +580,8 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
             className={cn(
               "rounded-md px-2 py-1 text-xs font-medium transition-colors",
               t.id === tcId
-                ? "bg-vectosilo-accent/20 text-vectosilo-accent-soft"
-                : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                ? "bg-incogni-accent/20 text-incogni-accent-soft"
+                : "text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text"
             )}
           >
             {t.label}
@@ -593,14 +593,14 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
       <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={newGame}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2"
         >
           <RotateCcw className="h-3.5 w-3.5" /> New game
         </button>
         <button
           onClick={switchSides}
           disabled={thinking}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-50"
         >
           <RefreshCw className="h-3.5 w-3.5" /> Switch sides
         </button>
@@ -609,8 +609,8 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
           className={cn(
             "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
             autoplay
-              ? "border-vectosilo-accent/50 bg-vectosilo-accent/15 text-vectosilo-accent-soft"
-              : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-text hover:bg-vectosilo-surface-2"
+              ? "border-incogni-accent/50 bg-incogni-accent/15 text-incogni-accent-soft"
+              : "border-incogni-border bg-incogni-surface text-incogni-text hover:bg-incogni-surface-2"
           )}
         >
           <Bot className="h-3.5 w-3.5" /> {autoplay ? "Watching AI vs AI" : "AI vs AI"}
@@ -619,13 +619,13 @@ export function ChessArtifact({ playerColor }: { playerColor: PlayerColor }) {
 
       {/* Move history */}
       {history.length > 0 && (
-        <div className="mt-1 max-h-32 overflow-y-auto rounded-lg border border-vectosilo-border bg-vectosilo-surface/50 p-2 text-xs [scrollbar-width:thin]">
+        <div className="mt-1 max-h-32 overflow-y-auto rounded-lg border border-incogni-border bg-incogni-surface/50 p-2 text-xs [scrollbar-width:thin]">
           <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-0.5">
             {pairHistory(history).map((row, i) => (
               <div key={i} className="contents">
-                <span className="text-vectosilo-muted/60">{i + 1}.</span>
-                <span className="text-vectosilo-text">{row[0]}</span>
-                <span className="text-vectosilo-text">{row[1] ?? ""}</span>
+                <span className="text-incogni-muted/60">{i + 1}.</span>
+                <span className="text-incogni-text">{row[0]}</span>
+                <span className="text-incogni-text">{row[1] ?? ""}</span>
               </div>
             ))}
           </div>
@@ -650,15 +650,15 @@ function ClockChip({
       className={cn(
         "flex flex-1 items-center justify-between rounded-lg border px-3 py-1.5 transition-colors",
         active
-          ? "border-vectosilo-accent/50 bg-vectosilo-accent/10"
-          : "border-vectosilo-border bg-vectosilo-surface"
+          ? "border-incogni-accent/50 bg-incogni-accent/10"
+          : "border-incogni-border bg-incogni-surface"
       )}
     >
-      <span className="text-xs text-vectosilo-muted">{label}</span>
+      <span className="text-xs text-incogni-muted">{label}</span>
       <span
         className={cn(
           "font-mono text-base font-semibold tabular-nums",
-          low ? "text-red-400" : "text-vectosilo-text"
+          low ? "text-red-400" : "text-incogni-text"
         )}
       >
         {fmt(ms)}

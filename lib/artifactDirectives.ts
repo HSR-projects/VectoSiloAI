@@ -1,4 +1,4 @@
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import {
   parseComputerDirective,
   parseComputerFiles,
@@ -13,7 +13,7 @@ import type { Message, ProjectFile } from "@/types";
 import { computeDiffs } from "@/lib/diff";
 
 /**
- * Shared handling for the "builder" directives (VectoSilo's Computer, Website,
+ * Shared handling for the "builder" directives (Incogni's Computer, Website,
  * Slides, Spreadsheet) so the normal chat stream AND the Agent Swarm synthesis
  * both open the same artifacts. Chess/image directives stay in useChat.
  */
@@ -63,16 +63,16 @@ export function mergeProjectFiles(base: ProjectFile[], over: ProjectFile[]): Pro
   return [...map].map(([path, content]) => ({ path, content }));
 }
 
-/** True if acc has <vectosilo-file> blocks but NOT from the context preamble. */
+/** True if acc has <incogni-file> blocks but NOT from the context preamble. */
 function hasNewFileBlocks(acc: string): boolean {
-  return /<vectosilo-file\s+path=/i.test(acc);
+  return /<incogni-file\s+path=/i.test(acc);
 }
 
 /** Incrementally detect + stream builder artifacts from accumulated text. */
 export function detectBuilds(acc: string, st: BuildState): void {
-  const store = useVectoSiloStore.getState();
+  const store = useIncogniStore.getState();
 
-  // VectoSilo's Computer (Pro/Max only).
+  // Incogni's Computer (Pro/Max only).
   if (st.allowComputer && !st.computerOpened) {
     const c = parseComputerDirective(acc);
     if (c) {
@@ -81,7 +81,7 @@ export function detectBuilds(acc: string, st: BuildState): void {
       store.openComputer(st.computerTitle);
       if (st.baseFiles.length) store.setComputerFiles(st.baseFiles);
     }
-    // Auto-open when the model emits <vectosilo-file> blocks without re-emitting
+    // Auto-open when the model emits <incogni-file> blocks without re-emitting
     // the [[computer:...]] directive (common on follow-up edits).
     if (!st.computerOpened && st.baseFiles.length > 0 && hasNewFileBlocks(acc)) {
       st.computerOpened = true;
@@ -124,7 +124,7 @@ export function detectBuilds(acc: string, st: BuildState): void {
     if (tables.length) store.setWorkbookSheets(tables);
   }
 
-  // Website (all tiers; shares the <vectosilo-file> format).
+  // Website (all tiers; shares the <incogni-file> format).
   if (!st.websiteOpened) {
     const w = parseWebsiteDirective(acc);
     if (w) {
@@ -166,7 +166,7 @@ export function finalizeBuilds(
   st: BuildState,
   existingCommands?: string[]
 ): BuildFinalizeResult {
-  const store = useVectoSiloStore.getState();
+  const store = useIncogniStore.getState();
   const patch: BuildFinalizeResult["patch"] = {};
   let computer: BuildFinalizeResult["computer"];
 

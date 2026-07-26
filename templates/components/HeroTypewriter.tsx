@@ -67,16 +67,16 @@ export function HeroTypewriter({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-4xl font-bold tracking-tight text-vectosilo-text sm:text-5xl lg:text-6xl"
+          className="text-4xl font-bold tracking-tight text-incogni-text sm:text-5xl lg:text-6xl"
         >
           {title}{" "}
           {words.length > 0 && (
-            <span className="text-vectosilo-accent">
+            <span className="text-incogni-accent">
               {displayedTitle}
               <motion.span
                 animate={{ opacity: [1, 0] }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                className="inline-block w-[2px] bg-vectosilo-accent ml-0.5 align-middle"
+                className="inline-block w-[2px] bg-incogni-accent ml-0.5 align-middle"
                 style={{ height: "0.85em" }}
               />
             </span>
@@ -87,7 +87,7 @@ export function HeroTypewriter({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-4 text-lg text-vectosilo-muted sm:text-xl"
+            className="mt-4 text-lg text-incogni-muted sm:text-xl"
           >
             {subtitle}
           </motion.p>
@@ -101,7 +101,7 @@ export function HeroTypewriter({
           >
             <a
               href={cta.href}
-              className="inline-block rounded-lg bg-vectosilo-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent-dim"
+              className="inline-block rounded-lg bg-incogni-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent-dim"
             >
               {cta.label}
             </a>

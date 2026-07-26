@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ShieldCheck, Lock, Server, Cloud } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { modelLabel } from "@/lib/utils";
 import {
   Dialog,
@@ -14,14 +14,14 @@ import {
 } from "@/components/ui/dialog";
 
 export function PrivacyModal() {
-  const { selectedModel, externalCalls } = useVectoSiloStore();
+  const { selectedModel, externalCalls } = useIncogniStore();
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button
           aria-label="Privacy details"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-vectosilo-border bg-vectosilo-surface text-vectosilo-accent transition-colors hover:bg-vectosilo-surface-2"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-incogni-border bg-incogni-surface text-incogni-accent transition-colors hover:bg-incogni-surface-2"
         >
           <Lock className="h-4 w-4" />
         </button>
@@ -33,39 +33,39 @@ export function PrivacyModal() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-vectosilo-accent/15 text-vectosilo-accent"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-incogni-accent/15 text-incogni-accent"
             >
               <ShieldCheck className="h-6 w-6" />
             </motion.div>
           </div>
           <DialogTitle>Privacy & data</DialogTitle>
           <DialogDescription>
-            VectoSilo AI runs on its own <strong className="text-vectosilo-text">private inference cloud</strong>.
+            Incogni AI runs on its own <strong className="text-incogni-text">private inference cloud</strong>.
             No OpenAI, no Anthropic, no third-party trackers — your queries go only
-            to VectoSilo AI over an encrypted connection.
+            to Incogni AI over an encrypted connection.
           </DialogDescription>
         </DialogHeader>
 
         <div className="mt-2 space-y-2">
           <Row
-            icon={<Cloud className="h-4 w-4 text-vectosilo-accent" />}
+            icon={<Cloud className="h-4 w-4 text-incogni-accent" />}
             label="Inference"
-            value="VectoSilo AI private cloud"
+            value="Incogni AI private cloud"
           />
           <Row
-            icon={<Server className="h-4 w-4 text-vectosilo-accent" />}
+            icon={<Server className="h-4 w-4 text-incogni-accent" />}
             label="Active model"
             value={selectedModel ? modelLabel(selectedModel) : "—"}
           />
           <Row
-            icon={<ShieldCheck className="h-4 w-4 text-vectosilo-accent" />}
+            icon={<ShieldCheck className="h-4 w-4 text-incogni-accent" />}
             label="Third-party AI calls"
             value={`${externalCalls} (OpenAI / Anthropic / etc.)`}
           />
         </div>
 
-        <p className="mt-2 text-xs text-vectosilo-muted">
-          Web search (when enabled) runs through VectoSilo AI&apos;s own search service —
+        <p className="mt-2 text-xs text-incogni-muted">
+          Web search (when enabled) runs through Incogni AI&apos;s own search service —
           no third-party search vendor.
         </p>
       </DialogContent>
@@ -83,12 +83,12 @@ function Row({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2.5 text-sm">
-      <span className="flex items-center gap-2 text-vectosilo-muted">
+    <div className="flex items-center justify-between rounded-lg border border-incogni-border bg-incogni-surface-2 px-3 py-2.5 text-sm">
+      <span className="flex items-center gap-2 text-incogni-muted">
         {icon}
         {label}
       </span>
-      <span className="font-medium text-vectosilo-text">{value}</span>
+      <span className="font-medium text-incogni-text">{value}</span>
     </div>
   );
 }

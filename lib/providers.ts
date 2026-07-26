@@ -4,20 +4,20 @@ export interface Provider {
   defaultBaseUrl?: string
   apiKeyHint: string
   recommended: boolean
-  type: "vectosiloai" | "openai" | "anthropic" | "gemini" | "openai-compat"
+  type: "incogni-ai" | "openai" | "anthropic" | "gemini" | "openai-compat"
   docsUrl?: string
 }
 
-const RECOMMENDED_LABEL = "Recommended — your data never leaves VectoSiloAI Cloud"
+const RECOMMENDED_LABEL = "Recommended — your data never leaves IncogniAI Cloud"
 const EXTERNAL_WARN = "Not recommended unless you want to keep your data with a third party"
 
 export const PROVIDERS: Provider[] = [
   {
-    id: "vectosiloai",
-    name: "VectoSiloAI Cloud (Recommended)",
+    id: "incogni-ai",
+    name: "IncogniAI Cloud (Recommended)",
     apiKeyHint: "No API key needed (included with your plan)",
     recommended: true,
-    type: "vectosiloai",
+    type: "incogni-ai",
     docsUrl: "",
   },
 
@@ -681,4 +681,4 @@ export function getProvider(id: string): Provider | undefined {
   return PROVIDER_MAP.get(id)
 }
 
-export const DEFAULT_PROVIDER = "vectosiloai"
+export const DEFAULT_PROVIDER = "incogni-ai"

@@ -3,17 +3,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vectosilo-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vectosilo-bg disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-incogni-accent focus-visible:ring-offset-2 focus-visible:ring-offset-incogni-bg disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft shadow-sm",
+          "bg-incogni-accent text-black hover:bg-incogni-accent-soft shadow-sm",
         secondary:
-          "bg-vectosilo-surface-2 text-vectosilo-text hover:bg-vectosilo-border border border-vectosilo-border",
-        ghost: "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
+          "bg-incogni-surface-2 text-incogni-text hover:bg-incogni-border border border-incogni-border",
+        ghost: "text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text",
         outline:
-          "border border-vectosilo-border bg-transparent text-vectosilo-text hover:bg-vectosilo-surface-2",
+          "border border-incogni-border bg-transparent text-incogni-text hover:bg-incogni-surface-2",
       },
       size: {
         default: "h-10 px-4 py-2",

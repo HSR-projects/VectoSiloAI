@@ -1,11 +1,11 @@
-// Minimal "Continue with VectoSiloAI" demo — a sample third-party website that
-// integrates VectoSiloAI's OAuth provider end to end. Zero dependencies: just Node's
+// Minimal "Continue with IncogniAI" demo — a sample third-party website that
+// integrates IncogniAI's OAuth provider end to end. Zero dependencies: just Node's
 // built-in http + global fetch (Node 18+).
 //
-//   1. Register an app at <VectoSiloAI>/developers → OAuth Apps
+//   1. Register an app at <IncogniAI>/developers → OAuth Apps
 //      Redirect URI:  http://localhost:4567/callback
 //   2. CLIENT_ID=... CLIENT_SECRET=... node server.mjs
-//   3. Open http://localhost:4567 and click "Continue with VectoSiloAI".
+//   3. Open http://localhost:4567 and click "Continue with IncogniAI".
 
 import http from "node:http";
 import crypto from "node:crypto";
@@ -22,14 +22,14 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
     "\n  Missing CLIENT_ID / CLIENT_SECRET.\n" +
       "  Register an app at " + VECTOSILO + "/developers (OAuth Apps),\n" +
       "  set redirect URI to " + REDIRECT_URI + ", then run:\n\n" +
-      "    CLIENT_ID=vectosilo_... CLIENT_SECRET=vectosilo_sk_... node server.mjs\n",
+      "    CLIENT_ID=incogni_... CLIENT_SECRET=incogni_sk_... node server.mjs\n",
   );
   process.exit(1);
 }
 
 const html = (body) => `<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VectoSiloAI OAuth Demo</title>
+<title>IncogniAI OAuth Demo</title>
 <style>
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
        background:#0a0a0c;color:#e8e8ea;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
@@ -62,7 +62,7 @@ function parseCookies(req) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
-  // ── Landing page: the "Continue with VectoSiloAI" button ──
+  // ── Landing page: the "Continue with IncogniAI" button ──
   if (url.pathname === "/") {
     const state = crypto.randomBytes(16).toString("hex");
     const authUrl =
@@ -81,8 +81,8 @@ const server = http.createServer(async (req, res) => {
     res.end(
       html(`
         <h1>Acme Widgets</h1>
-        <p>A sample app using <span class="brand">VectoSilo<span>AI</span></span> to sign in.</p>
-        <a class="btn" href="${authUrl}">Continue with VectoSiloAI</a>
+        <p>A sample app using <span class="brand">Incogni<span>AI</span></span> to sign in.</p>
+        <a class="btn" href="${authUrl}">Continue with IncogniAI</a>
         <p class="muted">Provider: ${VECTOSILO}</p>
       `),
     );
@@ -135,7 +135,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         html(`
           <div class="avatar">${initial}</div>
-          <h1>Signed in with VectoSiloAI</h1>
+          <h1>Signed in with IncogniAI</h1>
           <p>The demo app received your profile:</p>
           <div class="row"><span>Name</span><span>${info.name ?? "—"}</span></div>
           <div class="row"><span>Email</span><span>${info.email ?? "—"}</span></div>
@@ -161,7 +161,7 @@ function escapeHtml(s) {
 }
 
 server.listen(PORT, () => {
-  console.log(`\n  VectoSiloAI OAuth demo running:  http://localhost:${PORT}`);
+  console.log(`\n  IncogniAI OAuth demo running:  http://localhost:${PORT}`);
   console.log(`  Provider:                   ${VECTOSILO}`);
   console.log(`  Redirect URI:               ${REDIRECT_URI}\n`);
 });

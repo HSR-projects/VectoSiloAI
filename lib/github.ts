@@ -10,7 +10,7 @@ import { createHmac } from "node:crypto";
 const CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET || "";
 const STATE_SECRET =
-  process.env.AUTH_SECRET || "vectosilo-dev-secret-change-me-in-production";
+  process.env.AUTH_SECRET || "incogni-dev-secret-change-me-in-production";
 
 /** Scopes we request: private repos, Actions workflows, and profile read/write. */
 export const GITHUB_SCOPES = "repo workflow user";
@@ -97,7 +97,7 @@ async function gh<T = unknown>(
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "VectoSiloAI",
+      "User-Agent": "IncogniAI",
       ...(init?.body ? { "Content-Type": "application/json" } : {}),
       ...(init?.headers || {}),
     },
@@ -252,17 +252,17 @@ export async function executeGithubAction(
           const r = await gh<Record<string, unknown>>(token, apiPath, {
             method: "PUT",
             body: JSON.stringify({
-              message: str("message") || `Update ${filePath} via VectoSiloAI`,
+              message: str("message") || `Update ${filePath} via IncogniAI`,
               content: Buffer.from(str("content"), "utf8").toString("base64"),
               ...(sha ? { sha } : {}),
               branch,
               author: {
-                name: "vectosilo-ai-agent",
-                email: "vectosilo-support@hsrprojects.org",
+                name: "incogni-ai-agent",
+                email: "incogni-support@hsrprojects.org",
               },
               committer: {
-                name: "vectosilo-ai-agent",
-                email: "vectosilo-support@hsrprojects.org",
+                name: "incogni-ai-agent",
+                email: "incogni-support@hsrprojects.org",
               },
             }),
           });
@@ -292,16 +292,16 @@ export async function executeGithubAction(
               const r = await gh<Record<string, unknown>>(token, apiPath, {
                 method: "PUT",
                 body: JSON.stringify({
-                  message: str("message") || `Update ${filePath} via VectoSiloAI`,
+                  message: str("message") || `Update ${filePath} via IncogniAI`,
                   content: Buffer.from(str("content"), "utf8").toString("base64"),
                   branch,
                   author: {
-                    name: "vectosilo-ai-agent",
-                    email: "vectosilo-support@hsrprojects.org",
+                    name: "incogni-ai-agent",
+                    email: "incogni-support@hsrprojects.org",
                   },
                   committer: {
-                    name: "vectosilo-ai-agent",
-                    email: "vectosilo-support@hsrprojects.org",
+                    name: "incogni-ai-agent",
+                    email: "incogni-support@hsrprojects.org",
                   },
                 }),
               });
@@ -323,7 +323,7 @@ export async function executeGithubAction(
         const { owner, name } = splitRepo(str("repo"), login);
         const files = args.files as Array<{ path: string; content: string }> | undefined;
         const branch = str("branch") || "main";
-        const message = str("message") || "Batch update via VectoSiloAI";
+        const message = str("message") || "Batch update via IncogniAI";
 
         if (!files || !Array.isArray(files) || files.length === 0) {
           return { ok: false, error: "files array required" };
@@ -391,8 +391,8 @@ export async function executeGithubAction(
               message,
               tree: newTree.sha,
               parents: [baseTree.sha],
-              author: { name: "vectosilo-ai-agent", email: "vectosilo-support@hsrprojects.org" },
-              committer: { name: "vectosilo-ai-agent", email: "vectosilo-support@hsrprojects.org" },
+              author: { name: "incogni-ai-agent", email: "incogni-support@hsrprojects.org" },
+              committer: { name: "incogni-ai-agent", email: "incogni-support@hsrprojects.org" },
             }),
           });
 

@@ -35,7 +35,7 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "vectosiloai-auto",
+          model: "incogni-ai-auto",
           messages: [
             { role: "system", content: instructions || "You are a helpful assistant." },
             ...messages,
@@ -59,18 +59,18 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
   };
 
   return (
-    <div className="flex flex-col h-full bg-vectosilo-bg relative">
+    <div className="flex flex-col h-full bg-incogni-bg relative">
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center flex-1 p-6 text-center">
           {avatarUrl ? (
             <img src={avatarUrl} alt={name} className="w-16 h-16 rounded-full object-cover mb-4 shadow-md" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center mb-4 shadow-sm">
-              <Bot className="w-8 h-8 text-vectosilo-muted" />
+            <div className="w-16 h-16 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center mb-4 shadow-sm">
+              <Bot className="w-8 h-8 text-incogni-muted" />
             </div>
           )}
-          <h2 className="text-xl font-semibold text-vectosilo-text">{name || "New AI"}</h2>
-          {description && <p className="text-sm text-vectosilo-muted mt-2 max-w-sm">{description}</p>}
+          <h2 className="text-xl font-semibold text-incogni-text">{name || "New AI"}</h2>
+          {description && <p className="text-sm text-incogni-muted mt-2 max-w-sm">{description}</p>}
           
           {starters.filter(Boolean).length > 0 && (
             <div className="grid grid-cols-1 gap-2 mt-8 w-full max-w-md">
@@ -78,7 +78,7 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
                 <button
                   key={i}
                   onClick={() => handleSend(s)}
-                  className="px-4 py-3 text-sm text-left bg-vectosilo-surface border border-vectosilo-border hover:border-vectosilo-accent hover:text-vectosilo-accent rounded-xl transition-colors shadow-sm"
+                  className="px-4 py-3 text-sm text-left bg-incogni-surface border border-incogni-border hover:border-incogni-accent hover:text-incogni-accent rounded-xl transition-colors shadow-sm"
                 >
                   {s}
                 </button>
@@ -88,16 +88,16 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          <div className="flex flex-col items-center justify-center pt-4 pb-8 border-b border-vectosilo-border/50">
+          <div className="flex flex-col items-center justify-center pt-4 pb-8 border-b border-incogni-border/50">
              {avatarUrl ? (
                <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-full object-cover mb-2 shadow-sm" />
              ) : (
-               <div className="w-12 h-12 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center mb-2 shadow-sm">
-                 <Bot className="w-6 h-6 text-vectosilo-muted" />
+               <div className="w-12 h-12 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center mb-2 shadow-sm">
+                 <Bot className="w-6 h-6 text-incogni-muted" />
                </div>
              )}
              <h3 className="text-sm font-medium">{name || "New AI"}</h3>
-             {description && <p className="text-xs text-vectosilo-muted mt-1 max-w-xs text-center">{description}</p>}
+             {description && <p className="text-xs text-incogni-muted mt-1 max-w-xs text-center">{description}</p>}
           </div>
           
           {messages.map((m, i) => (
@@ -106,14 +106,14 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
                 avatarUrl ? (
                   <img src={avatarUrl} alt="AI" className="w-8 h-8 rounded-full object-cover shrink-0 mt-1 shadow-sm" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                    <Bot className="w-4 h-4 text-vectosilo-muted" />
+                  <div className="w-8 h-8 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                    <Bot className="w-4 h-4 text-incogni-muted" />
                   </div>
                 )
               )}
               <div className={cn(
                 "px-4 py-2.5 text-[15px] leading-relaxed shadow-sm",
-                m.role === "user" ? "bg-vectosilo-surface text-vectosilo-text rounded-2xl rounded-tr-sm border border-vectosilo-border" : "bg-transparent text-vectosilo-text"
+                m.role === "user" ? "bg-incogni-surface text-incogni-text rounded-2xl rounded-tr-sm border border-incogni-border" : "bg-transparent text-incogni-text"
               )}>
                 {m.content}
               </div>
@@ -121,13 +121,13 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
           ))}
           {isLoading && (
             <div className="flex gap-3 max-w-3xl mx-auto">
-               <div className="w-8 h-8 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                 <Bot className="w-4 h-4 text-vectosilo-muted animate-pulse" />
+               <div className="w-8 h-8 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                 <Bot className="w-4 h-4 text-incogni-muted animate-pulse" />
                </div>
-               <div className="px-4 py-2.5 text-vectosilo-muted flex items-center gap-1">
-                 <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "0ms" }} />
-                 <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "150ms" }} />
-                 <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "300ms" }} />
+               <div className="px-4 py-2.5 text-incogni-muted flex items-center gap-1">
+                 <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "0ms" }} />
+                 <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "150ms" }} />
+                 <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "300ms" }} />
                </div>
             </div>
           )}
@@ -135,22 +135,22 @@ export function PreviewChat({ name, avatarUrl, description, instructions, starte
         </div>
       )}
 
-      <div className="p-4 border-t border-vectosilo-border bg-vectosilo-bg">
+      <div className="p-4 border-t border-incogni-border bg-incogni-bg">
         <form 
           onSubmit={(e) => { e.preventDefault(); handleSend(input); }}
-          className="relative max-w-3xl mx-auto flex items-end gap-2 bg-vectosilo-surface border border-vectosilo-border shadow-sm rounded-3xl px-4 py-2"
+          className="relative max-w-3xl mx-auto flex items-end gap-2 bg-incogni-surface border border-incogni-border shadow-sm rounded-3xl px-4 py-2"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={`Message ${name || "New AI"}...`}
-            className="flex-1 bg-transparent border-none focus:outline-none py-2 text-[15px] placeholder:text-vectosilo-muted min-h-[44px]"
+            className="flex-1 bg-transparent border-none focus:outline-none py-2 text-[15px] placeholder:text-incogni-muted min-h-[44px]"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="p-2 bg-vectosilo-accent text-white rounded-full disabled:opacity-50 disabled:bg-vectosilo-surface disabled:text-vectosilo-muted transition-colors shrink-0 mb-1"
+            className="p-2 bg-incogni-accent text-white rounded-full disabled:opacity-50 disabled:bg-incogni-surface disabled:text-incogni-muted transition-colors shrink-0 mb-1"
           >
             <Send className="w-4 h-4" />
           </button>

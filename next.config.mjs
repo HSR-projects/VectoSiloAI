@@ -34,18 +34,15 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Cross-origin isolation required for WebContainers (SharedArrayBuffer).
-        // credentialless (not require-corp) so external images/fonts and
-        // third-party scripts can still load.
+        // Allow cross-origin map embeds (OpenStreetMap), videos, and SDKs in Firefox and Chrome.
         source: "/(.*)",
         headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "Cross-Origin-Embedder-Policy", value: "unsafe-none" },
         ],
       },
       {
         // Razorpay checkout pages need permissive COEP/COOP to load the checkout SDK.
-        // This override must come AFTER the global rule so it wins when both match.
         source: "/razorpay/:path*",
         headers: [
           { key: "Cross-Origin-Opener-Policy", value: "unsafe-none" },

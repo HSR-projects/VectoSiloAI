@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-<title>VectoSiloBlock Code</title>
+<title>IncogniBlock Code</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body,#root{height:100%;width:100%;overflow:hidden}
@@ -29,7 +29,7 @@ body{background:#0c0c0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 </head>
 <body>
 <div class="header">
-  <div class="logo"><span class="k">VectoSilo</span>Block</div>
+  <div class="logo"><span class="k">Incogni</span>Block</div>
   <div class="actions">
     <button class="primary" onclick="toggleAI()">AI</button>
     <button onclick="showHelp()">?</button>
@@ -51,7 +51,7 @@ function toggleAI() {
 }
 
 function showHelp() {
-  alert('VectoSiloBlock Code — Visual programming with AI\n\n' +
+  alert('IncogniBlock Code — Visual programming with AI\n\n' +
     '• Drag & drop blocks from the palette on the left\n' +
     '• Click the AI button to generate projects from text\n' +
     '• Use File > Load from your computer to open .sb3 files\n' +
@@ -67,7 +67,7 @@ async function aiGenerate() {
   btn.textContent = 'Generating...';
   result.textContent = 'Contacting AI...';
   try {
-    const res = await fetch('/api/vectosiloblocks/generate', {
+    const res = await fetch('/api/incogniblocks/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
@@ -83,7 +83,7 @@ async function aiGenerate() {
     const blob = new Blob([bytes], { type: 'application/octet-stream' });
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'vectosiloblocks-project.sb3';
+    a.download = 'incogniblocks-project.sb3';
     a.click();
     URL.revokeObjectURL(url);
     result.innerHTML = 'Downloaded! Open the file via File &gt; Load from your computer';

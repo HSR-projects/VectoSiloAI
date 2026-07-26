@@ -43,8 +43,8 @@ export async function POST(req: Request) {
     amount: order.amount,
     currency: order.currency,
     key: process.env.RAZORPAY_KEY_ID!,
-    name: `VectoSiloAI API Credits — ${pack.label}`,
-    description: `${pack.credits} credits ($${pack.usd.toFixed(2)}) for the VectoSiloAI API. Credits never expire.`,
+    name: `IncogniAI API Credits — ${pack.label}`,
+    description: `${pack.credits} credits ($${pack.usd.toFixed(2)}) for the IncogniAI API. Credits never expire.`,
     prefill: {
       email: current.email,
     },

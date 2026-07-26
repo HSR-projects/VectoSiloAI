@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@vectosiloai/koder-opencode-cli",
+  "name": "@incogni-ai/koder-opencode-cli",
   "version": "1.17.11",
   "type": "module",
   "license": "MIT",

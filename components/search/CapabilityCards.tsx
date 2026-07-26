@@ -44,7 +44,7 @@ const CAPABILITIES = [
 export function CapabilityCards({ onSelect }: { onSelect: (q: string) => void }) {
   return (
     <div className="mt-10">
-      <p className="mb-4 text-center text-xs font-medium uppercase tracking-wider text-vectosilo-muted">
+      <p className="mb-4 text-center text-xs font-medium uppercase tracking-wider text-incogni-muted">
         What can I help you build?
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -55,13 +55,13 @@ export function CapabilityCards({ onSelect }: { onSelect: (q: string) => void })
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 + i * 0.05 }}
             onClick={() => onSelect(c.prompt)}
-            className="group flex flex-col items-start gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4 text-left transition-all hover:border-vectosilo-accent/30 hover:bg-vectosilo-surface-2 hover:shadow-lg"
+            className="group flex flex-col items-start gap-2 rounded-xl border border-incogni-border bg-incogni-surface/50 p-4 text-left transition-all hover:border-incogni-accent/30 hover:bg-incogni-surface-2 hover:shadow-lg"
           >
             <span className="text-xl">{c.icon}</span>
-            <span className="text-sm font-medium text-vectosilo-text group-hover:text-vectosilo-accent-soft">
+            <span className="text-sm font-medium text-incogni-text group-hover:text-incogni-accent-soft">
               {c.title}
             </span>
-            <span className="text-xs leading-relaxed text-vectosilo-muted">{c.desc}</span>
+            <span className="text-xs leading-relaxed text-incogni-muted">{c.desc}</span>
           </motion.button>
         ))}
       </div>

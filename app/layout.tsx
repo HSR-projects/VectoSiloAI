@@ -6,10 +6,10 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthGate } from "@/components/auth/AuthGate";
 
 export const metadata: Metadata = {
-  title: "VectoSilo AI — Private AI Search",
+  title: "Incogni AI — Private AI Search & Code",
   description:
-    "Privacy-first AI search and chat by VectoSilo AI. No OpenAI, no Anthropic, no telemetry.",
-  icons: { icon: "/vectosilo-logo.svg" },
+    "Privacy-first AI search, chat, and coding engine by Incogni AI. 100% Zero-Data-Leak Privacy.",
+  icons: { icon: "/incogni-logo.svg" },
 };
 
 // `viewport-fit=cover` lets the app extend under the iOS notch/home indicator so
@@ -21,19 +21,25 @@ export const viewport: Viewport = {
   themeColor: "#212121",
 };
 
+import { ThemeProvider } from "next-themes";
+import { GlobalModals } from "@/components/layout/GlobalModals";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body>
-        <AuthProvider>
-          <TooltipProvider delayDuration={150}>
-            <AuthGate>{children}</AuthGate>
-          </TooltipProvider>
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="dark">
+          <AuthProvider>
+            <TooltipProvider delayDuration={150}>
+              <AuthGate>{children}</AuthGate>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
+        <GlobalModals />
       </body>
     </html>
   );

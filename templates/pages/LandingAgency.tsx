@@ -171,14 +171,14 @@ const portfolioImages = Array.from({ length: 6 }, (_, i) => ({
 export default function LandingAgency() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-vectosilo-bg">
+      <div className="min-h-screen bg-incogni-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-vectosilo-text">StudioK</span>}
+          logo={<span className="text-xl font-bold text-incogni-text">StudioK</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+              className="rounded-lg bg-incogni-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
             >
               Let's Talk
             </a>
@@ -190,10 +190,10 @@ export default function LandingAgency() {
           subtitle="A creative studio that partners with ambitious brands to design and develop impactful digital products."
           cta={{ label: "View Our Work", href: "#work" }}
           image={
-            <div className="flex h-80 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-vectosilo-accent/20 via-purple-500/20 to-vectosilo-surface-2">
+            <div className="flex h-80 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-incogni-accent/20 via-purple-500/20 to-incogni-surface-2">
               <div className="text-center">
-                <PenTool className="mx-auto h-16 w-16 text-vectosilo-accent/60" />
-                <p className="mt-4 text-sm text-vectosilo-muted">Creative Studio Showreel</p>
+                <PenTool className="mx-auto h-16 w-16 text-incogni-accent/60" />
+                <p className="mt-4 text-sm text-incogni-muted">Creative Studio Showreel</p>
               </div>
             </div>
           }
@@ -236,10 +236,10 @@ export default function LandingAgency() {
 
         <section id="work" className="py-16 px-4">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl">
+            <h2 className="text-center text-3xl font-bold text-incogni-text sm:text-4xl">
               Featured work
             </h2>
-            <p className="mt-4 text-center text-lg text-vectosilo-muted">
+            <p className="mt-4 text-center text-lg text-incogni-muted">
               A selection of projects we are proud to have been part of.
             </p>
             <div className="mt-12">
@@ -261,7 +261,7 @@ export default function LandingAgency() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl font-bold text-vectosilo-text sm:text-5xl"
+              className="text-4xl font-bold text-incogni-text sm:text-5xl"
             >
               Ready to create something amazing?
             </motion.h2>
@@ -270,7 +270,7 @@ export default function LandingAgency() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
-              className="mt-4 text-lg text-vectosilo-muted"
+              className="mt-4 text-lg text-incogni-muted"
             >
               Let us collaborate and bring your vision to life.
             </motion.p>
@@ -283,7 +283,7 @@ export default function LandingAgency() {
             >
               <a
                 href="#"
-                className="inline-flex items-center gap-2 rounded-lg bg-vectosilo-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+                className="inline-flex items-center gap-2 rounded-lg bg-incogni-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
               >
                 Start a Project <ArrowRight size={16} />
               </a>
@@ -301,17 +301,17 @@ export default function LandingAgency() {
           />
         </div>
 
-        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
+        <footer className="border-t border-incogni-border bg-incogni-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <span className="text-sm text-vectosilo-muted">
+              <span className="text-sm text-incogni-muted">
                 &copy; {new Date().getFullYear()} StudioK. All rights reserved.
               </span>
-              <div className="flex gap-6 text-sm text-vectosilo-muted">
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Dribbble</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Behance</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Twitter</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">LinkedIn</a>
+              <div className="flex gap-6 text-sm text-incogni-muted">
+                <a href="#" className="hover:text-incogni-text transition-colors">Dribbble</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">Behance</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">Twitter</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">LinkedIn</a>
               </div>
             </div>
           </div>

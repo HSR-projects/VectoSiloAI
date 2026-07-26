@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 </head>
 <body>
   <h1>${project.name}</h1>
-  <p>${project.description || "Trained with VectoSiloAI Teachable Machine"}</p>
+  <p>${project.description || "Trained with IncogniAI Teachable Machine"}</p>
 
   <div>
     <video id="webcam" autoplay playsinline style="display:none"></video>

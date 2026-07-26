@@ -64,7 +64,7 @@ export function Rating({
                   ? "text-yellow-400 fill-yellow-400"
                   : half
                     ? "text-yellow-400/30"
-                    : "text-vectosilo-border"
+                    : "text-incogni-border"
               )}
             />
             {half && (
@@ -82,7 +82,7 @@ export function Rating({
           key={display}
           initial={{ opacity: 0, x: -4 }}
           animate={{ opacity: 1, x: 0 }}
-          className="ml-2 text-sm font-medium text-vectosilo-muted tabular-nums"
+          className="ml-2 text-sm font-medium text-incogni-muted tabular-nums"
         >
           {display}/{max}
         </motion.span>

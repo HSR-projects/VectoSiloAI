@@ -6,11 +6,11 @@ import {
   Github, Loader2, Check, Search, Settings, Zap, Globe, Mail, Database, Shield,
   ArrowUpRight, ChevronRight,
 } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const APPS = [
-  { id: "github", name: "GitHub", desc: "Repos, code, files & Actions", icon: Github, tile: "bg-vectosilo-surface-2 text-vectosilo-text", configured: true },
+  { id: "github", name: "GitHub", desc: "Repos, code, files & Actions", icon: Github, tile: "bg-incogni-surface-2 text-incogni-text", configured: true },
   { id: "jira", name: "Jira", desc: "Issues, boards & sprints", icon: Settings, tile: "bg-blue-500/20 text-blue-400" },
   { id: "linear", name: "Linear", desc: "Projects, issues & cycles", icon: Zap, tile: "bg-purple-500/20 text-purple-400" },
   { id: "notion", name: "Notion", desc: "Pages, databases & wikis", icon: Database, tile: "bg-slate-500/20 text-slate-400" },
@@ -21,8 +21,8 @@ const APPS = [
 ];
 
 export function IntegrationsPanel() {
-  const githubConnected = useVectoSiloStore((s) => s.githubConnected);
-  const setGithubConnected = useVectoSiloStore((s) => s.setGithubConnected);
+  const githubConnected = useIncogniStore((s) => s.githubConnected);
+  const setGithubConnected = useIncogniStore((s) => s.setGithubConnected);
 
   const [gh, setGh] = useState<{ connected: boolean; login?: string; configured: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ export function IntegrationsPanel() {
     <div>
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-vectosilo-accent" />
+          <Loader2 className="h-6 w-6 animate-spin text-incogni-accent" />
         </div>
       ) : (
         <>
@@ -75,14 +75,14 @@ export function IntegrationsPanel() {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group flex items-center gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-vectosilo-surface-2"
+            className="group flex items-center gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-incogni-surface-2"
           >
-            <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", gh?.connected ? "bg-emerald-500/15" : "bg-vectosilo-surface-2 text-vectosilo-text")}>
+            <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", gh?.connected ? "bg-emerald-500/15" : "bg-incogni-surface-2 text-incogni-text")}>
               <Github className="h-5 w-5" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-vectosilo-text">GitHub</span>
-              <span className="block truncate text-xs text-vectosilo-muted">
+              <span className="block truncate text-sm font-medium text-incogni-text">GitHub</span>
+              <span className="block truncate text-xs text-incogni-muted">
                 {gh?.connected ? `Connected as @${gh.login}` : "Repos, code, files & Actions"}
               </span>
             </span>
@@ -94,7 +94,7 @@ export function IntegrationsPanel() {
               <button
                 onClick={connect}
                 disabled={busy}
-                className="inline-flex items-center gap-1 rounded-lg border border-vectosilo-accent/30 bg-vectosilo-accent/10 px-2.5 py-1 text-[11px] font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/20"
+                className="inline-flex items-center gap-1 rounded-lg border border-incogni-accent/30 bg-incogni-accent/10 px-2.5 py-1 text-[11px] font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/20"
               >
                 {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpRight className="h-3 w-3" />}
                 Connect
@@ -104,7 +104,7 @@ export function IntegrationsPanel() {
               <button
                 onClick={disconnect}
                 disabled={busy}
-                className="rounded-lg px-2 py-1 text-[11px] text-vectosilo-muted transition-colors hover:bg-red-500/10 hover:text-red-400"
+                className="rounded-lg px-2 py-1 text-[11px] text-incogni-muted transition-colors hover:bg-red-500/10 hover:text-red-400"
               >
                 Disconnect
               </button>
@@ -122,10 +122,10 @@ export function IntegrationsPanel() {
                   <a.icon className="h-5 w-5" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-vectosilo-text">{a.name}</span>
-                  <span className="block truncate text-xs text-vectosilo-muted">{a.desc}</span>
+                  <span className="block truncate text-sm font-medium text-incogni-text">{a.name}</span>
+                  <span className="block truncate text-xs text-incogni-muted">{a.desc}</span>
                 </span>
-                <span className="rounded-full border border-vectosilo-border px-2 py-0.5 text-[10px] text-vectosilo-muted">Soon</span>
+                <span className="rounded-full border border-incogni-border px-2 py-0.5 text-[10px] text-incogni-muted">Soon</span>
               </div>
             ))}
           </div>

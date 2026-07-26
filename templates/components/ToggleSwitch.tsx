@@ -83,7 +83,7 @@ export const ToggleSwitch = forwardRef<HTMLDivElement, ToggleSwitchProps>(
           </motion.div>
         </div>
         {label && (
-          <span className={cn("select-none text-vectosilo-text", s.label)}>
+          <span className={cn("select-none text-incogni-text", s.label)}>
             {label}
           </span>
         )}

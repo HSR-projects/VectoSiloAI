@@ -57,10 +57,10 @@ export function WaitlistPage({
 
   return (
     <PageTransition>
-      <div className={cn("min-h-screen bg-vectosilo-bg", className)}>
+      <div className={cn("min-h-screen bg-incogni-bg", className)}>
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-vectosilo-accent/5 via-transparent to-transparent" />
-          <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-vectosilo-accent/5 blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-b from-incogni-accent/5 via-transparent to-transparent" />
+          <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-incogni-accent/5 blur-3xl" />
           <div className="absolute top-40 right-10 h-96 w-96 rounded-full bg-purple-500/5 blur-3xl" />
 
           <div className="relative z-10 mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
@@ -69,7 +69,7 @@ export function WaitlistPage({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 inline-flex items-center gap-2 rounded-full bg-vectosilo-accent/10 px-3 py-1 text-xs font-medium text-vectosilo-accent"
+                  className="mb-4 inline-flex items-center gap-2 rounded-full bg-incogni-accent/10 px-3 py-1 text-xs font-medium text-incogni-accent"
                 >
                   <Sparkles size={12} /> Coming Soon
                 </motion.div>
@@ -77,7 +77,7 @@ export function WaitlistPage({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="text-4xl font-bold text-vectosilo-text sm:text-5xl lg:text-6xl"
+                  className="text-4xl font-bold text-incogni-text sm:text-5xl lg:text-6xl"
                 >
                   {productName}
                 </motion.h1>
@@ -85,7 +85,7 @@ export function WaitlistPage({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="mt-4 text-xl text-vectosilo-muted"
+                  className="mt-4 text-xl text-incogni-muted"
                 >
                   {tagline}
                 </motion.p>
@@ -93,7 +93,7 @@ export function WaitlistPage({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="mt-4 text-sm text-vectosilo-muted leading-relaxed"
+                  className="mt-4 text-sm text-incogni-muted leading-relaxed"
                 >
                   {description}
                 </motion.p>
@@ -109,7 +109,7 @@ export function WaitlistPage({
                     <div className="relative flex-1">
                       <Mail
                         size={16}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-vectosilo-muted"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-incogni-muted"
                       />
                       <input
                         type="email"
@@ -117,13 +117,13 @@ export function WaitlistPage({
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
                         required
-                        className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface py-3 pl-10 pr-4 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent focus:outline-none"
+                        className="w-full rounded-lg border border-incogni-border bg-incogni-surface py-3 pl-10 pr-4 text-sm text-incogni-text placeholder:text-incogni-muted focus:border-incogni-accent focus:outline-none"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={loading}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90 disabled:opacity-60"
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-incogni-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90 disabled:opacity-60"
                     >
                       {loading ? "Joining..." : "Join Waitlist"}
                       {!loading && <ArrowRight size={16} />}
@@ -133,15 +133,15 @@ export function WaitlistPage({
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="mt-8 rounded-xl border border-vectosilo-accent/30 bg-vectosilo-accent/5 p-5"
+                    className="mt-8 rounded-xl border border-incogni-accent/30 bg-incogni-accent/5 p-5"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-vectosilo-accent/20">
-                        <Check size={18} className="text-vectosilo-accent" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-incogni-accent/20">
+                        <Check size={18} className="text-incogni-accent" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-vectosilo-text">You are on the list!</p>
-                        <p className="text-xs text-vectosilo-muted mt-0.5">
+                        <p className="text-sm font-semibold text-incogni-text">You are on the list!</p>
+                        <p className="text-xs text-incogni-muted mt-0.5">
                           We will notify you at {email} when we launch.
                         </p>
                       </div>
@@ -153,11 +153,11 @@ export function WaitlistPage({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.45 }}
-                  className="mt-6 flex flex-wrap items-center gap-4 text-xs text-vectosilo-muted"
+                  className="mt-6 flex flex-wrap items-center gap-4 text-xs text-incogni-muted"
                 >
                   {waitlistCount > 0 && (
                     <span className="flex items-center gap-1">
-                      <Star size={12} className="text-vectosilo-accent" />{" "}
+                      <Star size={12} className="text-incogni-accent" />{" "}
                       {waitlistCount.toLocaleString()} people on waitlist
                     </span>
                   )}
@@ -175,16 +175,16 @@ export function WaitlistPage({
                 transition={{ delay: 0.3 }}
                 className="relative hidden lg:block"
               >
-                <div className="rounded-2xl border border-vectosilo-border bg-gradient-to-br from-vectosilo-surface to-vectosilo-surface-2 p-8">
+                <div className="rounded-2xl border border-incogni-border bg-gradient-to-br from-incogni-surface to-incogni-surface-2 p-8">
                   <div className="grid gap-4">
                     {features.slice(0, 4).map((f, i) => (
-                      <div key={i} className="flex items-start gap-3 rounded-lg bg-vectosilo-bg/50 p-3">
-                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/10 text-vectosilo-accent">
+                      <div key={i} className="flex items-start gap-3 rounded-lg bg-incogni-bg/50 p-3">
+                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-incogni-accent/10 text-incogni-accent">
                           {f.icon}
                         </span>
                         <div>
-                          <p className="text-sm font-medium text-vectosilo-text">{f.title}</p>
-                          <p className="text-xs text-vectosilo-muted mt-0.5">{f.description}</p>
+                          <p className="text-sm font-medium text-incogni-text">{f.title}</p>
+                          <p className="text-xs text-incogni-muted mt-0.5">{f.description}</p>
                         </div>
                       </div>
                     ))}
@@ -201,7 +201,7 @@ export function WaitlistPage({
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center text-2xl font-bold text-vectosilo-text sm:text-3xl"
+              className="text-center text-2xl font-bold text-incogni-text sm:text-3xl"
             >
               What you will get
             </motion.h2>
@@ -213,13 +213,13 @@ export function WaitlistPage({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.06 }}
-                  className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5 transition-colors hover:border-vectosilo-accent/30"
+                  className="rounded-xl border border-incogni-border bg-incogni-surface p-5 transition-colors hover:border-incogni-accent/30"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-vectosilo-accent/10 text-vectosilo-accent">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-incogni-accent/10 text-incogni-accent">
                     {f.icon}
                   </span>
-                  <h3 className="mt-3 text-base font-semibold text-vectosilo-text">{f.title}</h3>
-                  <p className="mt-1 text-sm text-vectosilo-muted">{f.description}</p>
+                  <h3 className="mt-3 text-base font-semibold text-incogni-text">{f.title}</h3>
+                  <p className="mt-1 text-sm text-incogni-muted">{f.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -227,13 +227,13 @@ export function WaitlistPage({
         </section>
 
         {socialProof && socialProof.length > 0 && (
-          <section className="border-t border-vectosilo-border py-16">
+          <section className="border-t border-incogni-border py-16">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center text-2xl font-bold text-vectosilo-text sm:text-3xl"
+                className="text-center text-2xl font-bold text-incogni-text sm:text-3xl"
               >
                 Early supporters
               </motion.h2>
@@ -245,7 +245,7 @@ export function WaitlistPage({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08 }}
-                    className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-4"
+                    className="rounded-xl border border-incogni-border bg-incogni-surface p-4"
                   >
                     <div className="flex items-center gap-3">
                       <img
@@ -254,11 +254,11 @@ export function WaitlistPage({
                         className="h-10 w-10 rounded-full object-cover"
                       />
                       <div>
-                        <p className="text-sm font-medium text-vectosilo-text">{p.name}</p>
-                        <p className="text-xs text-vectosilo-muted">{p.role}</p>
+                        <p className="text-sm font-medium text-incogni-text">{p.name}</p>
+                        <p className="text-xs text-incogni-muted">{p.role}</p>
                       </div>
                     </div>
-                    <p className="mt-3 text-sm text-vectosilo-muted italic">&ldquo;{p.quote}&rdquo;</p>
+                    <p className="mt-3 text-sm text-incogni-muted italic">&ldquo;{p.quote}&rdquo;</p>
                   </motion.div>
                 ))}
               </div>

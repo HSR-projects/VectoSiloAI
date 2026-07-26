@@ -59,9 +59,9 @@ export function Stepper({
                 transition={{ duration: 0.3 }}
                 className={cn(
                   "relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold",
-                  isCompleted && "border-vectosilo-accent bg-vectosilo-accent text-white",
-                  isCurrent && "border-vectosilo-accent bg-vectosilo-accent/15 text-vectosilo-accent",
-                  !isCompleted && !isCurrent && "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted"
+                  isCompleted && "border-incogni-accent bg-incogni-accent text-white",
+                  isCurrent && "border-incogni-accent bg-incogni-accent/15 text-incogni-accent",
+                  !isCompleted && !isCurrent && "border-incogni-border bg-incogni-surface text-incogni-muted"
                 )}
               >
                 {isCompleted ? (
@@ -74,15 +74,15 @@ export function Stepper({
                 <p
                   className={cn(
                     "text-sm font-medium",
-                    isCompleted && "text-vectosilo-accent",
-                    isCurrent && "text-vectosilo-text",
-                    !isCompleted && !isCurrent && "text-vectosilo-muted"
+                    isCompleted && "text-incogni-accent",
+                    isCurrent && "text-incogni-text",
+                    !isCompleted && !isCurrent && "text-incogni-muted"
                   )}
                 >
                   {step.label}
                 </p>
                 {step.description && (
-                  <p className="text-xs text-vectosilo-muted mt-0.5 max-w-[200px]">
+                  <p className="text-xs text-incogni-muted mt-0.5 max-w-[200px]">
                     {step.description}
                   </p>
                 )}
@@ -101,7 +101,7 @@ export function Stepper({
                 <div
                   className={cn(
                     "absolute inset-0 rounded-full transition-colors duration-500",
-                    i < currentStep ? "bg-vectosilo-accent" : "bg-vectosilo-border"
+                    i < currentStep ? "bg-incogni-accent" : "bg-incogni-border"
                   )}
                 />
                 <motion.div
@@ -114,7 +114,7 @@ export function Stepper({
                   className={cn(
                     "absolute inset-0 rounded-full origin-left",
                     orientation === "vertical" && "origin-top",
-                    "bg-vectosilo-accent"
+                    "bg-incogni-accent"
                   )}
                 />
               </div>

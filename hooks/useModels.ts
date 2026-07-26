@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { AUTO_MODEL } from "@/lib/autoModel";
 
 interface ModelsResponse {
@@ -15,21 +15,29 @@ interface ModelsResponse {
 let modelsPromise: Promise<ModelsResponse> | null = null;
 
 function fetchModels(): Promise<ModelsResponse> {
-  if (!modelsPromise) {
-    modelsPromise = fetch("/api/ollama/models")
-      .then((r) => r.json())
-      .catch((): ModelsResponse => ({
-        models: [],
-        error: "Could not reach Ollama Cloud.",
-      }));
-  }
-  return modelsPromise;
+  const store = useIncogniStore.getState();
+  const headers: Record<string, string> = {};
+  if (store.openaiApiKey) headers["x-openai-key"] = store.openaiApiKey;
+  if (store.anthropicApiKey) headers["x-anthropic-key"] = store.anthropicApiKey;
+  if (store.geminiApiKey) headers["x-gemini-key"] = store.geminiApiKey;
+  if (store.openrouterApiKey) headers["x-openrouter-key"] = store.openrouterApiKey;
+
+  return fetch("/api/ollama/models", { headers })
+    .then((r) => r.json())
+    .catch((): ModelsResponse => ({
+      models: [],
+      error: "Could not reach Incogni AI server.",
+    }));
 }
 
-/** Fetches the list of Ollama Cloud models and hydrates the store. */
+/** Fetches the list of Ollama Cloud and Developer Provider models and hydrates the store. */
 export function useModels() {
-  const setAvailableModels = useVectoSiloStore((s) => s.setAvailableModels);
-  const setSelectedModel = useVectoSiloStore((s) => s.setSelectedModel);
+  const setAvailableModels = useIncogniStore((s) => s.setAvailableModels);
+  const setSelectedModel = useIncogniStore((s) => s.setSelectedModel);
+  const openaiApiKey = useIncogniStore((s) => s.openaiApiKey);
+  const anthropicApiKey = useIncogniStore((s) => s.anthropicApiKey);
+  const geminiApiKey = useIncogniStore((s) => s.geminiApiKey);
+  const openrouterApiKey = useIncogniStore((s) => s.openrouterApiKey);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,12 +46,10 @@ export function useModels() {
     setLoading(true);
 
     fetchModels().then((data) => {
-      // Store updates are global/idempotent — always apply them, even if this
-      // particular effect instance was cleaned up by Strict Mode.
       const models = data.models ?? [];
       setAvailableModels(models);
 
-      const current = useVectoSiloStore.getState().selectedModel;
+      const current = useIncogniStore.getState().selectedModel;
       // "Auto" is a valid selection even though it isn't a real model id.
       if (current !== AUTO_MODEL && (!current || !models.includes(current))) {
         const pick =
@@ -64,7 +70,7 @@ export function useModels() {
     return () => {
       active = false;
     };
-  }, [setAvailableModels, setSelectedModel]);
+  }, [setAvailableModels, setSelectedModel, openaiApiKey, anthropicApiKey, geminiApiKey, openrouterApiKey]);
 
   return { loading, error };
 }

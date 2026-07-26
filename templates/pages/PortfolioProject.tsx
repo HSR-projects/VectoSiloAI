@@ -42,13 +42,13 @@ export function PortfolioProject({
 }: PortfolioProjectProps) {
   return (
     <PageTransition>
-      <div className={cn("min-h-screen bg-vectosilo-bg", className)}>
+      <div className={cn("min-h-screen bg-incogni-bg", className)}>
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <motion.a
             href="#"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="mb-8 inline-flex items-center gap-1.5 text-sm text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+            className="mb-8 inline-flex items-center gap-1.5 text-sm text-incogni-muted transition-colors hover:text-incogni-text"
           >
             <ArrowLeft size={14} /> Back to projects
           </motion.a>
@@ -81,18 +81,18 @@ export function PortfolioProject({
                     {tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1 rounded-full bg-vectosilo-accent/10 px-2.5 py-0.5 text-xs font-medium text-vectosilo-accent"
+                        className="inline-flex items-center gap-1 rounded-full bg-incogni-accent/10 px-2.5 py-0.5 text-xs font-medium text-incogni-accent"
                       >
                         <Tag size={10} /> {tag}
                       </span>
                     ))}
                   </div>
                 )}
-                <h1 className="text-3xl font-bold text-vectosilo-text sm:text-4xl lg:text-5xl">
+                <h1 className="text-3xl font-bold text-incogni-text sm:text-4xl lg:text-5xl">
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="mt-2 text-lg text-vectosilo-muted">{subtitle}</p>
+                  <p className="mt-2 text-lg text-incogni-muted">{subtitle}</p>
                 )}
               </div>
               <div className="mt-4 flex gap-3 sm:mt-0">
@@ -101,7 +101,7 @@ export function PortfolioProject({
                     href={liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-incogni-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
                   >
                     <ExternalLink size={14} /> Live Site
                   </a>
@@ -111,7 +111,7 @@ export function PortfolioProject({
                     href={githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg border border-vectosilo-border px-4 py-2 text-sm font-semibold text-vectosilo-text transition-colors hover:bg-vectosilo-surface"
+                    className="inline-flex items-center gap-2 rounded-lg border border-incogni-border px-4 py-2 text-sm font-semibold text-incogni-text transition-colors hover:bg-incogni-surface"
                   >
                     <Github size={14} /> Source
                   </a>
@@ -120,7 +120,7 @@ export function PortfolioProject({
             </div>
 
             {date && (
-              <div className="mt-4 flex items-center gap-1.5 text-sm text-vectosilo-muted">
+              <div className="mt-4 flex items-center gap-1.5 text-sm text-incogni-muted">
                 <Calendar size={14} /> {date}
               </div>
             )}
@@ -133,8 +133,8 @@ export function PortfolioProject({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-xl font-semibold text-vectosilo-text">Overview</h2>
-                <p className="mt-3 text-sm text-vectosilo-muted leading-relaxed">{overview}</p>
+                <h2 className="text-xl font-semibold text-incogni-text">Overview</h2>
+                <p className="mt-3 text-sm text-incogni-muted leading-relaxed">{overview}</p>
               </motion.section>
 
               {challenge && (
@@ -143,8 +143,8 @@ export function PortfolioProject({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-xl font-semibold text-vectosilo-text">The Challenge</h2>
-                  <p className="mt-3 text-sm text-vectosilo-muted leading-relaxed">{challenge}</p>
+                  <h2 className="text-xl font-semibold text-incogni-text">The Challenge</h2>
+                  <p className="mt-3 text-sm text-incogni-muted leading-relaxed">{challenge}</p>
                 </motion.section>
               )}
 
@@ -154,8 +154,8 @@ export function PortfolioProject({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-xl font-semibold text-vectosilo-text">The Solution</h2>
-                  <p className="mt-3 text-sm text-vectosilo-muted leading-relaxed">{solution}</p>
+                  <h2 className="text-xl font-semibold text-incogni-text">The Solution</h2>
+                  <p className="mt-3 text-sm text-incogni-muted leading-relaxed">{solution}</p>
                 </motion.section>
               )}
 
@@ -165,7 +165,7 @@ export function PortfolioProject({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-xl font-semibold text-vectosilo-text">Gallery</h2>
+                  <h2 className="text-xl font-semibold text-incogni-text">Gallery</h2>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {gallery.map((img, i) => (
                       <motion.div
@@ -194,14 +194,14 @@ export function PortfolioProject({
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5"
+                  className="rounded-xl border border-incogni-border bg-incogni-surface p-5"
                 >
-                  <h3 className="text-sm font-semibold text-vectosilo-text">Results</h3>
+                  <h3 className="text-sm font-semibold text-incogni-text">Results</h3>
                   <div className="mt-4 space-y-4">
                     {results.map((r) => (
                       <div key={r.label}>
-                        <p className="text-2xl font-bold text-vectosilo-accent">{r.value}</p>
-                        <p className="text-xs text-vectosilo-muted">{r.label}</p>
+                        <p className="text-2xl font-bold text-incogni-accent">{r.value}</p>
+                        <p className="text-xs text-incogni-muted">{r.label}</p>
                       </div>
                     ))}
                   </div>
@@ -212,14 +212,14 @@ export function PortfolioProject({
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5"
+                className="rounded-xl border border-incogni-border bg-incogni-surface p-5"
               >
-                <h3 className="text-sm font-semibold text-vectosilo-text">Tech Stack</h3>
+                <h3 className="text-sm font-semibold text-incogni-text">Tech Stack</h3>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-lg bg-vectosilo-surface-2 px-2.5 py-1 text-xs font-medium text-vectosilo-muted"
+                      className="rounded-lg bg-incogni-surface-2 px-2.5 py-1 text-xs font-medium text-incogni-muted"
                     >
                       {tech}
                     </span>

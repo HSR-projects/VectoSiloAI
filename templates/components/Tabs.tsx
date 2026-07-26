@@ -47,8 +47,8 @@ export function Tabs({ tabs, activeTab, onChange, className, ...rest }: TabsProp
           className={cn(
             "relative rounded-lg px-4 py-2 text-sm font-medium transition-colors",
             activeTab === tab.id
-              ? "text-vectosilo-text"
-              : "text-vectosilo-muted hover:text-vectosilo-text"
+              ? "text-incogni-text"
+              : "text-incogni-muted hover:text-incogni-text"
           )}
         >
           {tab.label}
@@ -57,7 +57,7 @@ export function Tabs({ tabs, activeTab, onChange, className, ...rest }: TabsProp
       <motion.div
         layout
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        className="absolute bottom-0 h-0.5 rounded-full bg-vectosilo-accent"
+        className="absolute bottom-0 h-0.5 rounded-full bg-incogni-accent"
         style={{
           left: indicatorStyle.left,
           width: indicatorStyle.width,

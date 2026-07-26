@@ -41,7 +41,7 @@ export async function GET(req: Request) {
 
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "VectoSiloAI/1.0" },
+      headers: { "User-Agent": "IncogniAI/1.0" },
       signal: AbortSignal.timeout(10000),
     });
 

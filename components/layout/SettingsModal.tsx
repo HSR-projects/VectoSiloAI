@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   Settings, Cpu, Loader2, Swords, Check, Lock, Trash2, Palette, AlertTriangle,
   Sparkles, LogOut, Mail, Pencil, UserRound, Crown, Mic, Database, SlidersHorizontal,
   Blocks, Shield, ShieldCheck, Copy, Download, MessageSquare, Smartphone, HelpCircle,
-  ArrowRight, QrCode, AlertCircle, Zap,
+  ArrowRight, QrCode, AlertCircle, Zap, Code2, Key, Eye, EyeOff,
 } from "lucide-react";
 import { useModels } from "@/hooks/useModels";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { modelLabel, cn } from "@/lib/utils";
 import { AUTO_MODEL } from "@/lib/autoModel";
@@ -24,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 
 const AVATAR_COLORS = [
-  { label: "Violet", value: "#7c3aed" }, { label: "Blue", value: "#2563eb" },
+  { label: "Violet", value: "#475569" }, { label: "Blue", value: "#2563eb" },
   { label: "Cyan", value: "#0891b2" }, { label: "Green", value: "#16a34a" },
   { label: "Amber", value: "#d97706" }, { label: "Rose", value: "#e11d48" },
   { label: "Pink", value: "#db2777" }, { label: "Slate", value: "#475569" },
@@ -53,12 +54,13 @@ function difficultyLabel(n: number): string {
 
 const PLAN_LABEL: Record<string, string> = { free: "Free", pro: "Pro", max: "Max" };
 
-type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "whatsapp" | "data" | "account";
+type TabId = "general" | "personalization" | "model" | "developer" | "game" | "integrations" | "whatsapp" | "data" | "account";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "general", label: "General", icon: <SlidersHorizontal className="h-4 w-4" /> },
   { id: "personalization", label: "Personalization", icon: <Palette className="h-4 w-4" /> },
   { id: "model", label: "Model", icon: <Cpu className="h-4 w-4" /> },
+  { id: "developer", label: "Developer Mode", icon: <Code2 className="h-4 w-4" /> },
   { id: "game", label: "Chess", icon: <Swords className="h-4 w-4" /> },
   { id: "integrations", label: "Integrations", icon: <Blocks className="h-4 w-4" /> },
   { id: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-4 w-4" /> },
@@ -67,6 +69,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
 ];
 
 export function SettingsModal() {
+  const { theme, setTheme } = useTheme();
   const { loading } = useModels();
   const { user, caps, updateAccount, deleteAccount, logout } = useAuth();
   const {
@@ -74,7 +77,12 @@ export function SettingsModal() {
     focusMode, setFocusMode, chessDifficulty, setChessDifficulty,
     settingsOpen, setSettingsOpen, settingsTab, setSettingsTab,
     dictationEnabled, setDictationEnabled, dictationLang, setDictationLang,
-  } = useVectoSiloStore();
+    developerMode, setDeveloperMode,
+    openaiApiKey, setOpenaiApiKey,
+    anthropicApiKey, setAnthropicApiKey,
+    geminiApiKey, setGeminiApiKey,
+    openrouterApiKey, setOpenrouterApiKey,
+  } = useIncogniStore();
 
   const [tab, setTab] = useState<TabId>(settingsTab as TabId);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -83,6 +91,24 @@ export function SettingsModal() {
   const [nameDraft, setNameDraft] = useState(user?.name ?? "");
   const [savingName, setSavingName] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
+  const [showKeys, setShowKeys] = useState<{ [key: string]: boolean }>({});
+  const [savedKeySuccess, setSavedKeySuccess] = useState<string | null>(null);
+
+  const toggleShowKey = (k: string) => setShowKeys((prev) => ({ ...prev, [k]: !prev[k] }));
+
+  const handleSaveSingleKey = (keyName: string) => {
+    setSavedKeySuccess(keyName);
+    setTimeout(() => setSavedKeySuccess(null), 2500);
+  };
+
+  const handleClearAllKeys = () => {
+    setOpenaiApiKey("");
+    setAnthropicApiKey("");
+    setGeminiApiKey("");
+    setOpenrouterApiKey("");
+    setSavedKeySuccess("all_cleared");
+    setTimeout(() => setSavedKeySuccess(null), 2500);
+  };
   // 2FA state
   const [twoFactorBusy, setTwoFactorBusy] = useState(false);
   const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
@@ -235,7 +261,7 @@ export function SettingsModal() {
       <DialogTrigger asChild>
         <button
           aria-label="Settings"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-incogni-border bg-incogni-surface text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
         >
           <Settings className="h-4 w-4" />
         </button>
@@ -245,15 +271,15 @@ export function SettingsModal() {
         <DialogTitle className="sr-only">Settings</DialogTitle>
 
         {/* Left nav */}
-        <nav className="hidden flex-col gap-0.5 overflow-y-auto border-r border-vectosilo-border bg-vectosilo-surface/60 p-2 md:flex">
-          <p className="px-3 py-2 text-sm font-semibold text-vectosilo-text">Settings</p>
+        <nav className="hidden flex-col gap-0.5 overflow-y-auto border-r border-incogni-border bg-incogni-surface p-2 md:flex">
+          <p className="px-3 py-2 text-sm font-semibold text-incogni-text">Settings</p>
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => { setTab(t.id); setSettingsTab(t.id); }}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                tab === t.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted hover:bg-vectosilo-surface-2/60 hover:text-vectosilo-text"
+                tab === t.id ? "bg-incogni-surface-2 text-incogni-text" : "text-incogni-muted hover:bg-incogni-surface-2/60 hover:text-incogni-text"
               )}
             >
               {t.icon}
@@ -263,14 +289,14 @@ export function SettingsModal() {
         </nav>
 
         {/* Mobile tab strip */}
-        <div className="flex gap-1 overflow-x-auto border-b border-vectosilo-border p-2 md:hidden [scrollbar-width:none]">
+        <div className="flex gap-1 overflow-x-auto border-b border-incogni-border p-2 md:hidden [scrollbar-width:none]">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => { setTab(t.id); setSettingsTab(t.id); }}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-colors",
-                tab === t.id ? "bg-vectosilo-surface-2 text-vectosilo-text" : "text-vectosilo-muted"
+                tab === t.id ? "bg-incogni-surface-2 text-incogni-text" : "text-incogni-muted"
               )}
             >
               {t.icon}{t.label}
@@ -280,7 +306,7 @@ export function SettingsModal() {
 
         {/* Content */}
         <div className="overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 [scrollbar-width:thin]">
-          <h2 className="mb-1 text-lg font-semibold text-vectosilo-text">
+          <h2 className="mb-1 text-lg font-semibold text-incogni-text">
             {TABS.find((t) => t.id === tab)?.label}
           </h2>
 
@@ -297,7 +323,7 @@ export function SettingsModal() {
                   disabled={!dictationEnabled}
                 />
               </Row>
-              <Row label="Default search mode" desc="How VectoSilo decides when to search the web.">
+              <Row label="Default search mode" desc="How Incogni decides when to search the web.">
                 <FocusModes value={focusMode} onChange={setFocusMode} />
               </Row>
               <Row
@@ -308,7 +334,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setSettingsTab("account"); setTab("account"); setTwoFactorStep("disable"); setTwoFactorError(null); setTwoFactorPassword(""); setTwoFactorCode(""); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2"
                   >
                     <Shield className="h-3.5 w-3.5 text-green-400" />
                     <span className="text-green-400">Active</span>
@@ -317,7 +343,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setSettingsTab("account"); setTab("account"); setTwoFactorStep("password"); setTwoFactorError(null); setTwoFactorPassword(""); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent/15 px-3 py-1.5 text-xs font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent/15 px-3 py-1.5 text-xs font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/25"
                   >
                     <Shield className="h-3.5 w-3.5" /> Enable
                   </button>
@@ -335,29 +361,40 @@ export function SettingsModal() {
                     onChange={(e) => setNameDraft(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveName()}
                     maxLength={40}
-                    className="w-full sm:w-40 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none"
+                    className="w-full sm:w-40 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-sm text-incogni-text focus:border-incogni-accent/50 focus:outline-none"
                     placeholder="Your name"
                   />
                   <button
                     onClick={saveName}
                     disabled={savingName || !nameDraft.trim() || nameDraft.trim() === user.name}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-40"
                   >
                     {savingName ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : nameSaved ? <Check className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
                     {nameSaved ? "Saved" : "Save"}
                   </button>
                 </div>
               </Row>
+              <Row label="Theme" desc="Select your preferred theme.">
+                <Select
+                  value={theme || "system"}
+                  onChange={(v) => setTheme(v)}
+                  options={[
+                    { label: "System", value: "system" },
+                    { label: "Light", value: "light" },
+                    { label: "Dark", value: "dark" },
+                  ]}
+                />
+              </Row>
               <Row label="Avatar color" desc="Your profile accent.">
                 <div className="flex flex-wrap justify-end gap-2">
                   {AVATAR_COLORS.map((c) => {
-                    const active = (user.avatarColor ?? "#7c3aed") === c.value;
+                    const active = (user.avatarColor ?? "#475569") === c.value;
                     return (
                       <button
                         key={c.value}
                         title={c.label}
                         onClick={() => updateAccount({ avatarColor: c.value }).catch(() => {})}
-                        className={cn("relative h-7 w-7 rounded-full transition-transform hover:scale-110 sm:h-6 sm:w-6", active && "ring-2 ring-white ring-offset-1 ring-offset-vectosilo-surface")}
+                        className={cn("relative h-7 w-7 rounded-full transition-transform hover:scale-110 sm:h-6 sm:w-6", active && "ring-2 ring-white ring-offset-1 ring-offset-incogni-surface")}
                         style={{ backgroundColor: c.value }}
                       >
                         {active && <Check className="absolute inset-0 m-auto h-3 w-3 text-white" />}
@@ -371,31 +408,302 @@ export function SettingsModal() {
 
           {tab === "model" && (
             <div className="pt-2">
-              {loading && <p className="mb-2 flex items-center gap-1.5 text-xs text-vectosilo-muted"><Loader2 className="h-3 w-3 animate-spin" /> Loading models…</p>}
+              {loading && <p className="mb-2 flex items-center gap-1.5 text-xs text-incogni-muted"><Loader2 className="h-3 w-3 animate-spin" /> Loading models…</p>}
               {caps.allModels ? (
-                <div className="grid max-h-[420px] gap-1 overflow-y-auto rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-1 [scrollbar-width:thin]">
-                  <ModelRow active={selectedModel === AUTO_MODEL} onClick={() => setSelectedModel(AUTO_MODEL)} icon={<Sparkles className="h-3.5 w-3.5 text-vectosilo-accent" />} title="Auto" sub="Best model per task" />
-                  {availableModels.length === 0 && !loading && (
-                    <p className="px-2 py-1.5 text-xs text-vectosilo-muted">No models found — check your VectoSilo AI configuration.</p>
+                <div className="grid max-h-[420px] gap-1 overflow-y-auto rounded-xl border border-incogni-border bg-incogni-surface-2 p-1 [scrollbar-width:thin]">
+                  <ModelRow active={selectedModel === AUTO_MODEL} onClick={() => setSelectedModel(AUTO_MODEL)} icon={<Sparkles className="h-3.5 w-3.5 text-incogni-accent" />} title="Auto" sub="Best model per task" />
+                  {(availableModels || []).length === 0 && !loading && (
+                    <p className="px-2 py-1.5 text-xs text-incogni-muted">No models found — check your Incogni AI configuration.</p>
                   )}
-                  {availableModels.map((m) => (
+                  {(availableModels || []).map((m) => (
                     <ModelRow key={m} active={m === selectedModel} onClick={() => setSelectedModel(m)} title={modelLabel(m)} />
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-3">
+                <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-vectosilo-text">Auto</p>
-                      <p className="text-xs text-vectosilo-muted">{selectedModel ? modelLabel(selectedModel) : "Loading…"}</p>
+                      <p className="text-sm font-medium text-incogni-text">Auto</p>
+                      <p className="text-xs text-incogni-muted">{selectedModel ? modelLabel(selectedModel) : "Loading…"}</p>
                     </div>
-                    <Lock className="h-4 w-4 text-vectosilo-muted" />
+                    <Lock className="h-4 w-4 text-incogni-muted" />
                   </div>
-                  <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-vectosilo-accent-soft hover:underline">
+                  <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-incogni-accent-soft hover:underline">
                     <Lock className="h-3 w-3" /> Upgrade to Pro to choose any model
                   </button>
                 </div>
               )}
+            </div>
+          )}
+          {tab === "developer" && (
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between rounded-xl border border-incogni-border bg-incogni-surface-2 p-3.5 shadow-sm">
+                <div>
+                  <h3 className="text-sm font-semibold text-incogni-text flex items-center gap-1.5">
+                    <Code2 className="h-4 w-4 text-incogni-accent" />
+                    Developer Mode
+                  </h3>
+                  <p className="mt-0.5 text-xs text-incogni-muted">
+                    Unlock third-party cloud models (OpenAI, Anthropic, Gemini, DeepSeek, Meta Llama) using custom API keys.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={developerMode}
+                  onClick={() => setDeveloperMode(!developerMode)}
+                  className={cn(
+                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+                    developerMode ? "bg-incogni-accent" : "bg-incogni-border"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                      developerMode ? "translate-x-5" : "translate-x-0"
+                    )}
+                  />
+                </button>
+              </div>
+
+              {developerMode && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+                  <div>
+                    <span className="font-semibold">NOTE:</span> Using Third-Party Providers (OpenAI, Anthropic, Google Gemini, OpenRouter) may put your data at risk as queries leave Incogni AI&apos;s private zero-data-leak infrastructure and use external APIs.
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-incogni-muted flex items-center gap-1.5 pt-1">
+                  <Key className="h-3.5 w-3.5 text-incogni-accent" />
+                  Third-Party API Keys
+                </h4>
+
+                <div className="space-y-3.5">
+                  {/* OpenAI Key */}
+                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
+                        OpenAI API Key
+                        {openaiApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
+                      </label>
+                      {savedKeySuccess === "openai" && (
+                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type={showKeys["openai"] ? "text" : "password"}
+                          placeholder="sk-proj-..."
+                          value={openaiApiKey}
+                          onChange={(e) => setOpenaiApiKey(e.target.value)}
+                          disabled={!developerMode}
+                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowKey("openai")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
+                        >
+                          {showKeys["openai"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSingleKey("openai")}
+                        disabled={!developerMode || !openaiApiKey.trim()}
+                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
+                      >
+                        Save
+                      </button>
+                      {openaiApiKey && (
+                        <button
+                          type="button"
+                          onClick={() => { setOpenaiApiKey(""); handleSaveSingleKey("openai_cleared"); }}
+                          title="Delete OpenAI Key"
+                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Anthropic Key */}
+                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
+                        Anthropic Claude API Key
+                        {anthropicApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
+                      </label>
+                      {savedKeySuccess === "anthropic" && (
+                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type={showKeys["anthropic"] ? "text" : "password"}
+                          placeholder="sk-ant-api03-..."
+                          value={anthropicApiKey}
+                          onChange={(e) => setAnthropicApiKey(e.target.value)}
+                          disabled={!developerMode}
+                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowKey("anthropic")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
+                        >
+                          {showKeys["anthropic"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSingleKey("anthropic")}
+                        disabled={!developerMode || !anthropicApiKey.trim()}
+                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
+                      >
+                        Save
+                      </button>
+                      {anthropicApiKey && (
+                        <button
+                          type="button"
+                          onClick={() => { setAnthropicApiKey(""); handleSaveSingleKey("anthropic_cleared"); }}
+                          title="Delete Anthropic Key"
+                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Gemini Key */}
+                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
+                        Google Gemini API Key
+                        {geminiApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
+                      </label>
+                      {savedKeySuccess === "gemini" && (
+                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type={showKeys["gemini"] ? "text" : "password"}
+                          placeholder="AIzaSy..."
+                          value={geminiApiKey}
+                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                          disabled={!developerMode}
+                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowKey("gemini")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
+                        >
+                          {showKeys["gemini"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSingleKey("gemini")}
+                        disabled={!developerMode || !geminiApiKey.trim()}
+                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
+                      >
+                        Save
+                      </button>
+                      {geminiApiKey && (
+                        <button
+                          type="button"
+                          onClick={() => { setGeminiApiKey(""); handleSaveSingleKey("gemini_cleared"); }}
+                          title="Delete Gemini Key"
+                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* OpenRouter Key */}
+                  <div className="rounded-xl border border-incogni-border bg-incogni-surface-2 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-medium text-incogni-text flex items-center gap-1.5">
+                        OpenRouter / DeepSeek API Key
+                        {openrouterApiKey && <span className="text-[10px] text-emerald-400 font-normal">✓ Configured</span>}
+                      </label>
+                      {savedKeySuccess === "openrouter" && (
+                        <span className="text-[10px] text-emerald-400 font-medium animate-in fade-in">✓ Saved</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type={showKeys["openrouter"] ? "text" : "password"}
+                          placeholder="sk-or-v1-..."
+                          value={openrouterApiKey}
+                          onChange={(e) => setOpenrouterApiKey(e.target.value)}
+                          disabled={!developerMode}
+                          className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-3 pr-8 py-2 text-xs text-incogni-text placeholder-incogni-muted focus:border-incogni-accent focus:outline-none disabled:opacity-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowKey("openrouter")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
+                        >
+                          {showKeys["openrouter"] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSingleKey("openrouter")}
+                        disabled={!developerMode || !openrouterApiKey.trim()}
+                        className="rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-black hover:bg-incogni-accent-soft disabled:opacity-40"
+                      >
+                        Save
+                      </button>
+                      {openrouterApiKey && (
+                        <button
+                          type="button"
+                          onClick={() => { setOpenrouterApiKey(""); handleSaveSingleKey("openrouter_cleared"); }}
+                          title="Delete OpenRouter Key"
+                          className="rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save & Continue / Clear All Action Bar */}
+                <div className="pt-3 border-t border-incogni-border/60 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={handleClearAllKeys}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/15 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Clear All Keys
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSettingsOpen(false)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2 text-xs font-semibold text-black hover:bg-incogni-accent-soft shadow-sm transition-all"
+                  >
+                    Save & Continue
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -406,13 +714,13 @@ export function SettingsModal() {
                   <input
                     type="range" min={1} max={caps.chessMax} step={1} value={sliderValue}
                     onChange={(e) => setChessDifficulty(Number(e.target.value))}
-                    className="w-full accent-vectosilo-accent" aria-label="Chess difficulty"
+                    className="w-full accent-incogni-accent" aria-label="Chess difficulty"
                   />
-                  <div className="mt-1 flex justify-between text-[10px] text-vectosilo-muted/70"><span>Easy</span><span>Hard</span></div>
+                  <div className="mt-1 flex justify-between text-[10px] text-incogni-muted/70"><span>Easy</span><span>Hard</span></div>
                 </div>
               </Row>
               {caps.chessMax < 10 && (
-                <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-vectosilo-accent-soft hover:underline">
+                <button onClick={goUpgrade} className="mt-2 inline-flex items-center gap-1 text-xs text-incogni-accent-soft hover:underline">
                   <Lock className="h-3 w-3" /> Upgrade for full-strength play
                 </button>
               )}
@@ -445,7 +753,7 @@ export function SettingsModal() {
                         {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                         Yes, delete everything
                       </button>
-                      <button onClick={() => { setDeleteConfirm(false); setDeleteError(null); }} disabled={deleting} className="w-full inline-flex items-center justify-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 sm:w-auto">
+                      <button onClick={() => { setDeleteConfirm(false); setDeleteError(null); }} disabled={deleting} className="w-full inline-flex items-center justify-center rounded-lg border border-incogni-border px-3 py-1.5 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface-2 sm:w-auto">
                         Cancel
                       </button>
                     </div>
@@ -457,15 +765,15 @@ export function SettingsModal() {
 
           {tab === "account" && user && (
             <div className="pt-2">
-              <div className="flex items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2 p-3 sm:gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white" style={{ backgroundColor: user.avatarColor ?? "#7c3aed" }}>
+              <div className="flex items-center gap-2 rounded-xl border border-incogni-border bg-incogni-surface-2 p-3 sm:gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white" style={{ backgroundColor: user.avatarColor ?? "#475569" }}>
                   {(user.name || user.email || "?").charAt(0).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-vectosilo-text">{user.name || "—"}</p>
-                  <p className="flex items-center gap-1 truncate text-xs text-vectosilo-muted"><Mail className="h-3 w-3 shrink-0" /> {user.email}</p>
+                  <p className="truncate text-sm font-medium text-incogni-text">{user.name || "—"}</p>
+                  <p className="flex items-center gap-1 truncate text-xs text-incogni-muted"><Mail className="h-3 w-3 shrink-0" /> {user.email}</p>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-vectosilo-accent/30 bg-vectosilo-accent/10 px-2.5 py-1 text-xs font-medium text-vectosilo-accent-soft">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-incogni-accent/30 bg-incogni-accent/10 px-2.5 py-1 text-xs font-medium text-incogni-accent-soft">
                   <Crown className="h-3 w-3" /> {PLAN_LABEL[user.plan] ?? user.plan}
                 </span>
               </div>
@@ -484,7 +792,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => setTwoFactorStep("password")}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent/15 px-3 py-1.5 text-xs font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent/15 px-3 py-1.5 text-xs font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/25"
                   >
                     <Shield className="h-3.5 w-3.5" /> Enable
                   </button>
@@ -495,22 +803,22 @@ export function SettingsModal() {
               {twoFactorStep !== "idle" && (() => {
                 if (twoFactorStep === "password") {
                   return (
-                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
-                      <p className="mb-2 text-xs text-vectosilo-muted">Confirm your password to continue.</p>
+                    <div className="mb-3 rounded-xl border border-incogni-border bg-incogni-surface-2/50 p-4">
+                      <p className="mb-2 text-xs text-incogni-muted">Confirm your password to continue.</p>
                       <input
                         type="password"
                         value={twoFactorPassword}
                         onChange={(e) => setTwoFactorPassword(e.target.value)}
                         placeholder="Current password"
-                        className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                        className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
-                        <button onClick={start2FASetup} disabled={twoFactorBusy} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
+                        <button onClick={start2FASetup} disabled={twoFactorBusy} className="inline-flex items-center gap-1 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60">
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Continue
                         </button>
-                        <button onClick={() => { setTwoFactorStep("idle"); setTwoFactorError(null); setTwoFactorPassword(""); }} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
+                        <button onClick={() => { setTwoFactorStep("idle"); setTwoFactorError(null); setTwoFactorPassword(""); }} className="inline-flex items-center rounded-lg border border-incogni-border px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -519,17 +827,17 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "qr") {
                   return (
-                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
-                      <p className="mb-3 text-xs text-vectosilo-muted">Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
+                    <div className="mb-3 rounded-xl border border-incogni-border bg-incogni-surface-2/50 p-4">
+                      <p className="mb-3 text-xs text-incogni-muted">Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
                       <div className="flex justify-center">
                         {twoFactorQR && (
-                          <img src={twoFactorQR} alt="QR code" className="h-40 w-40 rounded-lg border border-vectosilo-border" />
+                          <img src={twoFactorQR} alt="QR code" className="h-40 w-40 rounded-lg border border-incogni-border" />
                         )}
                       </div>
-                      <p className="mt-2 text-center text-xs text-vectosilo-muted">
-                        Or enter key manually: <span className="font-mono text-vectosilo-text">{twoFactorSecret}</span>
+                      <p className="mt-2 text-center text-xs text-incogni-muted">
+                        Or enter key manually: <span className="font-mono text-incogni-text">{twoFactorSecret}</span>
                       </p>
-                      <p className="mt-3 text-xs text-vectosilo-muted">Enter the 6-digit code from the app:</p>
+                      <p className="mt-3 text-xs text-incogni-muted">Enter the 6-digit code from the app:</p>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -537,15 +845,15 @@ export function SettingsModal() {
                         value={twoFactorCode}
                         onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                         placeholder="000 000"
-                        className="mt-1.5 w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-center text-base tracking-[0.3em] text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                        className="mt-1.5 w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-center text-base tracking-[0.3em] text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
-                        <button onClick={verify2FASetup} disabled={twoFactorBusy || twoFactorCode.length !== 6} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
+                        <button onClick={verify2FASetup} disabled={twoFactorBusy || twoFactorCode.length !== 6} className="inline-flex items-center gap-1 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60">
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Verify & enable
                         </button>
-                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
+                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-incogni-border px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -554,21 +862,21 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "backup") {
                   return (
-                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
+                    <div className="mb-3 rounded-xl border border-incogni-border bg-incogni-surface-2/50 p-4">
                       <p className="mb-2 text-xs font-medium text-amber-400">
                         Save these backup codes! Each can be used once if you lose access to your authenticator app.
                       </p>
-                      <div className="rounded-lg border border-vectosilo-border bg-black/20 p-3 font-mono text-xs leading-6">
+                      <div className="rounded-lg border border-incogni-border bg-black/20 p-3 font-mono text-xs leading-6">
                         {twoFactorBackupCodes.map((code, i) => (
-                          <div key={i} className="text-vectosilo-text">{code}</div>
+                          <div key={i} className="text-incogni-text">{code}</div>
                         ))}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button onClick={copyBackupCodes} className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
+                        <button onClick={copyBackupCodes} className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2">
                           {twoFactorCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                           {twoFactorCopied ? "Copied!" : "Copy codes"}
                         </button>
-                        <button onClick={() => window.location.reload()} className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft">
+                        <button onClick={() => window.location.reload()} className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft">
                           <ShieldCheck className="h-3.5 w-3.5" /> Done — 2FA is now active
                         </button>
                       </div>
@@ -577,14 +885,14 @@ export function SettingsModal() {
                 }
                 if (twoFactorStep === "disable") {
                   return (
-                    <div className="mb-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface-2/50 p-4">
-                      <p className="mb-2 text-xs text-vectosilo-muted">Enter your password and a 2FA code to disable.</p>
+                    <div className="mb-3 rounded-xl border border-incogni-border bg-incogni-surface-2/50 p-4">
+                      <p className="mb-2 text-xs text-incogni-muted">Enter your password and a 2FA code to disable.</p>
                       <input
                         type="password"
                         value={twoFactorPassword}
                         onChange={(e) => setTwoFactorPassword(e.target.value)}
                         placeholder="Current password"
-                        className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                        className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                       />
                       <input
                         type="text"
@@ -593,7 +901,7 @@ export function SettingsModal() {
                         value={twoFactorCode}
                         onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                         placeholder="2FA code or backup code"
-                        className="mt-2 w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                        className="mt-2 w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                       />
                       {twoFactorError && <p className="mt-1.5 text-xs text-red-400">{twoFactorError}</p>}
                       <div className="mt-3 flex gap-2">
@@ -601,7 +909,7 @@ export function SettingsModal() {
                           {twoFactorBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                           Disable 2FA
                         </button>
-                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
+                        <button onClick={reset2FA} className="inline-flex items-center rounded-lg border border-incogni-border px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2">
                           Cancel
                         </button>
                       </div>
@@ -616,7 +924,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => { setChangePassOpen(true); setChangePassError(null); setChangePassDone(false); }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2"
                   >
                     <Lock className="h-3.5 w-3.5" /> Change
                   </button>
@@ -631,29 +939,29 @@ export function SettingsModal() {
                       value={changePassCurrent}
                       onChange={(e) => setChangePassCurrent(e.target.value)}
                       placeholder="Current password"
-                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                     />
                     <input
                       type="password"
                       value={changePassNew}
                       onChange={(e) => setChangePassNew(e.target.value)}
                       placeholder="New password (min 8 chars)"
-                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                     />
                     <input
                       type="password"
                       value={changePassConfirm}
                       onChange={(e) => setChangePassConfirm(e.target.value)}
                       placeholder="Confirm new password"
-                      className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+                      className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
                     />
                     {changePassError && <p className="text-xs text-red-400">{changePassError}</p>}
                     <div className="flex gap-2">
-                      <button onClick={changePassword} disabled={changePassBusy} className="inline-flex items-center gap-1 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60">
+                      <button onClick={changePassword} disabled={changePassBusy} className="inline-flex items-center gap-1 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60">
                         {changePassBusy && <Loader2 className="h-3 w-3 animate-spin" />}
                         Save
                       </button>
-                      <button onClick={() => { setChangePassOpen(false); setChangePassError(null); setChangePassCurrent(""); setChangePassNew(""); setChangePassConfirm(""); }} className="inline-flex items-center rounded-lg border border-vectosilo-border px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2">
+                      <button onClick={() => { setChangePassOpen(false); setChangePassError(null); setChangePassCurrent(""); setChangePassNew(""); setChangePassConfirm(""); }} className="inline-flex items-center rounded-lg border border-incogni-border px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:bg-incogni-surface-2">
                         Cancel
                       </button>
                     </div>
@@ -662,10 +970,10 @@ export function SettingsModal() {
               </Row>
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button onClick={goUpgrade} className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:flex-1", user.plan === "free" ? "border border-vectosilo-accent/40 bg-vectosilo-accent/10 text-vectosilo-accent-soft hover:bg-vectosilo-accent/20" : "border border-vectosilo-border bg-vectosilo-surface text-vectosilo-text hover:bg-vectosilo-surface-2")}>
+                <button onClick={goUpgrade} className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:flex-1", user.plan === "free" ? "border border-incogni-accent/40 bg-incogni-accent/10 text-incogni-accent-soft hover:bg-incogni-accent/20" : "border border-incogni-border bg-incogni-surface text-incogni-text hover:bg-incogni-surface-2")}>
                   {user.plan === "free" ? <><Crown className="h-3.5 w-3.5" /> Upgrade to Pro or Max</> : "Manage plan"}
                 </button>
-                <button onClick={signOut} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text">
+                <button onClick={signOut} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </div>
@@ -681,10 +989,10 @@ export function SettingsModal() {
 
 function Row({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-vectosilo-border/50 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-2 border-b border-incogni-border/50 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <p className="text-sm text-vectosilo-text">{label}</p>
-        {desc && <p className="text-xs text-vectosilo-muted">{desc}</p>}
+        <p className="text-sm text-incogni-text">{label}</p>
+        {desc && <p className="text-xs text-incogni-muted">{desc}</p>}
       </div>
       <div className="self-start sm:self-auto sm:shrink-0">{children}</div>
     </div>
@@ -700,7 +1008,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         "relative h-6 w-10 shrink-0 rounded-full transition-colors",
-        checked ? "bg-vectosilo-accent" : "bg-vectosilo-border"
+        checked ? "bg-incogni-accent" : "bg-incogni-border"
       )}
     >
       <span
@@ -719,10 +1027,10 @@ function Select({ value, onChange, options, disabled }: { value: string; onChang
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none disabled:opacity-40"
+      className="rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-sm text-incogni-text focus:border-incogni-accent/50 focus:outline-none disabled:opacity-40"
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-vectosilo-surface text-vectosilo-text">{o.label}</option>
+        <option key={o.value} value={o.value} className="bg-incogni-surface text-incogni-text">{o.label}</option>
       ))}
     </select>
   );
@@ -732,13 +1040,13 @@ function ModelRow({ active, onClick, icon, title, sub }: { active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={cn("flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm transition-colors", active ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft" : "text-vectosilo-text hover:bg-vectosilo-surface")}
+      className={cn("flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm transition-colors", active ? "bg-incogni-accent/15 text-incogni-accent-soft" : "text-incogni-text hover:bg-incogni-surface")}
     >
       <span className="flex items-center gap-2">
         {icon}
         <span className="flex flex-col leading-tight">
           <span className="font-medium">{title}</span>
-          {sub && <span className="text-xs text-vectosilo-muted">{sub}</span>}
+          {sub && <span className="text-xs text-incogni-muted">{sub}</span>}
         </span>
       </span>
       {active && <Check className="h-3.5 w-3.5" />}

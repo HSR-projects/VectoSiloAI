@@ -55,7 +55,7 @@ export async function createContainer(): Promise<string> {
     "run",
     "-d",
     "--rm",
-    "--name", `vectosilo-sandbox-${id}`,
+    "--name", `incogni-sandbox-${id}`,
     "-e", "DEBIAN_FRONTEND=noninteractive",
     "--memory", "512m",
     "--memory-swap", "512m",
@@ -94,10 +94,10 @@ export async function createContainer(): Promise<string> {
     );
   } catch {}
 
-  // Install common build tools (gcc, g++, python3, nodejs, make)
+  // Install common build tools (gcc, g++, python3, nodejs, make, curl)
   try {
     await exec(containerId,
-      "apt-get install -y -qq gcc g++ python3 nodejs npm make 2>/dev/null"
+      "apt-get install -y -qq gcc g++ python3 nodejs npm make curl 2>/dev/null"
     );
   } catch {}
 

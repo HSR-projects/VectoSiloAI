@@ -3,42 +3,40 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Check, Loader2, Zap, ArrowLeft, Gift, Building2, Sparkles, Infinity,
-  Users, Share2, Shield, Sliders, MessageSquare, Crown,
+  Check, Loader2, ArrowLeft, Gift, Zap
 } from "lucide-react";
 import type { Plan } from "@/types";
 import { PLANS } from "@/lib/plans";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 import { GiftModal } from "@/components/billing/GiftModal";
-import { OrgPanel } from "@/components/billing/OrgPanel";
 
 export default function PricingPage() {
   return (
-    <Suspense fallback={<div className="min-h-dvh bg-vectosilo-bg" />}>
+    <Suspense fallback={<div className="min-h-dvh bg-incogni-bg" />}>
       <PricingPageInner />
     </Suspense>
   );
 }
 
-type Pane = "consumers" | "enterprise";
-
-const consumerPlans = PLANS.filter((p) => p.id !== "ultra");
+type Pane = "personal" | "business";
 
 function PricingPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, upgrade, downgrade } = useAuth();
   const current = user?.plan ?? "free";
+  
+  const [pane, setPane] = useState<Pane>(searchParams.get("tab") === "org" ? "business" : "personal");
   const [busy, setBusy] = useState<Plan | null>(null);
   const [downgrading, setDowngrading] = useState(false);
   const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
-  const [pane, setPane] = useState<Pane>(searchParams.get("tab") === "org" ? "enterprise" : "consumers");
-  const [viewOrg, setViewOrg] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get("tab") === "org") { setPane("enterprise"); setViewOrg(true); }
+    if (searchParams.get("tab") === "org") { 
+      setPane("business");
+    }
   }, [searchParams]);
 
   const choose = async (plan: Plan) => {
@@ -77,71 +75,45 @@ function PricingPageInner() {
     setDowngrading(false);
   };
 
-  if (viewOrg) {
-    return (
-      <div className="min-h-dvh bg-vectosilo-bg">
-        <div className="mx-auto max-w-3xl px-4 py-8">
-          <button
-            onClick={() => setViewOrg(false)}
-            className="inline-flex items-center gap-1.5 text-xs text-vectosilo-muted hover:text-vectosilo-text mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to plans
-          </button>
-          <OrgPanel onBack={() => setViewOrg(false)} />
-        </div>
-      </div>
-    );
-  }
+  const displayedPlans = pane === "personal" 
+    ? PLANS.filter(p => ["free", "go", "pro", "max"].includes(p.id))
+    : PLANS.filter(p => ["free", "ultra"].includes(p.id));
 
   return (
-    <div className="min-h-dvh bg-vectosilo-bg">
+    <div className="min-h-dvh bg-incogni-bg text-incogni-text">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-vectosilo-border bg-vectosilo-bg/80 backdrop-blur-xl px-4 py-3">
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <button
-            onClick={() => router.push("/")}
-            className="inline-flex items-center gap-1.5 text-xs text-vectosilo-muted hover:text-vectosilo-text transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back
-          </button>
-          <div className="flex items-center gap-3">
-            {user && (
-              <span className="text-xs text-vectosilo-muted">
-                Current: <span className="font-semibold text-vectosilo-text uppercase">{current}</span>
-              </span>
-            )}
-          </div>
-        </div>
+      <header className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+        <button
+          onClick={() => router.push("/")}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-incogni-muted hover:text-incogni-text transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </button>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 py-12">
-
-        {/* Pane toggle */}
-        <div className="flex justify-center mb-10">
-          <div className="flex w-full max-w-sm rounded-xl bg-vectosilo-surface-2 p-1 border border-vectosilo-border">
+      <div className="mx-auto max-w-6xl px-4 pb-20 pt-4">
+        
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold mb-6">Upgrade your plan</h1>
+          
+          <div className="inline-flex items-center rounded-full bg-incogni-surface p-1 shadow-sm border border-incogni-border">
             <button
-              onClick={() => setPane("consumers")}
+              onClick={() => setPane("personal")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium transition-all min-w-0",
-                pane === "consumers"
-                  ? "bg-vectosilo-bg text-vectosilo-text shadow-sm"
-                  : "text-vectosilo-muted hover:text-vectosilo-text"
+                "rounded-full px-6 py-2 text-sm font-semibold transition-all",
+                pane === "personal" ? "bg-incogni-bg text-incogni-text shadow" : "text-incogni-muted hover:text-incogni-text"
               )}
             >
-              <Crown className="h-4 w-4 shrink-0" />
-              <span className="truncate">Consumers</span>
+              Personal
             </button>
             <button
-              onClick={() => setPane("enterprise")}
+              onClick={() => setPane("business")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium transition-all min-w-0",
-                pane === "enterprise"
-                  ? "bg-purple-600/20 text-purple-300 shadow-sm ring-1 ring-purple-500/30"
-                  : "text-vectosilo-muted hover:text-vectosilo-text"
+                "rounded-full px-6 py-2 text-sm font-semibold transition-all",
+                pane === "business" ? "bg-incogni-bg text-incogni-text shadow" : "text-incogni-muted hover:text-incogni-text"
               )}
             >
-              <Building2 className="h-4 w-4 shrink-0" />
-              <span className="truncate">Enterprise</span>
+              Business
             </button>
           </div>
         </div>
@@ -149,224 +121,93 @@ function PricingPageInner() {
         {status && (
           <div className={cn(
             "max-w-xl mx-auto mb-8 rounded-lg px-4 py-3 text-sm text-center",
-            status.kind === "success" ? "bg-green-500/10 text-green-300" : "bg-red-500/10 text-red-300"
+            status.kind === "success" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
           )}>
             {status.text}
           </div>
         )}
 
-        {/* ── Consumers pane ── */}
-        {pane === "consumers" && (
-          <>
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-vectosilo-text mb-2">
-                For <span className="text-vectosilo-accent">consumers</span>
-              </h1>
-              <p className="text-sm text-vectosilo-muted max-w-lg mx-auto">
-                From lightweight chat to deep research — pick the power level that fits your workflow.
-              </p>
-            </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 justify-center items-start">
+          {displayedPlans.map((p) => {
+            const isCurrent = current === p.id;
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {consumerPlans.map((p) => {
-                const isCurrent = current === p.id;
-
-                return (
-                  <div
-                    key={p.id}
-                    className={cn(
-                      "flex flex-col rounded-2xl border p-6 relative transition-all",
-                      p.highlight
-                        ? "border-vectosilo-accent/50 bg-vectosilo-accent/[0.06]"
-                        : "border-vectosilo-border bg-vectosilo-surface-2"
-                    )}
-                  >
-                    {p.id === "go" ? (
-                      <span className="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
-                        Limited time
-                      </span>
-                    ) : p.highlight ? (
-                      <span className="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-vectosilo-accent/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-vectosilo-accent-soft">
-                        Most popular
-                      </span>
-                    ) : null}
-
-                    <h3 className="text-lg font-semibold text-vectosilo-text">{p.name}</h3>
-                    <div className="mt-2 flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-vectosilo-text">{p.price}</span>
-                      <span className="text-xs text-vectosilo-muted">{p.period}</span>
-                    </div>
-                    <p className="mt-1.5 text-xs text-vectosilo-muted leading-relaxed">{p.tagline}</p>
-
-                    <ul className="mt-4 flex-1 space-y-2">
-                      {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2.5 text-sm text-vectosilo-text/80">
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-vectosilo-accent" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-6 space-y-2.5">
-                      {p.id === "free" && current !== "free" ? (
-                        <button
-                          disabled={downgrading}
-                          onClick={handleDowngrade}
-                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-vectosilo-border bg-vectosilo-surface px-4 py-2.5 text-sm font-semibold text-vectosilo-text hover:bg-vectosilo-surface-2 transition-colors disabled:opacity-60"
-                        >
-                          {downgrading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
-                          Downgrade & refund
-                        </button>
-                      ) : (
-                        <button
-                          disabled={isCurrent || busy === p.id || p.id === "free"}
-                          onClick={() => choose(p.id)}
-                          className={cn(
-                            "w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
-                            isCurrent || p.id === "free"
-                              ? "cursor-default bg-vectosilo-surface text-vectosilo-muted border border-vectosilo-border"
-                              : p.highlight || p.id === "max"
-                                ? "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft"
-                                : "border border-vectosilo-border bg-vectosilo-surface text-vectosilo-text hover:bg-vectosilo-surface-2"
-                          )}
-                        >
-                          {busy === p.id && <Loader2 className="h-4 w-4 animate-spin" />}
-                          {isCurrent ? "Current plan" : p.id === "free" ? "Free" : p.cta}
-                        </button>
+            return (
+              <div
+                key={p.id}
+                className={cn(
+                  "flex flex-col rounded-2xl border p-6 h-full transition-all bg-incogni-surface-2",
+                  p.highlight ? "border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]" : "border-incogni-border"
+                )}
+              >
+                <div className="mb-4">
+                  <h3 className="text-2xl font-semibold mb-2">{p.name}</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-xl font-medium">{p.price}</span>
+                    <span className="text-sm text-incogni-muted">{p.period}</span>
+                  </div>
+                  
+                  {p.id === "free" && current !== "free" ? (
+                    <button
+                      disabled={downgrading}
+                      onClick={handleDowngrade}
+                      className="w-full rounded-full border border-incogni-border bg-incogni-surface py-2.5 text-sm font-semibold hover:bg-incogni-surface-2 transition-colors disabled:opacity-50 mt-2"
+                    >
+                      {downgrading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Downgrade & refund"}
+                    </button>
+                  ) : (
+                    <button
+                      disabled={isCurrent || busy === p.id || p.id === "free"}
+                      onClick={() => choose(p.id)}
+                      className={cn(
+                        "w-full rounded-full py-2.5 text-sm font-semibold transition-all mt-2",
+                        isCurrent || p.id === "free"
+                          ? "cursor-default bg-incogni-surface text-incogni-muted border border-incogni-border"
+                          : p.highlight 
+                            ? "bg-[#10a37f] text-white hover:bg-[#0e906f]"
+                            : "bg-incogni-text text-incogni-bg hover:opacity-90"
                       )}
-
-                      {(p.id === "pro" || p.id === "max") && (
-                        <button
-                          onClick={() => setGiftPlan(p.id)}
-                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-vectosilo-border px-4 py-2 text-xs font-medium text-vectosilo-text/70 hover:text-vectosilo-text hover:border-vectosilo-accent/50 transition-all"
-                        >
-                          <Gift className="h-3.5 w-3.5" />
-                          Gift to someone
-                        </button>
-                      )}
-                    </div>
-
-                    {isCurrent && (
-                      <div className="absolute -top-2.5 right-4">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-vectosilo-accent/20 px-2.5 py-0.5 text-[10px] font-semibold text-vectosilo-accent border border-vectosilo-accent/30">
-                          Active
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* ── Enterprise pane ── */}
-        {pane === "enterprise" && (
-          <>
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-vectosilo-text mb-2">
-                For <span className="text-purple-400">enterprise</span>
-              </h1>
-              <p className="text-sm text-vectosilo-muted max-w-lg mx-auto">
-                Organization-wide workspace with team management, shared conversations, and priority support.
-              </p>
-            </div>
-
-            <div className="max-w-lg mx-auto">
-              <div className="rounded-2xl border border-purple-500/60 bg-purple-500/[0.08] p-5 sm:p-8 ring-1 ring-purple-500/30">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-400 mb-2">
-                      Ultra
-                    </span>
-                    <h3 className="text-2xl font-bold text-purple-200">$1,000</h3>
-                    <p className="text-xs text-vectosilo-muted">/month</p>
-                  </div>
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/20">
-                    <Building2 className="h-8 w-8 text-purple-400" />
-                  </div>
-                </div>
-
-                <p className="text-sm text-vectosilo-muted mb-6">
-                  Everything in Max, plus org workspace, team management, gift seats, and priority support.
-                </p>
-
-                <div className="space-y-3 mb-8">
-                  {[
-                    { icon: <Infinity className="h-4 w-4" />, text: "Unlimited agent steps & 8 parallel swarm agents" },
-                    { icon: <Users className="h-4 w-4" />, text: "Organization workspace — invite your team" },
-                    { icon: <Shield className="h-4 w-4" />, text: "Access requests with admin approval flow" },
-                    { icon: <Sliders className="h-4 w-4" />, text: "Admin controls — disable, remove, or exclude members" },
-                    { icon: <Share2 className="h-4 w-4" />, text: "Public shareable conversation links" },
-                    { icon: <Gift className="h-4 w-4" />, text: "Gift Pro/Max subscriptions to team members" },
-                    { icon: <MessageSquare className="h-4 w-4" />, text: "Priority support & dedicated account manager" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <span className="text-purple-400 shrink-0 mt-0.5">{item.icon}</span>
-                      <span className="text-sm text-vectosilo-text/80">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  disabled={current === "ultra" || busy === "ultra"}
-                  onClick={() => choose("ultra")}
-                  className={cn(
-                    "w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all",
-                    current === "ultra"
-                      ? "cursor-default bg-vectosilo-surface text-vectosilo-muted border border-vectosilo-border"
-                      : "bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-600/20"
+                    >
+                      {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : isCurrent ? "Current plan" : p.id === "free" ? "Your current plan" : p.cta}
+                    </button>
                   )}
-                >
-                  {busy === "ultra" && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {current === "ultra" ? "Current plan" : "Go Ultra"}
-                </button>
+                </div>
 
-                {/* Org panel entry */}
-                {user?.plan === "ultra" && (
-                  <button
-                    onClick={() => setViewOrg(true)}
-                    className="w-full mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-purple-500/30 px-5 py-2.5 text-sm font-medium text-purple-300 hover:bg-purple-500/10 transition-colors"
-                  >
-                    <Building2 className="h-4 w-4" />
-                    Manage your organization
-                  </button>
+                <p className="text-sm text-incogni-text font-medium mb-4">{p.tagline}</p>
+
+                <div className="flex-1">
+                  <ul className="space-y-3">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm text-incogni-text/90">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {(p.id === "pro" || p.id === "max") && (
+                  <div className="mt-6 pt-6 border-t border-incogni-border">
+                    <button
+                      onClick={() => setGiftPlan(p.id)}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-dashed border-incogni-border px-4 py-2.5 text-sm font-medium text-incogni-muted hover:text-incogni-text hover:border-incogni-text transition-all"
+                    >
+                      <Gift className="h-4 w-4" />
+                      Gift {p.name}
+                    </button>
+                  </div>
                 )}
               </div>
-            </div>
-
-            {/* Feature comparisons */}
-            <div className="mt-12 max-w-2xl mx-auto">
-              <h3 className="text-sm font-semibold text-vectosilo-muted uppercase tracking-wider text-center mb-6">
-                How Ultra compares
-              </h3>
-              <div className="space-y-2">
-                {[
-                  { label: "Agent steps", consumer: "Up to 8 (Max)", enterprise: "Unlimited" },
-                  { label: "Swarm agents", consumer: "Up to 4 (Max)", enterprise: "Up to 8" },
-                  { label: "Team management", consumer: "—", enterprise: "Org workspace + admin controls" },
-                  { label: "Member requests", consumer: "—", enterprise: "Request & approval flow" },
-                  { label: "Share conversations", consumer: "—", enterprise: "Public shareable links" },
-                  { label: "Gift subscriptions", consumer: "—", enterprise: "Gift Pro/Max to members" },
-                  { label: "Support", consumer: "Standard", enterprise: "Priority + dedicated manager" },
-                ].map((row, i) => (
-                  <div key={i} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-vectosilo-surface-2 px-3 sm:px-4 py-2.5">
-                    <span className="w-full sm:w-auto text-sm text-vectosilo-text">{row.label}</span>
-                    <span className="text-xs text-vectosilo-muted sm:ml-auto">{row.consumer}</span>
-                    <span className="text-xs font-medium text-purple-300">{row.enterprise}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        <div className="mt-12 text-center text-xs text-vectosilo-muted">
-          <p>Payments processed securely by Razorpay. Cancel anytime.</p>
+            );
+          })}
         </div>
       </div>
 
-      {giftPlan && <GiftModal plan={giftPlan} onClose={() => setGiftPlan(null)} />}
+      {giftPlan && (
+        <GiftModal
+          plan={giftPlan}
+          onClose={() => setGiftPlan(null)}
+        />
+      )}
     </div>
   );
 }

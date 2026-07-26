@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { FocusMode, Plan } from "@/types";
 import { useAuth } from "./AuthProvider";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { PLANS } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ const AGENTS: {
 
 export function Onboarding() {
   const { user, updateAccount, upgrade } = useAuth();
-  const setFocusMode = useVectoSiloStore((s) => s.setFocusMode);
+  const setFocusMode = useIncogniStore((s) => s.setFocusMode);
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState(user?.name ?? "");
@@ -62,11 +62,11 @@ export function Onboarding() {
   };
 
   return (
-    <div className="vectosilo-hero-glow flex min-h-dvh items-center justify-center px-4 py-10">
+    <div className="incogni-hero-glow flex min-h-dvh items-center justify-center px-4 py-10">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xl rounded-2xl border border-vectosilo-border bg-vectosilo-surface/70 p-6 backdrop-blur-xl sm:p-8"
+        className="w-full max-w-xl rounded-2xl border border-incogni-border bg-incogni-surface/70 p-6 backdrop-blur-xl sm:p-8"
       >
         {/* Progress */}
         <div className="mb-6 flex items-center gap-2">
@@ -75,7 +75,7 @@ export function Onboarding() {
               key={i}
               className={cn(
                 "h-1.5 flex-1 rounded-full transition-colors",
-                i <= step ? "bg-vectosilo-accent" : "bg-vectosilo-border"
+                i <= step ? "bg-incogni-accent" : "bg-incogni-border"
               )}
             />
           ))}
@@ -84,16 +84,16 @@ export function Onboarding() {
         {step === 0 && (
           <Step
             title={`Welcome${user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋`}
-            subtitle="Let's set up VectoSilo AI in a few seconds."
+            subtitle="Let's set up Incogni AI in a few seconds."
           >
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-vectosilo-muted">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-incogni-muted">
               Display name
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-2.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted/60 focus:border-vectosilo-accent/50 focus:outline-none"
+              className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-sm text-incogni-text placeholder:text-incogni-muted/60 focus:border-incogni-accent/50 focus:outline-none"
             />
             <NextButton onClick={() => setStep(1)}>Continue</NextButton>
           </Step>
@@ -112,21 +112,21 @@ export function Onboarding() {
                     className={cn(
                       "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors",
                       active
-                        ? "border-vectosilo-accent/60 bg-vectosilo-accent/10"
-                        : "border-vectosilo-border bg-vectosilo-bg hover:bg-vectosilo-surface-2"
+                        ? "border-incogni-accent/60 bg-incogni-accent/10"
+                        : "border-incogni-border bg-incogni-bg hover:bg-incogni-surface-2"
                     )}
                   >
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-vectosilo-accent" />
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-incogni-accent" />
                     <div className="min-w-0">
-                      <p className="flex items-center gap-1.5 text-sm font-medium text-vectosilo-text">
+                      <p className="flex items-center gap-1.5 text-sm font-medium text-incogni-text">
                         {a.label}
                         {a.pro && (
-                          <span className="rounded bg-vectosilo-accent/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-vectosilo-accent-soft">
+                          <span className="rounded bg-incogni-accent/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-incogni-accent-soft">
                             Pro
                           </span>
                         )}
                       </p>
-                      <p className="text-xs text-vectosilo-muted">{a.desc}</p>
+                      <p className="text-xs text-incogni-muted">{a.desc}</p>
                     </div>
                   </button>
                 );
@@ -147,14 +147,14 @@ export function Onboarding() {
                     className={cn(
                       "flex flex-col rounded-xl border p-3",
                       p.highlight
-                        ? "border-vectosilo-accent/50 bg-vectosilo-accent/[0.07]"
-                        : "border-vectosilo-border bg-vectosilo-bg"
+                        ? "border-incogni-accent/50 bg-incogni-accent/[0.07]"
+                        : "border-incogni-border bg-incogni-bg"
                     )}
                   >
-                    <p className="text-sm font-semibold text-vectosilo-text">{p.name}</p>
-                    <p className="mt-0.5 text-lg font-bold text-vectosilo-text">
+                    <p className="text-sm font-semibold text-incogni-text">{p.name}</p>
+                    <p className="mt-0.5 text-lg font-bold text-incogni-text">
                       {p.price}
-                      <span className="text-xs font-normal text-vectosilo-muted">
+                      <span className="text-xs font-normal text-incogni-muted">
                         {p.period}
                       </span>
                     </p>
@@ -164,10 +164,10 @@ export function Onboarding() {
                       className={cn(
                         "mt-2 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                         current
-                          ? "bg-vectosilo-surface-2 text-vectosilo-muted"
+                          ? "bg-incogni-surface-2 text-incogni-muted"
                           : p.id === "free"
-                            ? "bg-vectosilo-surface-2 text-vectosilo-muted"
-                            : "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft"
+                            ? "bg-incogni-surface-2 text-incogni-muted"
+                            : "bg-incogni-accent text-black hover:bg-incogni-accent-soft"
                       )}
                     >
                       {current ? "Selected" : p.id === "free" ? "Default" : `Get ${p.name}`}
@@ -179,14 +179,14 @@ export function Onboarding() {
             <button
               onClick={finish}
               disabled={busy}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60"
             >
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              Start using VectoSilo AI
+              Start using Incogni AI
             </button>
           </Step>
         )}
@@ -210,8 +210,8 @@ function Step({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.25 }}
     >
-      <h2 className="text-xl font-semibold text-vectosilo-text">{title}</h2>
-      <p className="mb-5 mt-1 text-sm text-vectosilo-muted">{subtitle}</p>
+      <h2 className="text-xl font-semibold text-incogni-text">{title}</h2>
+      <p className="mb-5 mt-1 text-sm text-incogni-muted">{subtitle}</p>
       {children}
     </motion.div>
   );
@@ -227,7 +227,7 @@ function NextButton({
   return (
     <button
       onClick={onClick}
-      className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft"
+      className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft"
     >
       {children}
       <ChevronRight className="h-4 w-4" />

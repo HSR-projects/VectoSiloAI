@@ -53,13 +53,13 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
             className={cn(
               "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
               active
-                ? "bg-vectosilo-accent/10 text-vectosilo-accent"
-                : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text",
+                ? "bg-incogni-accent/10 text-incogni-accent"
+                : "text-incogni-muted hover:bg-incogni-surface hover:text-incogni-text",
               depth > 0 && "ml-6"
             )}
           >
             {item.icon && (
-              <span className={cn("flex-shrink-0", active && "text-vectosilo-accent")}>
+              <span className={cn("flex-shrink-0", active && "text-incogni-accent")}>
                 {item.icon}
               </span>
             )}
@@ -69,8 +69,8 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
                 className={cn(
                   "flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
                   active
-                    ? "bg-vectosilo-accent text-white"
-                    : "bg-vectosilo-surface-2 text-vectosilo-muted"
+                    ? "bg-incogni-accent text-white"
+                    : "bg-incogni-surface-2 text-incogni-muted"
                 )}
               >
                 {item.badge}
@@ -80,7 +80,7 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
               <motion.span
                 animate={{ rotate: isExpanded ? 90 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-vectosilo-muted"
+                className="text-incogni-muted"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path
@@ -113,7 +113,7 @@ export function SideNav({ items, activePath = "/", className }: SideNavProps) {
   return (
     <nav
       className={cn(
-        "flex flex-col gap-1 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-3",
+        "flex flex-col gap-1 rounded-xl border border-incogni-border bg-incogni-surface p-3",
         className
       )}
     >

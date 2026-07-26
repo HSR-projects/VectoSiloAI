@@ -36,10 +36,11 @@ export async function POST(req: Request) {
       ...messages
     ];
 
-    // Note: VectoSiloAI's lib/ollama.ts exposes chatStream directly
+    // Note: IncogniAI's lib/ollama.ts exposes chatStream directly
     const { chatStream } = await import("@/lib/ollama");
+    const safeModel = !model || model === "auto" ? DEFAULT_MODEL : model;
     const stream = await chatStream({
-      model: model || DEFAULT_MODEL,
+      model: safeModel,
       messages: ollamaMessages,
       options: { temperature: 0.7 },
       // We don't use format: "json" here because we are streaming mixed text and JSON

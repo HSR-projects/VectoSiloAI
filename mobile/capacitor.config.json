@@ -1,6 +1,6 @@
 {
-  "appId": "org.hsrprojects.vectosiloai",
-  "appName": "VectoSiloAI",
+  "appId": "org.hsrprojects.incogni-ai",
+  "appName": "IncogniAI",
   "webDir": "www",
   "server": {
     "url": "https://chat.hsrprojects.org",

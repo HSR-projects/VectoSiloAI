@@ -257,7 +257,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        vectosilo: {
+        incogni: {
           bg: "#212121",
           surface: "#2f2f2f",
           "surface-2": "#343541",
@@ -340,7 +340,7 @@ function genIndexHtml(title: string): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${title}</title>
   </head>
-  <body class="bg-vectosilo-bg text-vectosilo-text antialiased">
+  <body class="bg-incogni-bg text-incogni-text antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
@@ -419,6 +419,9 @@ export function scaffoldTemplate(opts: ScaffoldOptions): ScaffoldFile[] {
   const inlined = new Set<string>();
   let appSource = inlineImports(rawSource, filePath, inlined);
 
+  // Prevent duplicate default export in App.tsx by stripping "default" from the template's root export
+  appSource = appSource.replace(/^\s*export\s+default\s+/gm, "export ");
+
   // Determine component name and export style
   const hasDefaultExport = /export\s+default\s+(function|\w+)/.test(rawSource);
   const compName = path.basename(filePath, path.extname(filePath));
@@ -430,7 +433,7 @@ ${appSource}
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-vectosilo-bg text-vectosilo-text">
+    <div className="min-h-screen bg-incogni-bg text-incogni-text">
       ${hasDefaultExport
         ? `<${compName} />`
         : `{${compName} ? <${compName} /> : <div>Template "${id}"</div>}`
@@ -455,7 +458,7 @@ export default function App() {
 
   files.push({
     path: "README.md",
-    content: `# ${title}\n\nScaffolded from \`${id}\` via VectoSiloAI.\n\n\`\`\`bash\nnpm install\nnpm run dev\n\`\`\`\n`,
+    content: `# ${title}\n\nScaffolded from \`${id}\` via IncogniAI.\n\n\`\`\`bash\nnpm install\nnpm run dev\n\`\`\`\n`,
   });
 
   return files;

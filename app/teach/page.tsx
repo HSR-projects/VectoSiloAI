@@ -952,30 +952,30 @@ export default function TeachableMachine() {
   const totalSamples = activeProject?.classes.reduce((s, c) => s + c.sampleCount, 0) || 0;
 
   if (loading) return (
-    <div className="min-h-screen bg-vectosilo-bg flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-vectosilo-accent" />
+    <div className="min-h-screen bg-incogni-bg flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-incogni-accent" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-vectosilo-bg text-vectosilo-text">
+    <div className="min-h-screen bg-incogni-bg text-incogni-text">
       {/* Header */}
-      <header className="border-b border-vectosilo-border bg-vectosilo-surface/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-incogni-border bg-incogni-surface/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <Brain className="w-4 h-4 text-white" />
             </div>
             <span className="font-semibold">Teachable Machine</span>
-            <span className="text-xs text-vectosilo-muted">by VectoSiloAI</span>
+            <span className="text-xs text-incogni-muted">by IncogniAI</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-vectosilo-muted hidden sm:inline">{plan === "free" ? `${projects.length}/${projectLimit}` : "Unlimited"}</span>
-            <button onClick={loadDiscover} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-vectosilo-surface-2 hover:bg-vectosilo-border text-xs transition-colors">
+            <span className="text-xs text-incogni-muted hidden sm:inline">{plan === "free" ? `${projects.length}/${projectLimit}` : "Unlimited"}</span>
+            <button onClick={loadDiscover} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-incogni-surface-2 hover:bg-incogni-border text-xs transition-colors">
               <Globe className="w-3.5 h-3.5" /> Discover
             </button>
-            <button onClick={loadProjects} className="p-1.5 rounded-lg hover:bg-vectosilo-surface-2 transition-colors">
-              <RefreshCw className="w-3.5 h-3.5 text-vectosilo-muted" />
+            <button onClick={loadProjects} className="p-1.5 rounded-lg hover:bg-incogni-surface-2 transition-colors">
+              <RefreshCw className="w-3.5 h-3.5 text-incogni-muted" />
             </button>
           </div>
         </div>
@@ -997,10 +997,10 @@ export default function TeachableMachine() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">
                 My Projects
-                <span className="text-vectosilo-muted text-sm ml-2">({projects.length}/{projectLimit})</span>
+                <span className="text-incogni-muted text-sm ml-2">({projects.length}/{projectLimit})</span>
               </h2>
               {!showNew && projects.length < projectLimit && (
-                <button onClick={() => { setShowNew(true); initTF(); }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-vectosilo-accent text-black text-sm font-medium hover:bg-vectosilo-accent-soft transition-colors">
+                <button onClick={() => { setShowNew(true); initTF(); }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-incogni-accent text-black text-sm font-medium hover:bg-incogni-accent-soft transition-colors">
                   <Plus className="w-4 h-4" /> New Project
                 </button>
               )}
@@ -1009,39 +1009,39 @@ export default function TeachableMachine() {
             <AnimatePresence>
               {showNew && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                  className="p-6 rounded-xl bg-vectosilo-surface border border-vectosilo-border mb-6">
+                  className="p-6 rounded-xl bg-incogni-surface border border-incogni-border mb-6">
                   <h3 className="font-medium mb-4">Create New Project</h3>
                   <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Project name"
-                    className="w-full px-4 py-2.5 rounded-lg bg-vectosilo-surface-2 border border-vectosilo-border text-sm focus:outline-none focus:border-vectosilo-accent mb-3" />
+                    className="w-full px-4 py-2.5 rounded-lg bg-incogni-surface-2 border border-incogni-border text-sm focus:outline-none focus:border-incogni-accent mb-3" />
                   <div className="flex gap-3 mb-4">
                     <button onClick={() => setNewType("image")}
                       className={cn("flex-1 flex flex-col items-center gap-1 px-4 py-3 rounded-lg border text-sm transition-colors",
-                        newType === "image" ? "border-vectosilo-accent bg-vectosilo-accent/10 text-vectosilo-accent" : "border-vectosilo-border hover:border-vectosilo-accent/50")}>
+                        newType === "image" ? "border-incogni-accent bg-incogni-accent/10 text-incogni-accent" : "border-incogni-border hover:border-incogni-accent/50")}>
                       <Camera className="w-5 h-5" />
                       <span>Image</span>
-                      <span className="text-[10px] text-vectosilo-muted">Mobilenet</span>
+                      <span className="text-[10px] text-incogni-muted">Mobilenet</span>
                     </button>
                     <button onClick={() => setNewType("audio")}
                       className={cn("flex-1 flex flex-col items-center gap-1 px-4 py-3 rounded-lg border text-sm transition-colors",
-                        newType === "audio" ? "border-vectosilo-accent bg-vectosilo-accent/10 text-vectosilo-accent" : "border-vectosilo-border hover:border-vectosilo-accent/50")}>
+                        newType === "audio" ? "border-incogni-accent bg-incogni-accent/10 text-incogni-accent" : "border-incogni-border hover:border-incogni-accent/50")}>
                       <Volume2 className="w-5 h-5" />
                       <span>Audio</span>
-                      <span className="text-[10px] text-vectosilo-muted">Spectrogram</span>
+                      <span className="text-[10px] text-incogni-muted">Spectrogram</span>
                     </button>
                     <button onClick={() => setNewType("pose")}
                       className={cn("flex-1 flex flex-col items-center gap-1 px-4 py-3 rounded-lg border text-sm transition-colors",
-                        newType === "pose" ? "border-vectosilo-accent bg-vectosilo-accent/10 text-vectosilo-accent" : "border-vectosilo-border hover:border-vectosilo-accent/50")}>
+                        newType === "pose" ? "border-incogni-accent bg-incogni-accent/10 text-incogni-accent" : "border-incogni-border hover:border-incogni-accent/50")}>
                       <Maximize2 className="w-5 h-5" />
                       <span>Pose</span>
-                      <span className="text-[10px] text-vectosilo-muted">MoveNet</span>
+                      <span className="text-[10px] text-incogni-muted">MoveNet</span>
                     </button>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={startProject} disabled={creating || !newName.trim()}
-                      className="px-4 py-2 rounded-lg bg-vectosilo-accent text-black text-sm font-medium hover:bg-vectosilo-accent-soft disabled:opacity-50 transition-colors">
+                      className="px-4 py-2 rounded-lg bg-incogni-accent text-black text-sm font-medium hover:bg-incogni-accent-soft disabled:opacity-50 transition-colors">
                       {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
                     </button>
-                    <button onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg bg-vectosilo-surface-2 text-sm hover:bg-vectosilo-border transition-colors">Cancel</button>
+                    <button onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg bg-incogni-surface-2 text-sm hover:bg-incogni-border transition-colors">Cancel</button>
                   </div>
                 </motion.div>
               )}
@@ -1050,7 +1050,7 @@ export default function TeachableMachine() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map(proj => (
                 <motion.button key={proj.id} onClick={() => setActiveProject(proj)} layout
-                  className="group text-left p-5 rounded-xl bg-vectosilo-surface border border-vectosilo-border hover:border-vectosilo-accent/50 transition-all hover:shadow-glow">
+                  className="group text-left p-5 rounded-xl bg-incogni-surface border border-incogni-border hover:border-incogni-accent/50 transition-all hover:shadow-glow">
                   <div className="flex items-start justify-between mb-3">
                     <div className={cn("p-2 rounded-lg",
                       proj.type === "image" ? "bg-blue-500/20" : proj.type === "audio" ? "bg-purple-500/20" : "bg-green-500/20")}>
@@ -1058,11 +1058,11 @@ export default function TeachableMachine() {
                        proj.type === "audio" ? <Volume2 className="w-5 h-5 text-purple-400" /> :
                        <Maximize2 className="w-5 h-5 text-green-400" />}
                     </div>
-                    {proj.trained && <CheckCircle className="w-4 h-4 text-vectosilo-accent" />}
+                    {proj.trained && <CheckCircle className="w-4 h-4 text-incogni-accent" />}
                   </div>
-                  <h3 className="font-medium text-sm mb-1 group-hover:text-vectosilo-accent transition-colors">{proj.name}</h3>
-                  <p className="text-xs text-vectosilo-muted mb-3 capitalize">{proj.type} classifier</p>
-                  <div className="flex items-center gap-2 text-xs text-vectosilo-muted">
+                  <h3 className="font-medium text-sm mb-1 group-hover:text-incogni-accent transition-colors">{proj.name}</h3>
+                  <p className="text-xs text-incogni-muted mb-3 capitalize">{proj.type} classifier</p>
+                  <div className="flex items-center gap-2 text-xs text-incogni-muted">
                     <span>{proj.classes.length} classes</span>
                     <span>·</span>
                     <span>{proj.classes.reduce((s, c) => s + c.sampleCount, 0)} samples</span>
@@ -1071,9 +1071,9 @@ export default function TeachableMachine() {
               ))}
               {projects.length === 0 && (
                 <div className="col-span-full text-center py-16">
-                  <Brain className="w-12 h-12 text-vectosilo-muted mx-auto mb-4 opacity-40" />
-                  <p className="text-vectosilo-muted mb-2">No projects yet</p>
-                  <button onClick={() => { setShowNew(true); initTF(); }} className="text-vectosilo-accent text-sm hover:underline">Create your first ML project</button>
+                  <Brain className="w-12 h-12 text-incogni-muted mx-auto mb-4 opacity-40" />
+                  <p className="text-incogni-muted mb-2">No projects yet</p>
+                  <button onClick={() => { setShowNew(true); initTF(); }} className="text-incogni-accent text-sm hover:underline">Create your first ML project</button>
                 </div>
               )}
             </div>
@@ -1084,7 +1084,7 @@ export default function TeachableMachine() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <button onClick={() => { setActiveProject(null); stopWebcam(); stopPreview(); setTab("collect"); }}
-                  className="p-1.5 rounded-lg hover:bg-vectosilo-surface-2 transition-colors">
+                  className="p-1.5 rounded-lg hover:bg-incogni-surface-2 transition-colors">
                   <ChevronRight className="w-5 h-5 rotate-180" />
                 </button>
                 <div className={cn("p-2 rounded-lg",
@@ -1095,12 +1095,12 @@ export default function TeachableMachine() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">{activeProject.name}</h2>
-                  <p className="text-xs text-vectosilo-muted capitalize">{activeProject.type} · {activeProject.classes.length} classes · {totalSamples} samples{activeProject.trained ? " · Trained" : ""}</p>
+                  <p className="text-xs text-incogni-muted capitalize">{activeProject.type} · {activeProject.classes.length} classes · {totalSamples} samples{activeProject.trained ? " · Trained" : ""}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={togglePublish} className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
-                  activeProject.published ? "bg-vectosilo-accent/20 text-vectosilo-accent" : "bg-vectosilo-surface-2 text-vectosilo-muted hover:text-vectosilo-text")}>
+                  activeProject.published ? "bg-incogni-accent/20 text-incogni-accent" : "bg-incogni-surface-2 text-incogni-muted hover:text-incogni-text")}>
                   <Share2 className="w-3.5 h-3.5" /> {activeProject.published ? "Published" : "Publish"}
                 </button>
               </div>
@@ -1110,16 +1110,16 @@ export default function TeachableMachine() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
               
               {/* Column 1: Gather */}
-              <div className="flex flex-col gap-6 lg:col-span-1 border-b lg:border-b-0 lg:border-r border-vectosilo-border pb-6 lg:pb-0 lg:pr-6">
+              <div className="flex flex-col gap-6 lg:col-span-1 border-b lg:border-b-0 lg:border-r border-incogni-border pb-6 lg:pb-0 lg:pr-6">
                 <div>
                   <h3 className="font-medium mb-3">Classes</h3>
                   <div className="space-y-3">
                     {activeProject.classes.map(cls => (
-                      <div key={cls.id} className="p-4 rounded-xl bg-vectosilo-surface border border-vectosilo-border">
+                      <div key={cls.id} className="p-4 rounded-xl bg-incogni-surface border border-incogni-border">
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-medium text-sm">{cls.name}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-vectosilo-muted">{cls.sampleCount} samples</span>
+                            <span className="text-xs text-incogni-muted">{cls.sampleCount} samples</span>
                             <button onClick={() => removeClass(cls.id)} className="p-1 rounded hover:bg-red-500/20 text-red-400">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1144,7 +1144,7 @@ export default function TeachableMachine() {
                                   <Volume2 className="w-3 h-3" /> Start Capture
                                 </button>
                               )}
-                              <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted text-xs hover:bg-vectosilo-border cursor-pointer transition-colors">
+                              <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-incogni-surface-2 text-incogni-muted text-xs hover:bg-incogni-border cursor-pointer transition-colors">
                                 <Upload className="w-3 h-3" /> Upload
                                 <input type="file" accept="audio/*" multiple
                                   hidden onChange={e => { const files = e.target.files; if (files?.length) uploadAudioFile(cls.id, files); e.target.value = ''; }} />
@@ -1168,7 +1168,7 @@ export default function TeachableMachine() {
                                   <Maximize2 className="w-3 h-3" /> Start Capture
                                 </button>
                               )}
-                               <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted text-xs hover:bg-vectosilo-border cursor-pointer transition-colors">
+                               <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-incogni-surface-2 text-incogni-muted text-xs hover:bg-incogni-border cursor-pointer transition-colors">
                                  <Upload className="w-3 h-3" /> Upload
                                  <input type="file" accept="image/*" multiple
                                    hidden onChange={e => { const files = e.target.files; if (files?.length) uploadSample(cls.id, files); e.target.value = ''; }} />
@@ -1178,7 +1178,7 @@ export default function TeachableMachine() {
                              <>
                               {webcamActive ? (
                                 <button onClick={() => captureSample(cls.id)} disabled={capturing}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-vectosilo-accent/20 text-vectosilo-accent text-xs hover:bg-vectosilo-accent/30 transition-colors">
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-incogni-accent/20 text-incogni-accent text-xs hover:bg-incogni-accent/30 transition-colors">
                                   {capturing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3" />}
                                   {capturing ? "Hold..." : "Capture"}
                                 </button>
@@ -1187,7 +1187,7 @@ export default function TeachableMachine() {
                                   <Camera className="w-3 h-3" /> Start Webcam
                                 </button>
                               )}
-                               <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted text-xs hover:bg-vectosilo-border cursor-pointer transition-colors">
+                               <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-incogni-surface-2 text-incogni-muted text-xs hover:bg-incogni-border cursor-pointer transition-colors">
                                  <Upload className="w-3 h-3" /> Upload
                                  <input type="file" accept="image/*" multiple
                                    hidden onChange={e => { const files = e.target.files; if (files?.length) uploadSample(cls.id, files); e.target.value = ''; }} />
@@ -1197,18 +1197,18 @@ export default function TeachableMachine() {
                          </div>
                          <div className="mt-4 flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                            {classSamples[cls.id]?.map((sample) => (
-                             <div key={sample.id} className="relative w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border border-vectosilo-border group bg-vectosilo-surface-2 flex items-center justify-center">
+                             <div key={sample.id} className="relative w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border border-incogni-border group bg-incogni-surface-2 flex items-center justify-center">
                                {activeProject.type === "image" ? (
                                  <img src={sample.url} className="w-full h-full object-cover" alt="sample" />
                                ) : activeProject.type === "audio" ? (
-                                 <Volume2 className="w-4 h-4 text-vectosilo-muted" />
+                                 <Volume2 className="w-4 h-4 text-incogni-muted" />
                                ) : (
-                                 <Maximize2 className="w-4 h-4 text-vectosilo-muted" />
+                                 <Maximize2 className="w-4 h-4 text-incogni-muted" />
                                )}
                              </div>
                            ))}
                            {(!classSamples[cls.id] || classSamples[cls.id].length === 0) && (
-                             <div className="w-full py-4 text-center text-xs text-vectosilo-muted border border-dashed border-vectosilo-border rounded-lg">
+                             <div className="w-full py-4 text-center text-xs text-incogni-muted border border-dashed border-incogni-border rounded-lg">
                                No samples yet
                              </div>
                            )}
@@ -1218,16 +1218,16 @@ export default function TeachableMachine() {
                   </div>
                   <div className="flex gap-2 mt-3">
                     <input value={newClassName} onChange={e => setNewClassName(e.target.value)} placeholder="New class name"
-                      className="flex-1 px-3 py-2 rounded-lg bg-vectosilo-surface-2 border border-vectosilo-border text-sm focus:outline-none focus:border-vectosilo-accent" />
+                      className="flex-1 px-3 py-2 rounded-lg bg-incogni-surface-2 border border-incogni-border text-sm focus:outline-none focus:border-incogni-accent" />
                     <button onClick={addClass} disabled={!newClassName.trim()}
-                      className="px-4 py-2 rounded-lg bg-vectosilo-accent/20 text-vectosilo-accent text-sm hover:bg-vectosilo-accent/30 disabled:opacity-50 transition-colors">
+                      className="px-4 py-2 rounded-lg bg-incogni-accent/20 text-incogni-accent text-sm hover:bg-incogni-accent/30 disabled:opacity-50 transition-colors">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
                 <div>
                   <h3 className="font-medium mb-3">{activeProject.type === "audio" ? "Microphone" : "Camera"}</h3>
-                  <div className="relative rounded-xl bg-vectosilo-surface border border-vectosilo-border overflow-hidden">
+                  <div className="relative rounded-xl bg-incogni-surface border border-incogni-border overflow-hidden">
                     {activeProject.type === "audio" ? (
                       <div className="aspect-video flex flex-col items-center justify-center">
                         {micActive ? (
@@ -1240,8 +1240,8 @@ export default function TeachableMachine() {
                               })}
                             </div>
                             <div className="text-center">
-                              <p className="text-sm text-vectosilo-muted">Capturing for <span className="text-purple-400 font-medium">{activeProject?.classes.find(c => c.id === capturingForClass)?.name || "..."}</span></p>
-                              <p className="text-xs text-vectosilo-muted mt-1">{autoCaptureCount} samples captured</p>
+                              <p className="text-sm text-incogni-muted">Capturing for <span className="text-purple-400 font-medium">{activeProject?.classes.find(c => c.id === capturingForClass)?.name || "..."}</span></p>
+                              <p className="text-xs text-incogni-muted mt-1">{autoCaptureCount} samples captured</p>
                             </div>
                           </div>
                         ) : (
@@ -1256,7 +1256,7 @@ export default function TeachableMachine() {
                         <video ref={videoRef} autoPlay playsInline muted className="w-full aspect-video object-cover"
                           style={{ display: webcamActive ? "block" : "none" }} />
                         {!webcamActive && (
-                          <div className="aspect-video flex flex-col items-center justify-center text-vectosilo-muted">
+                          <div className="aspect-video flex flex-col items-center justify-center text-incogni-muted">
                             <Camera className="w-12 h-12 mb-3 opacity-30" />
                             <p className="text-sm">Click &ldquo;Start Webcam&rdquo; to capture samples</p>
                           </div>
@@ -1278,7 +1278,7 @@ export default function TeachableMachine() {
                       </button>
                     )
                   )}
-                  <p className="text-xs text-vectosilo-muted mt-2">
+                  <p className="text-xs text-incogni-muted mt-2">
                     {activeProject.type === "audio" ? "Just speak — samples are captured automatically every ~2s while mic is on." :
                      activeProject.type === "pose" ? "Just move — poses are captured automatically every ~1.5s while camera is on." :
                     "Aim for 20+ samples per class. More variety = better accuracy."}
@@ -1287,18 +1287,18 @@ export default function TeachableMachine() {
               </div>
 
               {/* Column 2: Train */}
-              <div className="flex flex-col gap-6 lg:col-span-1 border-b lg:border-b-0 lg:border-r border-vectosilo-border pb-6 lg:pb-0 lg:pr-6">
+              <div className="flex flex-col gap-6 lg:col-span-1 border-b lg:border-b-0 lg:border-r border-incogni-border pb-6 lg:pb-0 lg:pr-6">
                 <div className="text-center">
-                <div className="p-8 rounded-xl bg-vectosilo-surface border border-vectosilo-border">
-                  <Brain className="w-16 h-16 text-vectosilo-accent mx-auto mb-4 opacity-80" />
+                <div className="p-8 rounded-xl bg-incogni-surface border border-incogni-border">
+                  <Brain className="w-16 h-16 text-incogni-accent mx-auto mb-4 opacity-80" />
                   <h3 className="text-lg font-semibold mb-2">Train Your Model</h3>
-                  <p className="text-sm text-vectosilo-muted mb-6">
+                  <p className="text-sm text-incogni-muted mb-6">
                     {activeProject.classes.length} classes · {totalSamples} samples
                   </p>
 
                   {!tfReady && (
                     <button onClick={initTF} disabled={tfLoading}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-vectosilo-accent text-black font-medium hover:bg-vectosilo-accent-soft disabled:opacity-50 transition-colors mb-4">
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-incogni-accent text-black font-medium hover:bg-incogni-accent-soft disabled:opacity-50 transition-colors mb-4">
                       {tfLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Loading TensorFlow.js...</> : "Load TensorFlow.js"}
                     </button>
                   )}
@@ -1313,13 +1313,13 @@ export default function TeachableMachine() {
                     </div>
                   ) : (
                     <button onClick={startTraining} disabled={training}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-vectosilo-accent text-black font-medium hover:bg-vectosilo-accent-soft disabled:opacity-50 transition-colors text-lg mb-4">
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-incogni-accent text-black font-medium hover:bg-incogni-accent-soft disabled:opacity-50 transition-colors text-lg mb-4">
                       {training ? <><Loader2 className="w-5 h-5 animate-spin" /> Training...</> : <><Play className="w-5 h-5" /> Start Training</>}
                     </button>
                   ))}
 
                   {trainProgress && training && (
-                    <div className="p-3 rounded-lg bg-vectosilo-surface-2 text-sm text-vectosilo-muted mb-4 animate-pulse">
+                    <div className="p-3 rounded-lg bg-incogni-surface-2 text-sm text-incogni-muted mb-4 animate-pulse">
                       {trainProgress}
                     </div>
                   )}
@@ -1327,10 +1327,10 @@ export default function TeachableMachine() {
                   {trainResult && !training && (
                     <div className="mt-4">
                       {trainResult.success ? (
-                        <div className="p-4 rounded-lg bg-vectosilo-accent/10 border border-vectosilo-accent/30">
-                          <CheckCircle className="w-6 h-6 text-vectosilo-accent mx-auto mb-2" />
-                          <p className="text-sm font-medium text-vectosilo-accent">Training Complete!</p>
-                          <p className="text-xs text-vectosilo-muted mt-1">Model ready for preview</p>
+                        <div className="p-4 rounded-lg bg-incogni-accent/10 border border-incogni-accent/30">
+                          <CheckCircle className="w-6 h-6 text-incogni-accent mx-auto mb-2" />
+                          <p className="text-sm font-medium text-incogni-accent">Training Complete!</p>
+                          <p className="text-xs text-incogni-muted mt-1">Model ready for preview</p>
                         </div>
                       ) : (
                         <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -1348,16 +1348,16 @@ export default function TeachableMachine() {
               <div className="flex flex-col gap-6 lg:col-span-1">
                 <div>
                   <h3 className="font-medium mb-3">Live Preview</h3>
-                  <div className="rounded-xl bg-vectosilo-surface border border-vectosilo-border overflow-hidden">
+                  <div className="rounded-xl bg-incogni-surface border border-incogni-border overflow-hidden">
                     {!activeProject.trained ? (
-                      <div className="aspect-video flex flex-col items-center justify-center text-vectosilo-muted p-8">
+                      <div className="aspect-video flex flex-col items-center justify-center text-incogni-muted p-8">
                         <AlertCircle className="w-10 h-10 mb-3 opacity-40" />
                         <p className="text-sm">Train your model first, then preview live results</p>
                       </div>
                     ) : previewActive ? (
                       <div className="relative">
                         {activeProject.type === "audio" ? (
-                          <div className="aspect-video flex flex-col items-center justify-center bg-vectosilo-surface-2">
+                          <div className="aspect-video flex flex-col items-center justify-center bg-incogni-surface-2">
                             <div className="flex items-end gap-1 mb-3 h-24">
                               {Array.from({ length: 40 }).map((_, i) => {
                                 const h = Math.max(4, audioLevel * 160 * (0.5 + Math.random() * 0.5) + 4);
@@ -1365,7 +1365,7 @@ export default function TeachableMachine() {
                                   style={{ height: `${h}px` }} />;
                               })}
                             </div>
-                            <p className="text-sm text-vectosilo-muted">Listening...</p>
+                            <p className="text-sm text-incogni-muted">Listening...</p>
                           </div>
                         ) : (
                           <>
@@ -1383,14 +1383,14 @@ export default function TeachableMachine() {
                         </div>
                       </div>
                     ) : (
-                      <div className="aspect-video flex flex-col items-center justify-center text-vectosilo-muted">
+                      <div className="aspect-video flex flex-col items-center justify-center text-incogni-muted">
                         <Play className="w-12 h-12 mb-3 opacity-30" />
                         <p className="text-sm mb-4">
                           {activeProject.type === "audio" ? "Start mic to see live predictions" :
                            "Start camera to see live predictions"}
                         </p>
                         <button onClick={startPreview}
-                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-vectosilo-accent text-black text-sm font-medium hover:bg-vectosilo-accent-soft transition-colors">
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-incogni-accent text-black text-sm font-medium hover:bg-incogni-accent-soft transition-colors">
                           {activeProject.type === "audio" ? <Volume2 className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
                           {activeProject.type === "audio" ? "Start Listening" : "Start Preview"}
                         </button>
@@ -1403,15 +1403,15 @@ export default function TeachableMachine() {
                     </button>
                   )}
                   {!activeProject.trained && modelRef.current && (
-                    <p className="text-xs text-vectosilo-muted mt-2">Reload the page and train a model to enable live preview.</p>
+                    <p className="text-xs text-incogni-muted mt-2">Reload the page and train a model to enable live preview.</p>
                   )}
                 </div>
 
                 <div>
                   <h3 className="font-medium mb-3">Output</h3>
-                  <div className="p-6 rounded-xl bg-vectosilo-surface border border-vectosilo-border min-h-[280px]">
+                  <div className="p-6 rounded-xl bg-incogni-surface border border-incogni-border min-h-[280px]">
                     {!activeProject.trained ? (
-                      <div className="text-center py-8 text-vectosilo-muted text-sm">
+                      <div className="text-center py-8 text-incogni-muted text-sm">
                         <Brain className="w-8 h-8 mx-auto mb-2 opacity-40" />
                         Train a model to see predictions
                       </div>
@@ -1419,29 +1419,29 @@ export default function TeachableMachine() {
                       <div>
                         <motion.div key={previewResults.prediction}
                           initial={{ scale: 1.1, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                          className="text-center mb-5 p-3 rounded-xl bg-vectosilo-accent/10 border border-vectosilo-accent/30">
-                          <p className="text-xs text-vectosilo-muted uppercase tracking-wider mb-1">Prediction</p>
-                          <p className="text-3xl font-bold text-vectosilo-accent">{previewResults.prediction}</p>
-                          <p className="text-lg text-vectosilo-accent/80 font-medium">{(previewResults.confidence * 100).toFixed(1)}%</p>
+                          className="text-center mb-5 p-3 rounded-xl bg-incogni-accent/10 border border-incogni-accent/30">
+                          <p className="text-xs text-incogni-muted uppercase tracking-wider mb-1">Prediction</p>
+                          <p className="text-3xl font-bold text-incogni-accent">{previewResults.prediction}</p>
+                          <p className="text-lg text-incogni-accent/80 font-medium">{(previewResults.confidence * 100).toFixed(1)}%</p>
                         </motion.div>
                         <div className="space-y-3">
                           {previewResults.results.map((r, i) => (
                             <div key={r.class}>
                               <div className="flex justify-between text-sm mb-1">
-                                <span className={cn("font-medium", i === 0 ? "text-white" : "text-vectosilo-muted")}>{r.class}</span>
-                                <span className={cn(i === 0 ? "text-vectosilo-accent font-bold" : "text-vectosilo-muted")}>
+                                <span className={cn("font-medium", i === 0 ? "text-white" : "text-incogni-muted")}>{r.class}</span>
+                                <span className={cn(i === 0 ? "text-incogni-accent font-bold" : "text-incogni-muted")}>
                                   {(r.confidence * 100).toFixed(1)}%
                                 </span>
                               </div>
-                              <div className="h-6 rounded-full bg-vectosilo-surface-2 overflow-hidden">
+                              <div className="h-6 rounded-full bg-incogni-surface-2 overflow-hidden">
                                 <motion.div
                                   initial={{ width: 0 }}
                                   animate={{ width: `${Math.max(r.confidence * 100, 2)}%` }}
                                   transition={{ duration: 0.15, ease: "easeOut" }}
                                   className={cn("h-full rounded-full",
-                                    i === 0 ? "bg-gradient-to-r from-vectosilo-accent to-emerald-400" :
+                                    i === 0 ? "bg-gradient-to-r from-incogni-accent to-emerald-400" :
                                     i === 1 ? "bg-gradient-to-r from-blue-500 to-purple-500" :
-                                    "bg-vectosilo-border/50")}
+                                    "bg-incogni-border/50")}
                                 />
                               </div>
                             </div>
@@ -1449,7 +1449,7 @@ export default function TeachableMachine() {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-vectosilo-muted text-sm">
+                      <div className="text-center py-8 text-incogni-muted text-sm">
                         <Play className="w-8 h-8 mx-auto mb-2 opacity-40" />
                         Start preview to see live results
                       </div>
@@ -1458,11 +1458,11 @@ export default function TeachableMachine() {
                 </div>
 
                 {/* Export Section */}
-                <div className="text-center mt-6 border-t border-vectosilo-border pt-6">
-                <div className="p-8 rounded-xl bg-vectosilo-surface border border-vectosilo-border">
-                  <Download className="w-16 h-16 text-vectosilo-accent mx-auto mb-4 opacity-80" />
+                <div className="text-center mt-6 border-t border-incogni-border pt-6">
+                <div className="p-8 rounded-xl bg-incogni-surface border border-incogni-border">
+                  <Download className="w-16 h-16 text-incogni-accent mx-auto mb-4 opacity-80" />
                   <h3 className="text-lg font-semibold mb-2">Export Model</h3>
-                  <p className="text-sm text-vectosilo-muted mb-6">
+                  <p className="text-sm text-incogni-muted mb-6">
                     Download your trained model as TensorFlow.js format.
                     Use it in any web project.
                   </p>
@@ -1474,20 +1474,20 @@ export default function TeachableMachine() {
                   ) : (
                     <>
                       <button onClick={exportModel}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-vectosilo-accent text-black font-medium hover:bg-vectosilo-accent-soft transition-colors mb-3">
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-incogni-accent text-black font-medium hover:bg-incogni-accent-soft transition-colors mb-3">
                         <Download className="w-5 h-5" /> Download Model (TF.js)
                       </button>
                       <button onClick={exportLiteModel}
                         className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-purple-500/20 text-purple-300 font-medium hover:bg-purple-500/30 transition-colors mb-3">
                         <Download className="w-5 h-5" /> Download Model (Lite — @teachablemachine/image)
                       </button>
-                      <p className="text-xs text-vectosilo-muted">Your browser will download model.json + weight files</p>
+                      <p className="text-xs text-incogni-muted">Your browser will download model.json + weight files</p>
                     </>
                   )}
 
-                  <div className="mt-6 p-4 rounded-lg bg-vectosilo-surface-2 text-left">
-                    <p className="text-xs font-medium text-vectosilo-muted mb-2">Usage in your project:</p>
-                    <pre className="text-xs text-vectosilo-text overflow-x-auto whitespace-pre-wrap">
+                  <div className="mt-6 p-4 rounded-lg bg-incogni-surface-2 text-left">
+                    <p className="text-xs font-medium text-incogni-muted mb-2">Usage in your project:</p>
+                    <pre className="text-xs text-incogni-text overflow-x-auto whitespace-pre-wrap">
 {activeProject?.type === "image" ? `import * as tf from '@tensorflow/tfjs';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 
@@ -1537,16 +1537,16 @@ async function classify(keypoints) {
             onClick={() => setShowDiscover(false)}>
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-2xl max-h-[80vh] overflow-auto rounded-2xl bg-vectosilo-surface border border-vectosilo-border p-6">
+              className="w-full max-w-2xl max-h-[80vh] overflow-auto rounded-2xl bg-incogni-surface border border-incogni-border p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-vectosilo-accent" /> Discover
+                  <Globe className="w-5 h-5 text-incogni-accent" /> Discover
                 </h2>
-                <button onClick={() => setShowDiscover(false)} className="p-1.5 rounded-lg hover:bg-vectosilo-surface-2"><X className="w-4 h-4" /></button>
+                <button onClick={() => setShowDiscover(false)} className="p-1.5 rounded-lg hover:bg-incogni-surface-2"><X className="w-4 h-4" /></button>
               </div>
 
               {discoverEntries.length === 0 ? (
-                <div className="text-center py-12 text-vectosilo-muted">
+                <div className="text-center py-12 text-incogni-muted">
                   <Globe className="w-12 h-12 mx-auto mb-3 opacity-40" />
                   <p>No public models yet</p>
                   <p className="text-sm">Train and publish your model to share it</p>
@@ -1554,19 +1554,19 @@ async function classify(keypoints) {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {discoverEntries.map(entry => (
-                    <div key={entry.projectId} className="p-4 rounded-xl bg-vectosilo-surface-2 border border-vectosilo-border hover:border-vectosilo-accent/50 transition-colors">
+                    <div key={entry.projectId} className="p-4 rounded-xl bg-incogni-surface-2 border border-incogni-border hover:border-incogni-accent/50 transition-colors">
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="font-medium text-sm">{entry.name}</h3>
-                          <p className="text-xs text-vectosilo-muted">by {entry.username?.split("@")[0] || "Anonymous"}</p>
+                          <p className="text-xs text-incogni-muted">by {entry.username?.split("@")[0] || "Anonymous"}</p>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-vectosilo-muted">
+                        <div className="flex items-center gap-1 text-xs text-incogni-muted">
                           <Heart className="w-3 h-3" /> {entry.likes || 0}
                         </div>
                       </div>
-                      <p className="text-xs text-vectosilo-muted mb-2 line-clamp-2">{entry.description}</p>
-                      <div className="flex items-center gap-2 text-xs text-vectosilo-muted">
-                        <span className="px-1.5 py-0.5 rounded bg-vectosilo-surface text-[10px]">{entry.type}</span>
+                      <p className="text-xs text-incogni-muted mb-2 line-clamp-2">{entry.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-incogni-muted">
+                        <span className="px-1.5 py-0.5 rounded bg-incogni-surface text-[10px]">{entry.type}</span>
                         <span>{entry.classes?.length || 0} classes</span>
                         <span>·</span>
                         <span>{entry.sampleCount || 0} samples</span>

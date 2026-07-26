@@ -2,7 +2,7 @@
 "use strict";
 /**
  * Koder — autonomous AI coding agent for your terminal.
- * Powered by VectoSiloAI · chat.hsrprojects.org
+ * Powered by IncogniAI · chat.hsrprojects.org
  */
 
 const readline = require("readline");
@@ -50,7 +50,7 @@ function printLogo() {
 
 function printEndpointCard() {
   const width = Math.min(W() - 4, 72);
-  pw(`  ${cl("white","Koder is powered only by VectoSiloAI.")}\n`);
+  pw(`  ${cl("white","Koder is powered only by IncogniAI.")}\n`);
   pw(`  ${cl("gray","Endpoint")} ${cl("emerald","https://chat.hsrprojects.org")}\n`);
   pw(`  ${cl("gray","─".repeat(width))}\n\n`);
 }
@@ -87,8 +87,8 @@ async function main() {
     printLogo();
     printEndpointCard();
     const method = await interactiveMenu("How do you want to use Koder?", [
-      { label:"Using Account login", sub:"Requires a VectoSiloAI Pro or Max subscription · 80 requests per 5h" },
-      { label:"API keys",            sub:"Use a capped VectoSiloAI API key from chat.hsrprojects.org/developers" },
+      { label:"Using Account login", sub:"Requires a IncogniAI Pro or Max subscription · 80 requests per 5h" },
+      { label:"API keys",            sub:"Use a capped IncogniAI API key from chat.hsrprojects.org/developers" },
     ]);
     if (method === 0) {
       pw(`\n  Opening ${cl("emerald","chat.hsrprojects.org")} in your browser...\n`);
@@ -98,7 +98,7 @@ async function main() {
         pw(`  ${cl("emerald","✓")} Signed in as ${cl("white",r.name)}\n`);
       } catch(e) { pw(`  ${cl("red","✗")} ${e.message}\n`); process.exit(1); }
     } else {
-      const key = await rlQuestion(`\n  ${cl("gray","Paste your VectoSiloAI API key (sk-vectosilo-…):")} `);
+      const key = await rlQuestion(`\n  ${cl("gray","Paste your IncogniAI API key (sk-incogni-…):")} `);
       if (!key.trim()) { pw(cl("red","  ✗ No key entered.\n")); process.exit(1); }
       spinStart("Authenticating…");
       try {
@@ -166,8 +166,8 @@ function interactiveMenu(title, items) {
 
 // ── Model picker ──────────────────────────────────────────────────────────────
 async function pickModel(silent=false) {
-  if (!silent) pw(`\n  ${cl("gray","Fetching VectoSiloAI models…")}\n`);
-  spinStart("Loading VectoSiloAI models…");
+  if (!silent) pw(`\n  ${cl("gray","Fetching IncogniAI models…")}\n`);
+  spinStart("Loading IncogniAI models…");
   const models = await auth.fetchModels();
   spinStop(true,"");
 
@@ -179,7 +179,7 @@ async function pickModel(silent=false) {
   const current = config.get("model") || models.find(m=>m.default)?.id || models[0]?.id;
   const items = models.map(m => ({
     label: m.name,
-    sub:   m.default ? "Default VectoSiloAI model" : "",
+    sub:   m.default ? "Default IncogniAI model" : "",
   }));
   const currentIdx = Math.max(0, models.findIndex(m=>m.id===current));
 
@@ -195,7 +195,7 @@ async function pickModel(silent=false) {
 async function runREPL(mode) {
   const name     = auth.getName() || "";
   const authType = auth.getAuthType();
-  const model    = config.get("modelName") || "VectoSiloAI Koder";
+  const model    = config.get("modelName") || "IncogniAI Koder";
 
   printLogo();
   const modeStr = mode==="auto"?cl("emerald","◆ Auto"):cl("blue","◎ Ask");
@@ -300,7 +300,7 @@ async function cmdLogin() {
   const keyIdx = argv.indexOf("--key");
   if (keyIdx !== -1) {
     const key = argv[keyIdx+1];
-    if (!key) { process.stderr.write("Usage: koder login --key sk-vectosilo-...\n"); process.exit(1); }
+    if (!key) { process.stderr.write("Usage: koder login --key sk-incogni-...\n"); process.exit(1); }
     spinStart("Authenticating…");
     try {
       const r = await auth.loginWithApiKey(key);
@@ -356,12 +356,12 @@ async function cmdAccount() {
 
   const name    = auth.getName()||"—";
   const at      = auth.getAuthType();
-  const model   = config.get("modelName")||"VectoSiloAI Koder";
+  const model   = config.get("modelName")||"IncogniAI Koder";
   const apiKey  = auth.getApiKey();
 
   pw(`\n  ${cl("bold","Account")}\n  ${cl("gray","─".repeat(44))}\n`);
   pw(`  ${cl("gray","Name")}      ${cl("white",name)}\n`);
-  pw(`  ${cl("gray","Auth")}      ${at==="subscription"?cl("teal","VectoSiloAI subscription (Pro/Max)"):cl("blue","API key")}\n`);
+  pw(`  ${cl("gray","Auth")}      ${at==="subscription"?cl("teal","IncogniAI subscription (Pro/Max)"):cl("blue","API key")}\n`);
   if (apiKey) pw(`  ${cl("gray","Key")}       ${cl("gray",apiKey)}\n`);
   pw(`  ${cl("gray","Model")}     ${cl("white",model)}\n`);
   pw(`  ${cl("gray","Directory")} ${process.cwd()}\n`);
@@ -381,7 +381,7 @@ async function cmdAccount() {
 
   // Account actions menu
   const actions = [
-    { label:"Switch VectoSiloAI model",   sub:model },
+    { label:"Switch IncogniAI model",   sub:model },
     { label:"Log out",        sub:"" },
     ...(at==="apikey"?[{ label:"Revoke API key", sub:"Permanently invalidate this key" }]:[]),
     { label:"Cancel",         sub:"" },
@@ -405,10 +405,10 @@ async function cmdStatus() {
   const usage = await auth.getUsage();
   spinStop(true,"");
   const at  = auth.getAuthType();
-  const mdl = config.get("modelName")||"VectoSiloAI Koder";
+  const mdl = config.get("modelName")||"IncogniAI Koder";
   pw(`\n  ${cl("bold","Koder Status")}\n  ${cl("gray","─".repeat(40))}\n`);
   pw(`  ${cl("gray","User")}    ${cl("white",auth.getName()||"—")}\n`);
-  pw(`  ${cl("gray","Auth")}    ${at==="subscription"?cl("teal","VectoSiloAI subscription"):cl("blue","API key")}\n`);
+  pw(`  ${cl("gray","Auth")}    ${at==="subscription"?cl("teal","IncogniAI subscription"):cl("blue","API key")}\n`);
   if (auth.getApiKey()) pw(`  ${cl("gray","Key")}     ${cl("gray",auth.getApiKey())}\n`);
   pw(`  ${cl("gray","Model")}   ${cl("white",mdl)}\n`);
   pw(`  ${cl("gray","Mode")}    ${tools.getMode()}\n`);
@@ -432,7 +432,7 @@ async function cmdDoctor() {
     { label:"Node.js ≥ 18",    ok:parseInt(process.version.slice(1))>=18 },
     { label:"Auth token",      ok:!!auth.getToken() },
     { label:"Config directory",ok:fs.existsSync(config.CONFIG_DIR) },
-    { label:"VectoSiloAI model selected",  ok:!!config.get("model") },
+    { label:"IncogniAI model selected",  ok:!!config.get("model") },
     { label:"Stockfish (chess)",ok:sfOk, hint:"sudo apt install stockfish" },
     { label:"Network",         ok:await ping() },
   ];
@@ -487,7 +487,7 @@ async function printRun(cmd) {
 function printHelp() {
   pw(`
   ${cl("bold","Shortcuts")}
-  ${cl("emerald","/model")}              Switch VectoSiloAI model (interactive picker)
+  ${cl("emerald","/model")}              Switch IncogniAI model (interactive picker)
   ${cl("emerald","/account")}            Account info, logout, revoke key
   ${cl("emerald","/status")}             Quota and auth info
   ${cl("emerald","/clear")}              Clear conversation history
@@ -507,12 +507,12 @@ function printHelp() {
 
 function showHelp() {
   pw(`
-  ${cl("emerald","❯ Koder")} ${cl("gray","v"+VERSION)} — VectoSiloAI coding agent
+  ${cl("emerald","❯ Koder")} ${cl("gray","v"+VERSION)} — IncogniAI coding agent
 
   ${cl("bold","Usage")}
     koder                        Start interactive session
     koder login                  Sign in through chat.hsrprojects.org
-    koder login --key KEY        Authenticate with VectoSiloAI API key
+    koder login --key KEY        Authenticate with IncogniAI API key
     koder logout                 Sign out (or revoke key)
     koder account                Account info, model, revoke
     koder status                 Usage quota and auth info
@@ -523,7 +523,7 @@ function showHelp() {
     --auto                       Act without asking (default)
     --ask                        Confirm each file write / shell command
   ${cl("bold","Options")}
-    --model <id>                 Override VectoSiloAI model for this session
+    --model <id>                 Override IncogniAI model for this session
     --print "prompt"             Non-interactive one-shot
     --version, -v                Print version
     --help, -h                   Show this help

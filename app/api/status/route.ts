@@ -115,7 +115,7 @@ export async function GET(): Promise<NextResponse<StatusPayload>> {
   const depStatus: ServiceStatus = aiDown ? "degraded" : "operational";
 
   const services: ServiceCheck[] = [
-    { name: "VectoSiloAI Web App",   status: depStatus, incident: aiDown ? incidentMsg : undefined },
+    { name: "IncogniAI Web App",   status: depStatus, incident: aiDown ? incidentMsg : undefined },
     { name: "AI Model Service", status: depStatus, incident: aiDown ? incidentMsg : undefined },
     { name: "Search",           status: depStatus, incident: aiDown ? incidentMsg : undefined },
     { name: "Authentication",   status: "operational" },

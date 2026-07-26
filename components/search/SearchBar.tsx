@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowUp, Search, Loader2, Bot, Lock, Network, Link, X, Square, Mic,
+  ArrowUp, Search, Loader2, Bot, Lock, Network, Plus, Link, X, Square, Mic,
   Paperclip, FileText, Music, Image as ImageIcon, Brain,
 } from "lucide-react";
 import type { Attachment, FocusMode } from "@/types";
 import { FocusModes } from "./FocusModes";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
 import {
   ACCEPT_ATTACHMENTS, MAX_ATTACHMENTS, fileToAttachment, humanSize,
 } from "@/lib/attachments";
@@ -151,12 +152,12 @@ export function SearchBar({
     if (autoFocus) ref.current?.focus();
   }, [autoFocus]);
 
-  // Pick up externally-seeded composer text (e.g. "Ask VectoSilo AI" on a selection).
-  const composerDraft = useVectoSiloStore((s) => s.composerDraft);
-  const clearDraft = useVectoSiloStore((s) => s.setComposerDraft);
-  const dictationEnabled = useVectoSiloStore((s) => s.dictationEnabled);
-  const thinkMode = useVectoSiloStore((s) => s.thinkMode);
-  const setThinkMode = useVectoSiloStore((s) => s.setThinkMode);
+  // Pick up externally-seeded composer text (e.g. "Ask Incogni AI" on a selection).
+  const composerDraft = useIncogniStore((s) => s.composerDraft);
+  const clearDraft = useIncogniStore((s) => s.setComposerDraft);
+  const dictationEnabled = useIncogniStore((s) => s.dictationEnabled);
+  const thinkMode = useIncogniStore((s) => s.thinkMode);
+  const setThinkMode = useIncogniStore((s) => s.setThinkMode);
   useEffect(() => {
     if (!composerDraft) return;
     setValue((v) => (v ? v + "\n\n" : "") + composerDraft);
@@ -169,6 +170,19 @@ export function SearchBar({
       }
     });
   }, [composerDraft, clearDraft]);
+
+  // Listen for 1-click preview auto-fix events
+  useEffect(() => {
+    const handleFix = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.error) {
+        const fixPrompt = `Fix this website/preview runtime error:\n\`\`\`\n${detail.error}\n\`\`\`\nInspect the existing code and re-emit complete fixed files.`;
+        onSubmit(fixPrompt, attachments);
+      }
+    };
+    window.addEventListener("incogni-fix-code", handleFix);
+    return () => window.removeEventListener("incogni-fix-code", handleFix);
+  }, [onSubmit, attachments]);
 
   // When URL input becomes visible, focus it.
   useEffect(() => {
@@ -315,7 +329,7 @@ export function SearchBar({
       return;
     }
     const rec = new Ctor();
-    rec.lang = useVectoSiloStore.getState().dictationLang || navigator.language || "en-US";
+    rec.lang = useIncogniStore.getState().dictationLang || navigator.language || "en-US";
     rec.interimResults = true;
     rec.continuous = true;
     rec.onresult = (e: SpeechRecEvent) => {
@@ -399,14 +413,14 @@ export function SearchBar({
     }
   };
 
-  const showToolbar = showFocusModes || showAgent || showSwarm || !!onTargetUrlChange;
+
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       <div
         className={cn(
-          "group relative flex flex-col gap-2 rounded-2xl border bg-vectosilo-surface px-4 py-3 transition-shadow focus-within:border-vectosilo-accent/50 focus-within:shadow-glow",
-          dragging ? "border-vectosilo-accent shadow-glow" : "border-vectosilo-border"
+          "group relative flex flex-col gap-2 rounded-[32px] border bg-incogni-bg px-4 py-3 shadow-sm transition-shadow focus-within:border-incogni-border focus-within:shadow-md",
+          dragging ? "border-incogni-accent shadow-md" : "border-incogni-border"
         )}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
@@ -414,11 +428,13 @@ export function SearchBar({
       >
         {/* Drag-over overlay */}
         {dragging && (
-          <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-vectosilo-accent/10 backdrop-blur-sm">
-            <Paperclip className="h-6 w-6 text-vectosilo-accent" />
-            <span className="text-sm font-medium text-vectosilo-accent">Drop to attach</span>
+          <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-incogni-accent/10 backdrop-blur-sm">
+            <Paperclip className="h-6 w-6 text-incogni-accent" />
+            <span className="text-sm font-medium text-incogni-accent">Drop to attach</span>
           </div>
         )}
+        
+
         {/* Attachment previews */}
         {(attachments.length > 0 || attachLoading) && (
           <div className="flex flex-wrap gap-2">
@@ -426,57 +442,15 @@ export function SearchBar({
               <AttachmentChip key={a.id} attachment={a} onRemove={() => removeAttachment(a.id)} />
             ))}
             {attachLoading && (
-              <div className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1.5">
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-vectosilo-accent" />
-                <span className="text-xs text-vectosilo-muted">Reading image…</span>
+              <div className="flex items-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface-2 px-2.5 py-1.5">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-incogni-accent" />
+                <span className="text-xs text-incogni-muted">Reading image…</span>
               </div>
             )}
           </div>
         )}
 
         <div className="flex items-end gap-2 relative">
-          <Search className="mb-1.5 h-5 w-5 shrink-0 text-vectosilo-muted" />
-
-          {slashOpen && filteredSlash.length > 0 && (
-            <div
-              ref={slashRef}
-              className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface shadow-xl"
-            >
-              {filteredSlash.map((cmd, i) => (
-                <button
-                  key={cmd.id}
-                  type="button"
-                  className={cn(
-                    "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors",
-                    i === slashIdxRef.current
-                      ? "bg-vectosilo-accent/15 text-vectosilo-accent"
-                      : "text-vectosilo-text hover:bg-vectosilo-surface-2"
-                  )}
-                  onMouseEnter={() => { slashIdxRef.current = i; }}
-                  onMouseDown={(e) => { e.preventDefault(); execSlash(cmd); }}
-                >
-                  <span className="text-lg">{cmd.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{cmd.label}</div>
-                    <div className="text-xs text-vectosilo-muted truncate">{cmd.desc}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <textarea
-            ref={ref}
-            rows={1}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={onKeyDown}
-            onPaste={onPaste}
-            placeholder={placeholder}
-            aria-label="Search query"
-            className="max-h-[140px] flex-1 resize-none bg-transparent py-1 text-[15px] leading-relaxed text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none"
-          />
-
           {showAttach && (
             <>
               <input
@@ -496,12 +470,52 @@ export function SearchBar({
                 disabled={loading}
                 aria-label="Attach files"
                 title="Attach images, text, or audio"
-                className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text disabled:opacity-50"
+                className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text disabled:opacity-50"
               >
-                <Paperclip className="h-[18px] w-[18px]" />
+                <Plus className="h-5 w-5" />
               </button>
             </>
           )}
+
+          {slashOpen && filteredSlash.length > 0 && (
+            <div
+              ref={slashRef}
+              className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface shadow-xl"
+            >
+              {filteredSlash.map((cmd, i) => (
+                <button
+                  key={cmd.id}
+                  type="button"
+                  className={cn(
+                    "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors",
+                    i === slashIdxRef.current
+                      ? "bg-incogni-accent/15 text-incogni-accent"
+                      : "text-incogni-text hover:bg-incogni-surface-2"
+                  )}
+                  onMouseEnter={() => { slashIdxRef.current = i; }}
+                  onMouseDown={(e) => { e.preventDefault(); execSlash(cmd); }}
+                >
+                  <span className="text-lg">{cmd.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{cmd.label}</div>
+                    <div className="text-xs text-incogni-muted truncate">{cmd.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <textarea
+            ref={ref}
+            rows={1}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={onKeyDown}
+            onPaste={onPaste}
+            placeholder={placeholder}
+            aria-label="Search query"
+            className="max-h-[140px] flex-1 resize-none bg-transparent py-1 text-[15px] leading-relaxed text-incogni-text placeholder:text-incogni-muted focus:outline-none break-words [overflow-wrap:anywhere]"
+          />
 
           {showVoiceRecord && (
             <button
@@ -509,7 +523,7 @@ export function SearchBar({
               onClick={onVoiceRecord}
               aria-label="Voice record"
               title="Record voice message"
-              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
             >
               <Mic className="h-[18px] w-[18px]" />
             </button>
@@ -524,8 +538,8 @@ export function SearchBar({
               className={cn(
                 "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
                 voiceMode
-                  ? "bg-vectosilo-accent/20 text-vectosilo-accent animate-pulse shadow-[0_0_12px_rgba(167,139,250,0.5)]"
-                  : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                  ? "bg-incogni-accent/20 text-incogni-accent animate-pulse shadow-[0_0_12px_rgba(167,139,250,0.5)]"
+                  : "text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text"
               )}
             >
               <Mic className="h-[18px] w-[18px]" />
@@ -538,7 +552,7 @@ export function SearchBar({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop"
-              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-vectosilo-text text-vectosilo-bg transition-all hover:opacity-90"
+              className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-incogni-text text-incogni-bg transition-all hover:opacity-90"
             >
               <Square className="h-3.5 w-3.5 fill-current" />
             </button>
@@ -549,10 +563,10 @@ export function SearchBar({
               disabled={(!value.trim() && attachments.length === 0) || loading}
               aria-label="Send"
               className={cn(
-                "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all",
+                "mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all",
                 (value.trim() || attachments.length > 0) && !loading
-                  ? "bg-vectosilo-accent text-black hover:bg-vectosilo-accent-soft hover:shadow-glow"
-                  : "bg-vectosilo-surface-2 text-vectosilo-muted"
+                  ? "bg-incogni-text text-incogni-bg hover:opacity-90 hover:shadow-md"
+                  : "bg-incogni-surface-2 text-incogni-muted"
               )}
             >
               {loading ? (
@@ -571,8 +585,8 @@ export function SearchBar({
 
       {/* URL input row — shown when toggled open and no URL is set yet */}
       {urlOpen && !targetUrl && (
-        <div className="flex items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface px-3 py-2">
-          <Link className="h-4 w-4 shrink-0 text-vectosilo-muted" />
+        <div className="flex items-center gap-2 rounded-xl border border-incogni-border bg-incogni-surface px-3 py-2">
+          <Link className="h-4 w-4 shrink-0 text-incogni-muted" />
           <input
             ref={urlRef}
             type="url"
@@ -584,117 +598,18 @@ export function SearchBar({
             }}
             onBlur={commitUrl}
             placeholder="Paste a URL — AI reads that page instead of searching"
-            className="flex-1 bg-transparent text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-incogni-text placeholder:text-incogni-muted focus:outline-none"
           />
           <button
             onClick={() => { setUrlOpen(false); setUrlDraft(""); }}
-            className="text-vectosilo-muted hover:text-vectosilo-text"
+            className="text-incogni-muted hover:text-incogni-text"
           >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
 
-      {showToolbar && (
-        <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {showFocusModes && (
-            <FocusModes value={focusMode} onChange={onFocusChange} />
-          )}
 
-          {/* URL chip */}
-          {onTargetUrlChange && (
-            <button
-              type="button"
-              onClick={toggleUrl}
-              title={targetUrl ? `Focused on ${domain(targetUrl)} — click to clear` : "Focus on a specific URL"}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                targetUrl
-                  ? "border-blue-500/40 bg-blue-500/10 text-blue-300"
-                  : urlOpen
-                    ? "border-vectosilo-accent/40 bg-vectosilo-accent/10 text-vectosilo-accent-soft"
-                    : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-              )}
-            >
-              <Link className="h-3.5 w-3.5" />
-              {targetUrl ? (
-                <>
-                  <span className="max-w-[120px] truncate">{domain(targetUrl)}</span>
-                  <X className="h-3 w-3 opacity-60" />
-                </>
-              ) : (
-                "URL"
-              )}
-            </button>
-          )}
-
-          {/* Agent toggle */}
-          {showAgent && (
-            <button
-              type="button"
-              onClick={onAgentToggle}
-              title={agentLocked ? "Autonomous agent — upgrade to Pro" : "Autonomous multi-step research"}
-              aria-pressed={agentMode}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                agentMode && !agentLocked
-                  ? "border-vectosilo-accent/50 bg-vectosilo-accent/15 text-vectosilo-accent-soft"
-                  : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-              )}
-            >
-              <Bot className="h-3.5 w-3.5" />
-              Agent
-              {agentLocked ? (
-                <Lock className="h-3 w-3" />
-              ) : agentMode ? (
-                <span className="h-1.5 w-1.5 rounded-full bg-vectosilo-accent" aria-hidden />
-              ) : null}
-            </button>
-          )}
-
-          {/* Swarm toggle */}
-          {showSwarm && (
-            <button
-              type="button"
-              onClick={onSwarmToggle}
-              title={swarmLocked ? "Agent Swarm — upgrade to Pro" : "Parallel AI specialists (Agent Swarm)"}
-              aria-pressed={swarmMode}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                swarmMode && !swarmLocked
-                  ? "border-violet-500/50 bg-violet-500/15 text-violet-300"
-                  : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-              )}
-            >
-              <Network className="h-3.5 w-3.5" />
-              Swarm
-              {swarmLocked ? (
-                <Lock className="h-3 w-3" />
-              ) : swarmMode ? (
-                <span className="h-1.5 w-1.5 rounded-full bg-violet-400" aria-hidden />
-              ) : null}
-            </button>
-          )}
-
-          {/* Think toggle — model reasons first, shown in a "Thought for" block */}
-          <button
-            type="button"
-            onClick={() => setThinkMode(!thinkMode)}
-            title="Think first — show the model's reasoning"
-            aria-pressed={thinkMode}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-              thinkMode
-                ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
-                : "border-vectosilo-border bg-vectosilo-surface text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-            )}
-          >
-            <Brain className="h-3.5 w-3.5" />
-            Think
-            {thinkMode && <span className="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden />}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -710,7 +625,7 @@ function AttachmentChip({
 
   if (kind === "image" && thumbUrl) {
     return (
-      <div className="group/att relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-vectosilo-border">
+      <div className="group/att relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-incogni-border">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={thumbUrl} alt={name} className="h-full w-full object-cover" />
         <button
@@ -728,17 +643,17 @@ function AttachmentChip({
   const Icon = kind === "audio" ? Music : kind === "image" ? ImageIcon : FileText;
 
   return (
-    <div className="flex max-w-[220px] items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-2.5 py-1.5">
-      <Icon className="h-4 w-4 shrink-0 text-vectosilo-muted" />
+    <div className="flex max-w-[220px] items-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface-2 px-2.5 py-1.5">
+      <Icon className="h-4 w-4 shrink-0 text-incogni-muted" />
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-xs text-vectosilo-text">{name}</span>
-        <span className="text-[10px] text-vectosilo-muted">{humanSize(size)}</span>
+        <span className="truncate text-xs text-incogni-text">{name}</span>
+        <span className="text-[10px] text-incogni-muted">{humanSize(size)}</span>
       </span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${name}`}
-        className="shrink-0 text-vectosilo-muted hover:text-vectosilo-text"
+        className="shrink-0 text-incogni-muted hover:text-incogni-text"
       >
         <X className="h-3.5 w-3.5" />
       </button>

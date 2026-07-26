@@ -1,6 +1,20 @@
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #f4f3f0 !important;
+  z-index: 1 !important;
+}
+
+.chatgpt-pin-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
 
 :root {
   /* Geist if available (via `geist` pkg or system), with graceful fallbacks. */
@@ -8,14 +22,44 @@
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-geist-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, monospace;
+
+  /* Light Theme Colors (ChatGPT-like) */
+  --incogni-bg: #ffffff;
+  --incogni-surface: #f9f9f9;
+  --incogni-surface-2: #f4f4f4;
+  --incogni-border: #e5e5e5;
+  --incogni-accent: #000000;
+  --incogni-accent-soft: #333333;
+  --incogni-accent-dim: #666666;
+  --incogni-text: #0d0d0d;
+  --incogni-muted: #676767;
+
+  /* Geometry & Motion */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 320ms;
+}
+
+.dark {
+  /* Dark Theme Colors (ChatGPT-like) */
+  --incogni-bg: #212121;
+  --incogni-surface: #2f2f2f;
+  --incogni-surface-2: #343541;
+  --incogni-border: #424242;
+  --incogni-accent: #ffffff;
+  --incogni-accent-soft: #e5e5e5;
+  --incogni-accent-dim: #cccccc;
+  --incogni-text: #ececec;
+  --incogni-muted: #8e8e93;
 }
 
 @layer base {
-  html {
-    color-scheme: dark;
-  }
   body {
-    @apply bg-vectosilo-bg text-vectosilo-text antialiased;
+    @apply bg-incogni-bg text-incogni-text antialiased;
     font-family: var(--font-geist-sans);
     /* Never let a stray wide element cause the whole page to scroll sideways. */
     overflow-x: hidden;
@@ -32,10 +76,10 @@
     height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-vectosilo-border;
+    @apply rounded-full bg-incogni-border;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-vectosilo-accent-dim;
+    @apply bg-incogni-accent-dim;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -49,20 +93,16 @@
   padding: 0;
 }
 .prose :where(code):not(:where(pre code)) {
-  @apply rounded bg-vectosilo-surface-2 px-1.5 py-0.5 text-[0.85em] font-medium;
+  @apply rounded bg-incogni-surface-2 px-1.5 py-0.5 text-[0.85em] font-medium;
 }
 .prose :where(code):not(:where(pre code))::before,
 .prose :where(code):not(:where(pre code))::after {
   content: none;
 }
 
-/* Animated gradient glow for the hero */
-.vectosilo-hero-glow {
-  background: radial-gradient(
-    600px circle at 50% 0%,
-    rgba(16, 163, 127, 0.12),
-    transparent 70%
-  );
+/* Removed animated gradient glow for the hero */
+.incogni-hero-glow {
+  background: transparent;
 }
 
 @layer utilities {

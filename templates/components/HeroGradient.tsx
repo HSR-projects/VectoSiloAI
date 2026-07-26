@@ -115,7 +115,7 @@ export function HeroGradient({
           >
             <a
               href={cta.href}
-              className="inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-vectosilo-accent transition-colors hover:bg-white/90"
+              className="inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-incogni-accent transition-colors hover:bg-white/90"
             >
               {cta.label}
             </a>

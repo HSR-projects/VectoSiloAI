@@ -41,11 +41,11 @@ export function CardProfile({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={cn(
-        "overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface",
+        "overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface",
         className
       )}
     >
-      <div className="relative h-28 sm:h-36 overflow-hidden bg-gradient-to-br from-vectosilo-accent/30 via-purple-500/20 to-vectosilo-surface-2">
+      <div className="relative h-28 sm:h-36 overflow-hidden bg-gradient-to-br from-incogni-accent/30 via-purple-500/20 to-incogni-surface-2">
         {coverImage && (
           <img
             src={coverImage}
@@ -61,7 +61,7 @@ export function CardProfile({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-            className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-4 border-vectosilo-surface sm:h-24 sm:w-24"
+            className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-4 border-incogni-surface sm:h-24 sm:w-24"
           >
             <img
               src={avatar}
@@ -70,16 +70,16 @@ export function CardProfile({
             />
           </motion.div>
           <div className="mt-2 text-center sm:mt-0 sm:text-left sm:pb-1">
-            <h3 className="text-lg font-bold text-vectosilo-text">{name}</h3>
-            <p className="text-sm text-vectosilo-muted">{role}</p>
+            <h3 className="text-lg font-bold text-incogni-text">{name}</h3>
+            <p className="text-sm text-incogni-muted">{role}</p>
           </div>
         </div>
 
         {bio && (
-          <p className="mt-4 text-sm text-vectosilo-muted leading-relaxed">{bio}</p>
+          <p className="mt-4 text-sm text-incogni-muted leading-relaxed">{bio}</p>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-vectosilo-muted">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-incogni-muted">
           {location && (
             <span className="flex items-center gap-1">
               <MapPin size={12} /> {location}
@@ -90,7 +90,7 @@ export function CardProfile({
               href={website}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-vectosilo-accent hover:underline"
+              className="flex items-center gap-1 text-incogni-accent hover:underline"
             >
               <LinkIcon size={12} /> Website
             </a>
@@ -102,7 +102,7 @@ export function CardProfile({
             {social.twitter && (
               <a
                 href={social.twitter}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-accent/20 hover:text-vectosilo-accent"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-surface-2 text-incogni-muted transition-colors hover:bg-incogni-accent/20 hover:text-incogni-accent"
               >
                 <Twitter size={14} />
               </a>
@@ -110,7 +110,7 @@ export function CardProfile({
             {social.github && (
               <a
                 href={social.github}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-accent/20 hover:text-vectosilo-accent"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-surface-2 text-incogni-muted transition-colors hover:bg-incogni-accent/20 hover:text-incogni-accent"
               >
                 <Github size={14} />
               </a>
@@ -118,7 +118,7 @@ export function CardProfile({
             {social.linkedin && (
               <a
                 href={social.linkedin}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-surface-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-accent/20 hover:text-vectosilo-accent"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-surface-2 text-incogni-muted transition-colors hover:bg-incogni-accent/20 hover:text-incogni-accent"
               >
                 <Linkedin size={14} />
               </a>
@@ -127,11 +127,11 @@ export function CardProfile({
         )}
 
         {stats && (
-          <div className="mt-5 grid grid-cols-3 gap-3 rounded-lg bg-vectosilo-surface-2 p-3">
+          <div className="mt-5 grid grid-cols-3 gap-3 rounded-lg bg-incogni-surface-2 p-3">
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <p className="text-sm font-bold text-vectosilo-text">{s.value}</p>
-                <p className="text-[10px] text-vectosilo-muted">{s.label}</p>
+                <p className="text-sm font-bold text-incogni-text">{s.value}</p>
+                <p className="text-[10px] text-incogni-muted">{s.label}</p>
               </div>
             ))}
           </div>

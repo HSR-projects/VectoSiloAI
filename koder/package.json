@@ -1,7 +1,7 @@
 {
-  "name": "@vectosiloai/koder",
+  "name": "@incogni-ai/koder",
   "version": "0.1.0",
-  "description": "Koder — autonomous AI coding agent for your terminal, powered by VectoSiloAI",
+  "description": "Koder — autonomous AI coding agent for your terminal, powered by IncogniAI",
   "bin": {
     "koder": "./bin/koder.js"
   },
@@ -13,6 +13,6 @@
   "dependencies": {
     "node-fetch": "^3.3.2"
   },
-  "keywords": ["ai", "coding-agent", "terminal", "vectosiloai", "koder"],
+  "keywords": ["ai", "coding-agent", "terminal", "incogni-ai", "koder"],
   "license": "GPL-3.0"
 }

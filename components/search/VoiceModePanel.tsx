@@ -290,9 +290,9 @@ export function VoiceModePanel({
       exit={{ opacity: 0, y: 20, height: 0 }}
       className={cn('w-full max-w-2xl mx-auto mb-4 overflow-hidden', className)}
     >
-      <div className="relative rounded-2xl border border-vectosilo-border bg-vectosilo-surface overflow-hidden">
+      <div className="relative rounded-2xl border border-incogni-border bg-incogni-surface overflow-hidden">
         {/* 3D Robot + Bubbles */}
-        <div className="relative h-[320px] bg-gradient-to-b from-vectosilo-surface-2 to-vectosilo-surface">
+        <div className="relative h-[320px] bg-gradient-to-b from-incogni-surface-2 to-incogni-surface">
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="w-full h-full"
@@ -312,13 +312,13 @@ export function VoiceModePanel({
                   bubble.type === 'error'
                     ? 'bg-red-500/90 text-white'
                     : bubble.type === 'user'
-                      ? 'bg-vectosilo-surface-2 text-vectosilo-text border border-vectosilo-border ml-auto'
+                      ? 'bg-incogni-surface-2 text-incogni-text border border-incogni-border ml-auto'
                       : bubble.type === 'think'
                         ? 'bg-white/10 text-neutral-200 border border-white/20 backdrop-blur-sm'
-                        : 'bg-vectosilo-accent text-white'
+                        : 'bg-incogni-accent text-white'
                 )}
               >
-                {bubble.type === 'user' && <span className="text-[10px] text-vectosilo-muted block mb-1">You said:</span>}
+                {bubble.type === 'user' && <span className="text-[10px] text-incogni-muted block mb-1">You said:</span>}
                 <p className="leading-relaxed">{bubble.text}</p>
               </motion.div>
             )}
@@ -326,17 +326,17 @@ export function VoiceModePanel({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-vectosilo-border">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-incogni-border">
           <div className="flex items-center gap-2">
             <span className={cn(
               'h-2 w-2 rounded-full',
               state === 'listening' ? 'bg-green-400 animate-pulse' :
-              state === 'speaking' ? 'bg-vectosilo-accent animate-pulse' :
+              state === 'speaking' ? 'bg-incogni-accent animate-pulse' :
               state === 'thinking' ? 'bg-yellow-400 animate-pulse' :
               state === 'error' ? 'bg-red-400' :
               'bg-neutral-500'
             )} />
-            <span className="text-xs text-vectosilo-muted">{statusText}</span>
+            <span className="text-xs text-incogni-muted">{statusText}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export function VoiceModePanel({
                   'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
                   state === 'listening'
                     ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-vectosilo-accent text-white hover:bg-vectosilo-accent-soft'
+                    : 'bg-incogni-accent text-white hover:bg-incogni-accent-soft'
                 )}
               >
                 <MicOff className="h-5 w-5" />
@@ -355,13 +355,13 @@ export function VoiceModePanel({
             )}
             {(state === 'thinking' || state === 'greeting' || state === 'speaking') && (
               <div className="flex h-10 w-10 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-vectosilo-accent" />
+                <Loader2 className="h-5 w-5 animate-spin text-incogni-accent" />
               </div>
             )}
 
             <button
               onClick={endSession}
-              className="flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-xs text-vectosilo-muted hover:bg-vectosilo-border hover:text-vectosilo-text transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface-2 px-3 py-2 text-xs text-incogni-muted hover:bg-incogni-border hover:text-incogni-text transition-colors"
             >
               <PhoneOff className="h-3.5 w-3.5" />
               End

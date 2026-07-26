@@ -46,22 +46,22 @@ export function Accordion({
         return (
           <div
             key={item.id}
-            className="overflow-hidden rounded-xl border border-vectosilo-border"
+            className="overflow-hidden rounded-xl border border-incogni-border"
           >
             <button
               onClick={() => toggle(item.id)}
               className={cn(
                 "flex w-full items-center justify-between px-5 py-4 text-left transition-colors",
-                "hover:bg-vectosilo-surface/60",
-                isOpen ? "bg-vectosilo-surface" : "bg-transparent"
+                "hover:bg-incogni-surface/60",
+                isOpen ? "bg-incogni-surface" : "bg-transparent"
               )}
             >
-              <span className="text-sm font-medium text-vectosilo-text">{item.title}</span>
+              <span className="text-sm font-medium text-incogni-text">{item.title}</span>
               <motion.div
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-                <ChevronDown className="h-4 w-4 text-vectosilo-muted" />
+                <ChevronDown className="h-4 w-4 text-incogni-muted" />
               </motion.div>
             </button>
             <AnimatePresence initial={false}>
@@ -74,7 +74,7 @@ export function Accordion({
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <div className="border-t border-vectosilo-border px-5 py-4 text-xs leading-relaxed text-vectosilo-muted">
+                  <div className="border-t border-incogni-border px-5 py-4 text-xs leading-relaxed text-incogni-muted">
                     {item.content}
                   </div>
                 </motion.div>

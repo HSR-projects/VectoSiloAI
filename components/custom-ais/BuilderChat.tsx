@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 
 interface BuilderChatProps {
   onUpdate: (updates: any) => void;
@@ -13,13 +13,13 @@ export function BuilderChat({ onUpdate }: BuilderChatProps) {
   const [messages, setMessages] = useState<{ role: "assistant" | "user"; content: string }[]>([
     { 
       role: "assistant", 
-      content: "Hi! I'll help you build a new VectoSilo AI. You can say something like, \"make a creative who helps generate visuals for new products\" or \"make a software engineer who helps format my code.\"\n\nWhat would you like to make?"
+      content: "Hi! I'll help you build a new Incogni AI. You can say something like, \"make a creative who helps generate visuals for new products\" or \"make a software engineer who helps format my code.\"\n\nWhat would you like to make?"
     }
   ]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const selectedModel = useVectoSiloStore((s) => s.selectedModel);
+  const selectedModel = useIncogniStore((s) => s.selectedModel);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -103,13 +103,13 @@ export function BuilderChat({ onUpdate }: BuilderChatProps) {
         {messages.map((m, i) => (
           <div key={i} className={cn("flex gap-4 max-w-2xl mx-auto", m.role === "user" ? "justify-end" : "justify-start")}>
             {m.role === "assistant" && (
-              <div className="w-8 h-8 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center shrink-0 mt-1">
-                <Bot className="w-4 h-4 text-vectosilo-text" />
+              <div className="w-8 h-8 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center shrink-0 mt-1">
+                <Bot className="w-4 h-4 text-incogni-text" />
               </div>
             )}
             <div className={cn(
               "text-[15px] leading-relaxed whitespace-pre-wrap",
-              m.role === "user" ? "bg-vectosilo-surface text-vectosilo-text px-4 py-2.5 rounded-2xl rounded-tr-sm border border-vectosilo-border shadow-sm" : "text-vectosilo-text py-2"
+              m.role === "user" ? "bg-incogni-surface text-incogni-text px-4 py-2.5 rounded-2xl rounded-tr-sm border border-incogni-border shadow-sm" : "text-incogni-text py-2"
             )}>
               {m.content}
             </div>
@@ -117,35 +117,35 @@ export function BuilderChat({ onUpdate }: BuilderChatProps) {
         ))}
         {isLoading && (
           <div className="flex gap-4 max-w-2xl mx-auto justify-start">
-             <div className="w-8 h-8 rounded-full bg-vectosilo-surface border border-vectosilo-border flex items-center justify-center shrink-0 mt-1">
-               <Bot className="w-4 h-4 text-vectosilo-text animate-pulse" />
+             <div className="w-8 h-8 rounded-full bg-incogni-surface border border-incogni-border flex items-center justify-center shrink-0 mt-1">
+               <Bot className="w-4 h-4 text-incogni-text animate-pulse" />
              </div>
-             <div className="py-2 text-vectosilo-muted flex items-center gap-1">
-               <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "0ms" }} />
-               <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "150ms" }} />
-               <span className="w-1.5 h-1.5 rounded-full bg-vectosilo-muted animate-bounce" style={{ animationDelay: "300ms" }} />
+             <div className="py-2 text-incogni-muted flex items-center gap-1">
+               <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "0ms" }} />
+               <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "150ms" }} />
+               <span className="w-1.5 h-1.5 rounded-full bg-incogni-muted animate-bounce" style={{ animationDelay: "300ms" }} />
              </div>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-4 bg-vectosilo-bg sticky bottom-0">
+      <div className="p-4 bg-incogni-bg sticky bottom-0">
         <form 
           onSubmit={(e) => { e.preventDefault(); handleSend(input); }}
-          className="relative max-w-2xl mx-auto flex items-end gap-2 bg-vectosilo-surface border border-vectosilo-border shadow-sm rounded-3xl px-4 py-2"
+          className="relative max-w-2xl mx-auto flex items-end gap-2 bg-incogni-surface border border-incogni-border shadow-sm rounded-3xl px-4 py-2"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Message AI Builder..."
-            className="flex-1 bg-transparent border-none focus:outline-none py-2 text-[15px] placeholder:text-vectosilo-muted min-h-[44px]"
+            className="flex-1 bg-transparent border-none focus:outline-none py-2 text-[15px] placeholder:text-incogni-muted min-h-[44px]"
           />
           <button
             type="submit"
             disabled={!input.trim()}
-            className="p-2 bg-vectosilo-text text-vectosilo-bg rounded-full disabled:opacity-50 disabled:bg-vectosilo-muted transition-colors shrink-0 mb-1"
+            className="p-2 bg-incogni-text text-incogni-bg rounded-full disabled:opacity-50 disabled:bg-incogni-muted transition-colors shrink-0 mb-1"
           >
             <Send className="w-4 h-4" />
           </button>

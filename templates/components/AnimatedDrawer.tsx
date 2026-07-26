@@ -47,7 +47,7 @@ export const AnimatedDrawer = forwardRef<HTMLDivElement, AnimatedDrawerProps>(
             <motion.div
               ref={ref}
               className={cn(
-                "fixed top-0 bottom-0 flex flex-col border-vectosilo-border bg-vectosilo-surface shadow-xl",
+                "fixed top-0 bottom-0 flex flex-col border-incogni-border bg-incogni-surface shadow-xl",
                 side === "right" ? "right-0 border-l" : "left-0 border-r",
                 width,
                 className
@@ -61,7 +61,7 @@ export const AnimatedDrawer = forwardRef<HTMLDivElement, AnimatedDrawerProps>(
               <div className="flex items-center justify-end p-4">
                 <button
                   onClick={onClose}
-                  className="rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                  className="rounded-lg p-1.5 text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                   aria-label="Close drawer"
                 >
                   <X size={18} />

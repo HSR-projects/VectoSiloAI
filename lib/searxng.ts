@@ -1,4 +1,4 @@
-import type { ImageResult, SearchResult } from "@/types";
+import type { ImageResult, MapPlace, SearchResult } from "@/types";
 import { searchMCP } from "./search-mcp";
 import { execSync } from "child_process";
 
@@ -102,9 +102,69 @@ export async function searchWeb(
     }
   }
 
+  // Attempt 4: Bulletproof DuckDuckGo Direct Fallback
+  try {
+    const ddgResults = await searchDuckDuckGoFallback(query, limit);
+    if (ddgResults.length) {
+      console.log(`[search] SearXNG failed; successfully retrieved ${ddgResults.length} results via DuckDuckGo fallback.`);
+      return ddgResults;
+    }
+  } catch (e) {
+    errors.push(`ddg: ${(e as Error).message}`);
+  }
+
   throw new SearchUnavailableError(
     `Search failed after ${consecutiveFailures} attempts. Tried: ${errors.join("; ")}`
   );
+}
+
+/**
+ * Bulletproof DuckDuckGo Direct HTML fallback when SearXNG engines are suspended.
+ */
+export async function searchDuckDuckGoFallback(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    const res = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(7000),
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const results: SearchResult[] = [];
+
+    const resultBlocks = html.split(/<div[^>]*class="[^"]*result[^"]*"[^>]*>/i).slice(1);
+    for (const block of resultBlocks) {
+      if (results.length >= limit) break;
+      const titleMatch = block.match(/<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+      const snippetMatch = block.match(/<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/i) ||
+                           block.match(/<td[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/td>/i);
+
+      if (titleMatch) {
+        let rawUrl = titleMatch[1];
+        if (rawUrl.includes("uddg=")) {
+          try {
+            const u = new URL("https://duckduckgo.com" + rawUrl);
+            rawUrl = decodeURIComponent(u.searchParams.get("uddg") || rawUrl);
+          } catch {
+            // keep rawUrl
+          }
+        }
+        const title = titleMatch[2].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim();
+        const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim() : "";
+
+        if (rawUrl.startsWith("http") && title) {
+          results.push({ title, url: rawUrl, snippet });
+        }
+      }
+    }
+    return results;
+  } catch (e) {
+    console.error("[duckduckgo] Fallback search failed:", (e as Error).message);
+    return [];
+  }
 }
 
 /**
@@ -223,6 +283,61 @@ export async function searchImages(
   }
 
   throw lastErr || new Error("Image search failed");
+}
+
+/**
+ * Map place search via SearXNG (category_map=1).
+ * Retrieves OpenStreetMap / Photon geocoding places, coordinates, and bounding boxes.
+ */
+export async function searchMaps(
+  query: string,
+  limit = 5
+): Promise<MapPlace[]> {
+  const url = `${SEARXNG_BASE_URL}/search?q=${encodeURIComponent(
+    query
+  )}&category_map=1&format=json&safesearch=1`;
+
+  const timeouts = [6000, 10000];
+  let lastErr: Error | null = null;
+
+  for (const timeout of timeouts) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const results = Array.isArray(json?.results) ? json.results : [];
+      return results.slice(0, limit).map(
+        (r: any): MapPlace => ({
+          title: r.title || "Map Location",
+          latitude: typeof r.latitude === "number" ? r.latitude : parseFloat(r.latitude || "0"),
+          longitude: typeof r.longitude === "number" ? r.longitude : parseFloat(r.longitude || "0"),
+          address: r.address ? (typeof r.address === "string" ? r.address : JSON.stringify(r.address)) : undefined,
+          boundingbox: Array.isArray(r.boundingbox) ? r.boundingbox : undefined,
+          url: r.url || (r.latitude && r.longitude ? `https://www.openstreetmap.org/?mlat=${r.latitude}&mlon=${r.longitude}#map=14/${r.latitude}/${r.longitude}` : undefined),
+          category: r.type || r.class || r.category || "Location",
+          description: r.content || r.title || "",
+          imgSrc: r.img_src || r.thumbnail_src || r.thumbnail || undefined,
+          rating: r.rating ? String(r.rating) : undefined,
+          status: r.status || undefined,
+        })
+      ).filter((p: MapPlace) => !isNaN(p.latitude) && !isNaN(p.longitude) && (p.latitude !== 0 || p.longitude !== 0));
+    } catch (e) {
+      lastErr = e as Error;
+      if (!(e instanceof DOMException && (e as DOMException).name === "AbortError")) {
+        break;
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  return [];
 }
 
 /**

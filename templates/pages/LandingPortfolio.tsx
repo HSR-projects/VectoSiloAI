@@ -97,29 +97,29 @@ export default function LandingPortfolio() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-vectosilo-bg">
+      <div className="min-h-screen bg-incogni-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-vectosilo-text">Alex Rivera</span>}
+          logo={<span className="text-xl font-bold text-incogni-text">Alex Rivera</span>}
           links={navLinks}
           cta={
             <div className="flex items-center gap-2">
               <a
                 href="#"
-                className="rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                className="rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text"
                 aria-label="GitHub"
               >
                 <Github size={18} />
               </a>
               <a
                 href="#"
-                className="rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                className="rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text"
                 aria-label="Twitter"
               >
                 <Twitter size={18} />
               </a>
               <a
                 href="#"
-                className="rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                className="rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text"
                 aria-label="LinkedIn"
               >
                 <Linkedin size={18} />
@@ -148,10 +148,10 @@ export default function LandingPortfolio() {
 
         <section id="work" className="py-16 px-4">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl">
+            <h2 className="text-center text-3xl font-bold text-incogni-text sm:text-4xl">
               Featured projects
             </h2>
-            <p className="mt-4 text-center text-lg text-vectosilo-muted">
+            <p className="mt-4 text-center text-lg text-incogni-muted">
               A curated selection of my best work across web, mobile, and design.
             </p>
 
@@ -162,8 +162,8 @@ export default function LandingPortfolio() {
                   onClick={() => setActiveFilter(filter)}
                   className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                     activeFilter === filter
-                      ? "bg-vectosilo-accent text-white"
-                      : "border border-vectosilo-border text-vectosilo-muted hover:border-vectosilo-accent hover:text-vectosilo-accent"
+                      ? "bg-incogni-accent text-white"
+                      : "border border-incogni-border text-incogni-muted hover:border-incogni-accent hover:text-incogni-accent"
                   }`}
                 >
                   {filter}
@@ -196,10 +196,10 @@ export default function LandingPortfolio() {
 
         <section id="blog" className="py-16 px-4">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl">
+            <h2 className="text-center text-3xl font-bold text-incogni-text sm:text-4xl">
               Latest from the blog
             </h2>
-            <p className="mt-4 text-center text-lg text-vectosilo-muted">
+            <p className="mt-4 text-center text-lg text-incogni-muted">
               Thoughts on engineering, design, and the developer experience.
             </p>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -220,23 +220,23 @@ export default function LandingPortfolio() {
           />
         </div>
 
-        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-8">
+        <footer className="border-t border-incogni-border bg-incogni-surface py-8">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <span className="text-sm text-vectosilo-muted">
+              <span className="text-sm text-incogni-muted">
                 &copy; {new Date().getFullYear()} Alex Rivera. All rights reserved.
               </span>
               <div className="flex gap-4">
-                <a href="#" className="text-vectosilo-muted hover:text-vectosilo-text transition-colors">
+                <a href="#" className="text-incogni-muted hover:text-incogni-text transition-colors">
                   <Github size={18} />
                 </a>
-                <a href="#" className="text-vectosilo-muted hover:text-vectosilo-text transition-colors">
+                <a href="#" className="text-incogni-muted hover:text-incogni-text transition-colors">
                   <Twitter size={18} />
                 </a>
-                <a href="#" className="text-vectosilo-muted hover:text-vectosilo-text transition-colors">
+                <a href="#" className="text-incogni-muted hover:text-incogni-text transition-colors">
                   <Linkedin size={18} />
                 </a>
-                <a href="#" className="text-vectosilo-muted hover:text-vectosilo-text transition-colors">
+                <a href="#" className="text-incogni-muted hover:text-incogni-text transition-colors">
                   <Mail size={18} />
                 </a>
               </div>

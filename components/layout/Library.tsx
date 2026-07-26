@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, FileText, Music, Image as ImageIcon, Library as LibraryIcon } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { relativeTime } from "@/lib/utils";
 import type { Attachment } from "@/types";
 
@@ -21,9 +21,9 @@ interface UploadItem {
  */
 export function Library() {
   const router = useRouter();
-  const open = useVectoSiloStore((s) => s.libraryOpen);
-  const setOpen = useVectoSiloStore((s) => s.setLibraryOpen);
-  const threads = useVectoSiloStore((s) => s.threads);
+  const open = useIncogniStore((s) => s.libraryOpen);
+  const setOpen = useIncogniStore((s) => s.setLibraryOpen);
+  const threads = useIncogniStore((s) => s.threads);
 
   const items = useMemo<UploadItem[]>(() => {
     const out: UploadItem[] = [];
@@ -58,16 +58,16 @@ export function Library() {
             exit={{ opacity: 0, scale: 0.97, y: -8 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-vectosilo-border bg-vectosilo-surface shadow-2xl"
+            className="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-incogni-border bg-incogni-surface shadow-2xl"
           >
-            <div className="flex items-center gap-2 border-b border-vectosilo-border px-4 py-3">
-              <LibraryIcon className="h-4 w-4 text-vectosilo-accent" />
-              <p className="text-sm font-medium text-vectosilo-text">Library</p>
-              <span className="text-xs text-vectosilo-muted">· {items.length} upload{items.length === 1 ? "" : "s"}</span>
+            <div className="flex items-center gap-2 border-b border-incogni-border px-4 py-3">
+              <LibraryIcon className="h-4 w-4 text-incogni-accent" />
+              <p className="text-sm font-medium text-incogni-text">Library</p>
+              <span className="text-xs text-incogni-muted">· {items.length} upload{items.length === 1 ? "" : "s"}</span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close library"
-                className="ml-auto rounded-md p-1 text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                className="ml-auto rounded-md p-1 text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -75,7 +75,7 @@ export function Library() {
 
             <div className="overflow-y-auto p-3 [scrollbar-width:thin]">
               {items.length === 0 ? (
-                <p className="px-3 py-10 text-center text-sm text-vectosilo-muted">
+                <p className="px-3 py-10 text-center text-sm text-incogni-muted">
                   Nothing uploaded yet. Files you attach to chats show up here.
                 </p>
               ) : (
@@ -102,19 +102,19 @@ function UploadCard({ item, onOpen }: { item: UploadItem; onOpen: () => void }) 
       type="button"
       onClick={onOpen}
       title={`${a.name} — from "${threadTitle}"`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-bg text-left transition-colors hover:border-vectosilo-accent/40"
+      className="group flex flex-col overflow-hidden rounded-xl border border-incogni-border bg-incogni-bg text-left transition-colors hover:border-incogni-accent/40"
     >
       {a.kind === "image" && a.thumbUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={a.thumbUrl} alt={a.name} className="h-24 w-full object-cover" />
       ) : (
-        <div className="flex h-24 w-full items-center justify-center bg-vectosilo-surface-2">
-          <Icon className="h-7 w-7 text-vectosilo-muted" />
+        <div className="flex h-24 w-full items-center justify-center bg-incogni-surface-2">
+          <Icon className="h-7 w-7 text-incogni-muted" />
         </div>
       )}
       <div className="min-w-0 px-2.5 py-2">
-        <p className="truncate text-xs text-vectosilo-text">{a.name}</p>
-        <p className="truncate text-[10px] text-vectosilo-muted">{relativeTime(at)} · {threadTitle}</p>
+        <p className="truncate text-xs text-incogni-text">{a.name}</p>
+        <p className="truncate text-[10px] text-incogni-muted">{relativeTime(at)} · {threadTitle}</p>
       </div>
     </button>
   );

@@ -81,7 +81,7 @@ export const CheckboxAnimated = forwardRef<
         </motion.svg>
       </div>
       {label && (
-        <span className="select-none text-sm text-vectosilo-text">{label}</span>
+        <span className="select-none text-sm text-incogni-text">{label}</span>
       )}
     </label>
   );

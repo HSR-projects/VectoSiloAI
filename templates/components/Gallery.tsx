@@ -77,7 +77,7 @@ export function Gallery({
             key={i}
             layoutId={`gallery-${i}`}
             onClick={() => open(i)}
-            className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface"
+            className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.25 }}
           >

@@ -44,7 +44,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
         "top-0 z-40 w-full transition-all duration-300",
         sticky && "fixed",
         scrolled
-          ? "border-b border-vectosilo-border bg-vectosilo-bg/95 shadow-lg backdrop-blur-md"
+          ? "border-b border-incogni-border bg-incogni-bg/95 shadow-lg backdrop-blur-md"
           : "bg-transparent",
         className
       )}
@@ -62,7 +62,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
                   }
                   className={cn(
                     "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                    "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                    "text-incogni-muted hover:bg-incogni-surface hover:text-incogni-text"
                   )}
                 >
                   {link.label}
@@ -81,13 +81,13 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-1 w-48 rounded-lg border border-vectosilo-border bg-vectosilo-surface p-1 shadow-xl"
+                      className="absolute left-0 top-full mt-1 w-48 rounded-lg border border-incogni-border bg-incogni-surface p-1 shadow-xl"
                     >
                       {link.children.map((child) => (
                         <a
                           key={child.label}
                           href={child.href}
-                          className="block rounded-md px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                          className="block rounded-md px-3 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                         >
                           {child.label}
                         </a>
@@ -100,7 +100,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
               <a
                 key={link.label}
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text"
               >
                 {link.label}
               </a>
@@ -114,7 +114,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
 
         <button
           onClick={() => setMobileOpen(true)}
-          className="rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text md:hidden"
+          className="rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text md:hidden"
           aria-label="Open menu"
         >
           <Menu size={22} />
@@ -136,13 +136,13 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed inset-y-0 right-0 z-50 w-72 border-l border-vectosilo-border bg-vectosilo-surface shadow-xl md:hidden"
+              className="fixed inset-y-0 right-0 z-50 w-72 border-l border-incogni-border bg-incogni-surface shadow-xl md:hidden"
             >
               <div className="flex items-center justify-between p-4">
-                <span className="text-sm font-medium text-vectosilo-text">Menu</span>
+                <span className="text-sm font-medium text-incogni-text">Menu</span>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                  className="rounded-lg p-1.5 text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                   aria-label="Close menu"
                 >
                   <X size={18} />
@@ -154,7 +154,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
                     <a
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className="block rounded-lg px-3 py-2.5 text-sm font-medium text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                      className="block rounded-lg px-3 py-2.5 text-sm font-medium text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                     >
                       {link.label}
                     </a>
@@ -163,7 +163,7 @@ export function Navbar({ logo, links, cta, sticky = true, className }: NavbarPro
                         key={child.label}
                         href={child.href}
                         onClick={() => setMobileOpen(false)}
-                        className="block rounded-lg px-6 py-2 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                        className="block rounded-lg px-6 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                       >
                         {child.label}
                       </a>

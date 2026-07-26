@@ -4,15 +4,15 @@ import type { SheetTable } from "@/types";
  * Parses a spreadsheet out of the streaming answer. The model emits
  * `[[sheet:Workbook Title]]` then one block per sheet containing a Markdown (or
  * CSV) table:
- *   <vectosilo-sheet name="Q1">
+ *   <incogni-sheet name="Q1">
  *   | Category | Jan | Feb |
  *   | --- | --- | --- |
  *   | Revenue | 1000 | 1200 |
- *   </vectosilo-sheet>
+ *   </incogni-sheet>
  */
 
 const DIRECTIVE_RE = /\[\[sheet(?::\s*([^\]]*))?\]\]/i;
-const SHEET_RE = /<vectosilo-sheet\s+([^>]*)>([\s\S]*?)<\/vectosilo-sheet>/gi;
+const SHEET_RE = /<incogni-sheet\s+([^>]*)>([\s\S]*?)<\/incogni-sheet>/gi;
 
 function attr(attrs: string, name: string): string {
   const m = attrs.match(new RegExp(`${name}\\s*=\\s*["']([^"']*)["']`, "i"));
@@ -63,14 +63,14 @@ export function parseSheets(text: string): SheetTable[] {
 }
 
 export function hasSheetSyntax(text: string): boolean {
-  return DIRECTIVE_RE.test(text) || /<vectosilo-sheet/i.test(text);
+  return DIRECTIVE_RE.test(text) || /<incogni-sheet/i.test(text);
 }
 
 export function stripSheetSyntax(text: string): string {
   return text
     .replace(DIRECTIVE_RE, "")
     .replace(new RegExp(SHEET_RE.source, "gi"), "")
-    .replace(/<vectosilo-sheet[\s\S]*$/i, "")
+    .replace(/<incogni-sheet[\s\S]*$/i, "")
     .replace(/\[\[sheet[^\]]*$/i, "")
     .replace(/^\s+/, "");
 }

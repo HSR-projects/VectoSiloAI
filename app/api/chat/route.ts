@@ -21,6 +21,10 @@ import {
   SVG_INSTRUCTIONS,
   WEBSITE_INSTRUCTIONS,
   DOC_INSTRUCTIONS,
+  QUESTION_INSTRUCTIONS,
+  MAP_INSTRUCTIONS,
+  STOCK_INSTRUCTIONS,
+  getCurrentDatePrompt,
   GITHUB_INSTRUCTIONS,
   MEMORY_INSTRUCTIONS,
   PAGE_OPEN_INSTRUCTIONS,
@@ -34,10 +38,11 @@ import { getCurrentUser, consumeMessage, buildMemoryContext, getUserMemory, getU
 import { getGithubConnection } from "@/lib/appConnections";
 import { effectiveCaps } from "@/lib/plans";
 import { analyzeChessQuery } from "@/lib/chessEngine";
-import { searchImages } from "@/lib/searxng";
+import { searchImages, searchMaps } from "@/lib/searxng";
 import type {
   ChatRequestBody,
   ChatStreamEvent,
+  MapPlace,
   OllamaMessage,
 } from "@/types";
 
@@ -109,13 +114,16 @@ export async function POST(req: Request) {
     }
   }
 
-  // The "auto" sentinel is resolved client-side; if it ever slips through,
-  // fall back to the default model rather than sending a bogus id to Ollama.
-  const safeRequested = requestedModel === "auto" ? DEFAULT_MODEL : requestedModel;
+  // When images are attached, strictly use gemma4:31b so text-only models (like gpt-oss:120b) never get confused.
+  const hasImageAttachments = Array.isArray(images) && images.length > 0;
   const caps = effectiveCaps(userPlan);
-  const model = caps.allModels ? safeRequested : DEFAULT_MODEL;
+  const model = hasImageAttachments
+    ? "gemma4:31b"
+    : caps.allModels
+      ? (requestedModel === "auto" ? DEFAULT_MODEL : requestedModel)
+      : DEFAULT_MODEL;
 
-  const provider = rawProvider && rawProvider !== "vectosiloai" ? rawProvider : "vectosiloai";
+  const provider = rawProvider && rawProvider !== "incogni-ai" ? rawProvider : "incogni-ai";
 
   if (!query?.trim()) {
     return new Response("Missing query.", { status: 400 });
@@ -162,7 +170,7 @@ export async function POST(req: Request) {
     // Think mode uses the model's NATIVE reasoning (think:true below), so no
     // prompt-level instruction is needed here.
     const customBlock = customInstructions ? `\n\n[Custom AI Persona/Instructions]:\n${customInstructions}` : "";
-    systemPrompt = `${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${TEMPLATE_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}${customBlock}\n\n── QUICK REFERENCE (emit directives as the VERY FIRST characters, no preamble) ──\n• Build an app/game/tool → [[computer:Title]] + <vectosilo-file> + <vectosilo-cmd>\n• Static website/page → [[website:Title]] + <vectosilo-file>\n• Slides/presentation → [[slides:Title]] + <vectosilo-slide>\n• Spreadsheet/sheet → [[sheet:Title]] + <vectosilo-table>\n• Document/doc → [[doc:Title]] + <vectosilo-doc>\n• Generate image → [[image: prompt → path]]\n• Run terminal command → [[computer:Terminal]] + <vectosilo-cmd>\n• Build from templates → [[scaffold:TEMPLATE_ID:Title]] (auto-builds complete website, no code needed)`;
+    systemPrompt = `${getCurrentDatePrompt()}\n\n${memContextBlock}${SYSTEM_PROMPTS[focusMode] ?? SYSTEM_PROMPTS.all}\n\n${ARTIFACT_INSTRUCTIONS}\n\n${computerBlock}\n\n${WEBSITE_INSTRUCTIONS}\n\n${slidesBlock}\n\n${SHEETS_INSTRUCTIONS}\n\n${DOC_INSTRUCTIONS}\n\n${QUESTION_INSTRUCTIONS}\n\n${MAP_INSTRUCTIONS}${githubBlock}${memoryBlock}\n\n${PAGE_OPEN_INSTRUCTIONS}\n\n${SVG_INSTRUCTIONS}\n\n${imageBlock}\n\n${PRODUCT_SEARCH_INSTRUCTIONS}\n\n${TEMPLATE_INSTRUCTIONS}\n\n${BEHAVIORAL_INSTRUCTIONS}\n\n${ENGINE_SECRECY}\n\n${BRAND_IDENTITY}\n\n${PLATFORM_INFO}${customBlock}\n\n── QUICK REFERENCE (emit directives as the VERY FIRST characters, no preamble) ──\n• Build an app/game/tool → [[computer:Title]] + <incogni-file> + <incogni-cmd>\n• Static website/page → [[website:Title]] + <incogni-file>\n• Slides/presentation → [[slides:Title]] + <incogni-slide>\n• Spreadsheet/sheet → [[sheet:Title]] + <incogni-table>\n• Document/doc → [[doc:Title]] + <incogni-doc>\n• Ask MCQ clarifying question → [[question: {"prompt":"...", "options":["..."]}]]\n• Show interactive map / compare locations → [[map: Location or Place Name]]\n• Generate image → [[image: prompt → path]]\n• Run terminal command → [[computer:Terminal]] + <incogni-cmd>\n• Build from templates → [[scaffold:TEMPLATE_ID:Title]] (auto-builds complete website, no code needed)`;
   }
 
   // ── Chess engine analysis (inject into system prompt if chess is mentioned) ──
@@ -182,6 +190,12 @@ export async function POST(req: Request) {
     }
   }
 
+  if (hasImageAttachments) {
+    systemPrompt += `\n\n[Vision System Instruction: The user has attached image(s) to this turn. You are a vision-capable model (gemma4:31b). View, analyze, and describe the attached image(s) directly and accurately. Never refuse or say you cannot see the image.]`;
+  }
+
+  systemPrompt += `\n\n${STOCK_INSTRUCTIONS}`;
+
   const messages: OllamaMessage[] = [{ role: "system", content: systemPrompt }];
 
   // Prior turns (trimmed to recent history).
@@ -197,11 +211,30 @@ export async function POST(req: Request) {
       ? buildSourceContext(sources)
       : "";
 
-  // Image search — fetch images for all search queries to display in the UI (Perplexity-like),
-  // but only inject them into the prompt for visual/shopping queries.
+  // Image search & SearXNG Maps place search
   let imageContext = "";
+  let mapContext = "";
   let fetchedSearchImages: any[] = [];
-  if (focusMode !== "nosearch" && !plain && !githubInvoke && query.trim().length > 3) {
+  let fetchedMapPlaces: MapPlace[] = [];
+
+  if (focusMode !== "nosearch" && !plain && !githubInvoke && query.trim().length > 2) {
+    const isMapOrLocationQuery = /\b(map|maps|location|place|places|city|cities|visit|travel|where\s+is|directions|distance|compare|hotel|restaurant|attraction|landmark|airport|park|weather|temperature)\b/i.test(query);
+    if (isMapOrLocationQuery) {
+      try {
+        const mapResults = await searchMaps(query, 5);
+        if (mapResults.length) {
+          fetchedMapPlaces = mapResults;
+          mapContext = "\n\n<SearXNG Maps & Location Context — places, coordinates, and OpenStreetMap data>\n";
+          for (const place of mapResults) {
+            mapContext += `- ${place.title}: Lat ${place.latitude}, Lon ${place.longitude} (${place.address || place.description || "Place"}) [Map Link](${place.url})\n`;
+          }
+          mapContext += "</SearXNG Maps>";
+        }
+      } catch {
+        // Map search non-fatal
+      }
+    }
+
     try {
       const imgResults = await searchImages(query, 6);
       if (imgResults.length) {
@@ -222,9 +255,9 @@ export async function POST(req: Request) {
   }
 
   const userContent = sourceContext
-    ? `${sourceContext}${imageContext}\n\nQuestion: ${query}`
-    : imageContext
-      ? `${imageContext}\n\nQuestion: ${query}`
+    ? `${sourceContext}${imageContext}${mapContext}\n\nQuestion: ${query}`
+    : imageContext || mapContext
+      ? `${imageContext}${mapContext}\n\nQuestion: ${query}`
       : query;
 
   messages.push({
@@ -240,11 +273,15 @@ export async function POST(req: Request) {
     async start(controller) {
       let fullAnswer = "";
       try {
+        if (fetchedMapPlaces.length > 0) {
+          controller.enqueue(encoder.encode(sse({ type: "map_places", places: fetchedMapPlaces })));
+        }
+
         if (fetchedSearchImages.length > 0) {
           controller.enqueue(encoder.encode(sse({ type: "search_images", images: fetchedSearchImages })));
         }
 
-        if (provider === "vectosiloai") {
+        if (provider === "incogni-ai") {
           // Native reasoning only on a normal turn (not the plain/GitHub passes).
           const useThink = think && !plain && !githubInvoke;
           for await (const delta of chatStreamRich({ model, messages, stream: true, think: useThink })) {
@@ -301,7 +338,7 @@ export async function POST(req: Request) {
         const message =
           e instanceof OllamaError
             ? e.message
-            : "Unexpected error reaching the VectoSiloAI model service.";
+            : "Unexpected error reaching the IncogniAI model service.";
         controller.enqueue(encoder.encode(sse({ type: "error", message })));
       } finally {
         controller.close();

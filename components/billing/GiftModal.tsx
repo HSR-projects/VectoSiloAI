@@ -65,7 +65,7 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
           key: data.key,
           amount: String(data.amount),
           currency: data.currency || "INR",
-          name: data.name || `Gift VectoSiloAI ${plan === "pro" ? "Pro" : "Max"}`,
+          name: data.name || `Gift IncogniAI ${plan === "pro" ? "Pro" : "Max"}`,
           description: data.description || "",
           email: data.prefill?.email || "",
           callback: `${window.location.origin}/razorpay/success?order_id=${data.id}&plan=${plan}&kind=gift`,
@@ -83,8 +83,8 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Gift className="h-5 w-5 text-vectosilo-accent" />
-            Gift {plan === "pro" ? "VectoSiloAI Pro" : "VectoSiloAI Max"}
+            <Gift className="h-5 w-5 text-incogni-accent" />
+            Gift {plan === "pro" ? "IncogniAI Pro" : "IncogniAI Max"}
           </DialogTitle>
           <DialogDescription>
             Search for a user or enter their email. Payment is processed securely by Razorpay.
@@ -93,13 +93,13 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
 
         <div className="space-y-4 py-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-vectosilo-muted" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-incogni-muted" />
             <input
               type="text"
               placeholder="Search by name or email..."
               value={query}
               onChange={(e) => searchUsers(e.target.value)}
-              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface pl-9 pr-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none focus:border-vectosilo-accent"
+              className="w-full rounded-lg border border-incogni-border bg-incogni-surface pl-9 pr-3 py-2 text-sm text-incogni-text placeholder:text-incogni-muted focus:outline-none focus:border-incogni-accent"
             />
           </div>
 
@@ -114,27 +114,27 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
                     setQuery(u.name);
                     setEmail("");
                   }}
-                  className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-vectosilo-surface-2 transition-colors"
+                  className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-incogni-surface-2 transition-colors"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vectosilo-accent/20 text-xs font-semibold text-vectosilo-accent">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-accent/20 text-xs font-semibold text-incogni-accent">
                     {u.name[0]?.toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-vectosilo-text">{u.name}</p>
-                    <p className="truncate text-xs text-vectosilo-muted">{u.email}</p>
+                    <p className="truncate font-medium text-incogni-text">{u.name}</p>
+                    <p className="truncate text-xs text-incogni-muted">{u.email}</p>
                   </div>
-                  <span className="text-[10px] uppercase text-vectosilo-muted">{u.plan}</span>
+                  <span className="text-[10px] uppercase text-incogni-muted">{u.plan}</span>
                 </button>
               ))}
             </div>
           )}
 
           {selected && (
-            <div className="flex items-center gap-2 rounded-lg bg-vectosilo-accent/10 px-3 py-2">
-              <span className="flex-1 text-sm text-vectosilo-text">
+            <div className="flex items-center gap-2 rounded-lg bg-incogni-accent/10 px-3 py-2">
+              <span className="flex-1 text-sm text-incogni-text">
                 Gift to <strong>{selected.name}</strong> ({selected.email})
               </span>
-              <button onClick={() => { setSelected(null); setQuery(""); }} className="text-vectosilo-muted hover:text-vectosilo-text">
+              <button onClick={() => { setSelected(null); setQuery(""); }} className="text-incogni-muted hover:text-incogni-text">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -142,13 +142,13 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
 
           {!selected && (
             <div>
-              <p className="text-xs text-vectosilo-muted mb-1">Or enter their email:</p>
+              <p className="text-xs text-incogni-muted mb-1">Or enter their email:</p>
               <input
                 type="email"
                 placeholder="person@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-2 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:outline-none focus:border-vectosilo-accent"
+                className="w-full rounded-lg border border-incogni-border bg-incogni-surface px-3 py-2 text-sm text-incogni-text placeholder:text-incogni-muted focus:outline-none focus:border-incogni-accent"
               />
             </div>
           )}
@@ -165,7 +165,7 @@ export function GiftModal({ plan, onClose }: GiftModalProps) {
           <button
             disabled={busy || (!selected && !email.trim())}
             onClick={buyGift}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black hover:bg-vectosilo-accent-soft transition-colors disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black hover:bg-incogni-accent-soft transition-colors disabled:opacity-50"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Pay ${PLAN_AMOUNT[plan]} — Gift {plan === "pro" ? "Pro" : "Max"}

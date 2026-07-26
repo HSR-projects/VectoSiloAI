@@ -18,7 +18,7 @@ export interface SpeakHandlers {
 export function cleanForSpeech(raw: string): string {
   return raw
     .replace(/```[\s\S]*?```/g, " (code block) ")
-    .replace(/<vectosilo-file[^>]*>[\s\S]*?<\/vectosilo-file>/gi, " ")
+    .replace(/<incogni-file[^>]*>[\s\S]*?<\/incogni-file>/gi, " ")
     .replace(/\[\[[^\]]*\]\]/g, " ")
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")

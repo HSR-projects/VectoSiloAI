@@ -77,7 +77,7 @@ async function fetchImageBase64(imgUrl: string): Promise<string | null> {
   try {
     const res = await fetch(imgUrl, {
       signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; VectoSiloAI/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; IncogniAI/1.0)" },
     });
     if (!res.ok) return null;
     const ctype = res.headers.get("content-type") ?? "";
@@ -97,10 +97,9 @@ async function fetchImageBase64(imgUrl: string): Promise<string | null> {
   }
 }
 
-/** Filter out obvious non-content images (icons, spacers, tracking pixels). */
-function isContentImage(src: string, pageUrl: string): boolean {
+/** Filter out obvious non-content images (spacers, tracking pixels). */
+function isContentImage(src: string, pageUrl: string, visualExplore?: boolean): boolean {
   if (!src) return false;
-  // Resolve relative URLs
   try {
     new URL(src);
   } catch {
@@ -111,19 +110,20 @@ function isContentImage(src: string, pageUrl: string): boolean {
     }
   }
   const lower = src.toLowerCase();
-  // Skip data URIs (already have the data but usually icons)
   if (lower.startsWith("data:image/gif")) return false;
-  // Skip known icon/tracking patterns
-  if (/\/(icon|logo|avatar|badge|pixel|spacer|1x1|blank|spinner|loading|favicon)\b/i.test(lower))
-    return false;
-  if (/\.(gif|ico|svg)(\?|$)/i.test(lower)) return false;
+  if (/\/(pixel|spacer|1x1|blank|spinner|loading)\b/i.test(lower)) return false;
+  if (!visualExplore) {
+    if (/\/(icon|avatar|badge|favicon)\b/i.test(lower)) return false;
+  }
+  if (/\.(gif|ico)(\?|$)/i.test(lower)) return false;
   return true;
 }
 
 // ─── Regular page scraping ─────────────────────────────────────
 
 async function scrapeOne(
-  url: string
+  url: string,
+  opts: { visualExplore?: boolean } = {}
 ): Promise<{ source: Source; imageUrls: string[] } | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
@@ -132,57 +132,96 @@ async function scrapeOne(
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; VectoSiloAI/1.0; +https://github.com/vectosiloai)",
-        Accept: "text/html,application/xhtml+xml",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
       },
       cache: "no-store",
     });
     if (!res.ok) return null;
 
     const ctype = res.headers.get("content-type") ?? "";
-    if (!ctype.includes("text/html")) return null;
+    const rawContent = await res.text();
+    if (!rawContent.trim()) return null;
 
-    const html = await res.text();
-    const $ = cheerio.load(html);
+    let text = "";
+    let title = url;
+    let ogImage = "";
+    let $: cheerio.CheerioAPI | null = null;
 
-    $("script, style, noscript, nav, footer, header, aside, form, iframe, svg, button").remove();
+    if (ctype.includes("application/json")) {
+      try {
+        const parsed = JSON.parse(rawContent);
+        text = JSON.stringify(parsed, null, 2).slice(0, MAX_CHARS);
+        title = parsed.title || parsed.name || url;
+      } catch {
+        text = rawContent.slice(0, MAX_CHARS);
+      }
+    } else {
+      $ = cheerio.load(rawContent);
+      ogImage =
+        $('meta[property="og:image"]').attr("content") ||
+        $('meta[name="twitter:image"]').attr("content") ||
+        "";
 
-    const title =
-      $("title").first().text().trim() ||
-      $('meta[property="og:title"]').attr("content") ||
-      url;
+      title =
+        $("title").first().text().trim() ||
+        $('meta[property="og:title"]').attr("content") ||
+        url;
 
-    const root = $("article").length
-      ? $("article")
-      : $("main").length
-      ? $("main")
-      : $("body");
+      $("script, style, noscript, nav, footer, header, aside, form, iframe, svg, button").remove();
 
-    const text = root
-      .text()
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, MAX_CHARS);
+      const root = $("article").length
+        ? $("article")
+        : $("main").length
+        ? $("main")
+        : $("body");
+
+      text = root
+        .text()
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, MAX_CHARS);
+    }
 
     if (!text) return null;
 
-    // Extract up to 3 content-worthy image URLs for vision analysis
+    if (opts.visualExplore) {
+      text = `[Visual Page Exploration Mode: Human-like visual page viewing & layout analysis active.]\n\n${text}`;
+    }
+
+    // Extract content-worthy image URLs for vision analysis if visual exploration is allowed (Go/Pro/Max/Ultra)
     const imageUrls: string[] = [];
-    $("img").each((_i, el) => {
-      if (imageUrls.length >= 3) return false;
-      const src =
-        $(el).attr("src") ||
-        $(el).attr("data-src") ||
-        $(el).attr("data-lazy-src") ||
-        "";
-      let resolved = src;
-      try {
-        resolved = new URL(src, url).href;
-      } catch {
-        /* keep original */
+    if (opts.visualExplore !== false && $) {
+      if (ogImage && isContentImage(ogImage, url, opts.visualExplore)) {
+        try {
+          imageUrls.push(new URL(ogImage, url).href);
+        } catch {
+          imageUrls.push(ogImage);
+        }
       }
-      if (isContentImage(resolved, url)) imageUrls.push(resolved);
-    });
+      $("img").each((_i, el) => {
+        const maxImg = opts.visualExplore ? 6 : 3;
+        if (imageUrls.length >= maxImg) return false;
+        const src =
+          $(el).attr("src") ||
+          $(el).attr("data-src") ||
+          $(el).attr("data-lazy-src") ||
+          "";
+        let resolved = src;
+        try {
+          resolved = new URL(src, url).href;
+        } catch {
+          /* keep original */
+        }
+        if (isContentImage(resolved, url, opts.visualExplore) && !imageUrls.includes(resolved)) {
+          imageUrls.push(resolved);
+        }
+      });
+    }
 
     return {
       source: { url, title: title.slice(0, 200), content: text },
@@ -203,8 +242,16 @@ export interface ScrapeResult {
   pageImages: string[];
 }
 
+export interface ScrapeOptions {
+  /** Enable human-like visual page exploration (snapshots/images). Restricted to Go/Pro/Max/Ultra. */
+  visualExplore?: boolean;
+}
+
 /** Scrape multiple URLs. YouTube URLs get transcript extraction + thumbnail. */
-export async function scrapeUrlsWithMedia(urls: string[]): Promise<ScrapeResult> {
+export async function scrapeUrlsWithMedia(
+  urls: string[],
+  opts: ScrapeOptions = {}
+): Promise<ScrapeResult> {
   const results = await Promise.all(
     urls.map(async (url) => {
       if (isYouTubeUrl(url)) {
@@ -212,11 +259,12 @@ export async function scrapeUrlsWithMedia(urls: string[]): Promise<ScrapeResult>
         if (yt) return { source: yt.source, images: yt.images };
         return null;
       }
-      const r = await scrapeOne(url);
+      const r = await scrapeOne(url, opts);
       if (!r) return null;
-      // Fetch up to 2 page images in parallel; silently drop failures
+      // Fetch up to 4 page images for visual page exploration (Go/Pro/Max/Ultra); silently drop failures
+      const maxImages = opts.visualExplore ? 4 : 1;
       const b64s = (
-        await Promise.all(r.imageUrls.slice(0, 2).map(fetchImageBase64))
+        await Promise.all(r.imageUrls.slice(0, maxImages).map(fetchImageBase64))
       ).filter((b): b is string => b !== null);
       return { source: r.source, images: b64s };
     })

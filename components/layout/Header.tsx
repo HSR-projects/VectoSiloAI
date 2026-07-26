@@ -1,15 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { Eye, EyeOff, PanelLeft } from "lucide-react";
-import { ModelSwitcher } from "./ModelSwitcher";
-import { PrivacyModal } from "./PrivacyModal";
-import { SettingsModal } from "./SettingsModal";
-import { CustomAIsModal } from "./CustomAIsModal";
-import { AccountMenu } from "@/components/auth/AccountMenu";
+import { EyeOff, PanelLeft, Plus, MoreHorizontal, Pencil, Trash2, Download } from "lucide-react";
 import { ShareButton } from "@/components/billing/ShareButton";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
+import { useNewChat } from "@/hooks/useNewChat";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { ModelSwitcher } from "@/components/layout/ModelSwitcher";
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -21,60 +23,108 @@ interface HeaderProps {
 }
 
 export function Header({ onToggleSidebar, showMenu, title, threadId }: HeaderProps) {
-  const incognito = useVectoSiloStore((s) => s.incognito);
-  const setIncognito = useVectoSiloStore((s) => s.setIncognito);
+  const incognito = useIncogniStore((s) => s.incognito);
+  const setIncognito = useIncogniStore((s) => s.setIncognito);
+  const newChat = useNewChat();
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-vectosilo-border bg-vectosilo-bg/80 px-4 py-3 backdrop-blur-xl">
-      <div className="flex min-w-0 items-center gap-2">
+    <header className="absolute top-0 z-30 flex w-full items-center justify-between p-3 pointer-events-none">
+      <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
         {showMenu && (
-          <button
-            onClick={onToggleSidebar}
-            aria-label="Toggle sidebar"
-            title="Toggle sidebar"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-          >
-            <PanelLeft className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onToggleSidebar}
+              aria-label="Toggle sidebar"
+              title="Toggle sidebar"
+              className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:bg-incogni-surface-2 transition-colors"
+            >
+              <PanelLeft className="h-5 w-5 text-incogni-muted group-hover:text-incogni-text transition-colors" />
+            </button>
+            <button
+              onClick={newChat}
+              aria-label="New chat"
+              title="New chat"
+              className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:bg-incogni-surface-2 transition-colors"
+            >
+              <Plus className="h-5 w-5 text-incogni-muted group-hover:text-incogni-text transition-colors" />
+            </button>
+          </div>
         )}
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Image src="/vectosilo-logo.svg" alt="VectoSilo AI" width={28} height={28} priority />
-          {/* Wordmark is hidden on the smallest screens to keep the header from
-              overflowing once the sidebar toggle + controls are present. */}
-          <span className="hidden text-lg font-semibold tracking-tight text-vectosilo-text min-[420px]:inline">
-            VectoSilo<span className="text-vectosilo-accent">AI</span>
-          </span>
-        </Link>
+        <div className="ml-2 flex items-center">
+           <ModelSwitcher />
+        </div>
         {title && (
-          <>
-            <span className="hidden text-vectosilo-border md:block">/</span>
-            <span className="hidden max-w-[280px] truncate text-sm text-vectosilo-muted md:block">
-              {title}
-            </span>
-          </>
+          <span className="hidden max-w-[220px] lg:max-w-[340px] shrink min-w-0 truncate text-sm text-incogni-muted md:block ml-2">
+            {title}
+          </span>
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <ModelSwitcher />
-        <button
-          onClick={() => setIncognito(!incognito)}
-          title={incognito ? "Incognito on — chats not saved" : "Incognito off"}
-          className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
-            incognito
-              ? "bg-vectosilo-accent/15 text-vectosilo-accent-soft"
-              : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-          }`}
-        >
-          {incognito ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-        </button>
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pointer-events-auto">
+        {/* Removed temporary chat toggle, it's now in ModelSwitcher */}
+
         {threadId && <ShareButton threadId={threadId} />}
-        <CustomAIsModal />
-        <SettingsModal />
-        <div className="hidden md:block">
-          <PrivacyModal />
-        </div>
-        <AccountMenu />
+
+        {/* Thread overflow menu */}
+        {threadId && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Thread options"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text transition-colors"
+              >
+                <MoreHorizontal className="h-4.5 w-4.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onSelect={() => {
+                const t = useIncogniStore.getState().getThread(threadId);
+                if (!t) return;
+                const newTitle = window.prompt("Rename chat", t.title);
+                if (newTitle?.trim()) {
+                  useIncogniStore.getState().updateThreadTitle(threadId, newTitle.trim());
+                  fetch(`/api/threads/${threadId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: newTitle.trim() }),
+                  }).catch(() => {});
+                }
+              }}>
+                <span className="flex items-center gap-2 text-incogni-text">
+                  <Pencil className="h-4 w-4" /> Rename
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => {
+                const t = useIncogniStore.getState().getThread(threadId);
+                if (!t) return;
+                const md = t.messages.map((m) =>
+                  `## ${m.role === "user" ? "You" : "Assistant"}\n\n${m.content}`
+                ).join("\n\n---\n\n");
+                const blob = new Blob([md], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${t.title || "chat"}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}>
+                <span className="flex items-center gap-2 text-incogni-text">
+                  <Download className="h-4 w-4" /> Export as Markdown
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => {
+                if (!window.confirm("Delete this chat?")) return;
+                useIncogniStore.getState().deleteThread(threadId);
+                fetch(`/api/threads/${threadId}`, { method: "DELETE" }).catch(() => {});
+                newChat();
+              }}>
+                <span className="flex items-center gap-2 text-red-400">
+                  <Trash2 className="h-4 w-4" /> Delete chat
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   );

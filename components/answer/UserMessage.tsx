@@ -59,7 +59,7 @@ export function UserMessage({
   if (editing) {
     return (
       <div className="flex justify-end">
-        <div className="w-full max-w-[78%] rounded-2xl border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2.5">
+        <div className="w-full max-w-[78%] rounded-2xl border border-incogni-border bg-incogni-surface-2 px-3 py-2.5">
           <textarea
             ref={taRef}
             value={draft}
@@ -78,7 +78,7 @@ export function UserMessage({
                 setEditing(false);
               }
             }}
-            className="max-h-60 w-full resize-none bg-transparent text-sm leading-relaxed text-vectosilo-text focus:outline-none"
+            className="max-h-60 w-full resize-none bg-transparent text-sm leading-relaxed text-incogni-text focus:outline-none"
           />
           <div className="mt-2 flex justify-end gap-2">
             <button
@@ -87,7 +87,7 @@ export function UserMessage({
                 setDraft(message.content);
                 setEditing(false);
               }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text"
             >
               Cancel
             </button>
@@ -95,7 +95,7 @@ export function UserMessage({
               type="button"
               onClick={save}
               disabled={!draft.trim() || disabled}
-              className="rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-50"
+              className="rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-incogni-accent-soft disabled:opacity-50"
             >
               Send
             </button>
@@ -107,22 +107,22 @@ export function UserMessage({
 
   return (
     <div className="group flex flex-col items-end">
-      <div className="max-w-[78%] rounded-2xl rounded-tr-sm border border-vectosilo-border bg-vectosilo-surface-2 px-4 py-2.5 text-sm leading-relaxed text-vectosilo-text shadow-sm">
+      <div className="max-w-[85%] rounded-3xl bg-incogni-surface-2 px-5 py-3 text-[15px] leading-relaxed text-incogni-text break-words [overflow-wrap:anywhere]">
         {attachmentsSlot}
         {message.voiceUrl ? (
           <div className="min-w-[220px]">
             <VoiceMessageBubble url={message.voiceUrl} duration={message.voiceDuration} align="right" />
             {message.content && (
-              <p className="mt-2 whitespace-pre-wrap text-sm text-vectosilo-text">{message.content}</p>
+              <p className="mt-2 whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm text-incogni-text">{message.content}</p>
             )}
           </div>
         ) : (
-          <span className="whitespace-pre-wrap">{message.content}</span>
+          <span className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{message.content}</span>
         )}
       </div>
-      <div className="mt-1 flex items-center gap-0.5 text-vectosilo-muted opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+      <div className="mt-1 flex items-center gap-0.5 text-incogni-muted opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
         <Btn label={copied ? "Copied" : "Copy"} onClick={copy}>
-          {copied ? <Check className="h-4 w-4 text-vectosilo-accent" /> : <Copy className="h-4 w-4" />}
+          {copied ? <Check className="h-4 w-4 text-incogni-accent" /> : <Copy className="h-4 w-4" />}
         </Btn>
         <Btn label="Edit message" onClick={() => setEditing(true)} disabled={disabled}>
           <Pencil className="h-4 w-4" />
@@ -151,7 +151,7 @@ function Btn({
       aria-label={label}
       title={label}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text",
+        "flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text",
         disabled && "cursor-not-allowed opacity-40"
       )}
     >

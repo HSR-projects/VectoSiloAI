@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     }
   }
   const bashScript = `#!/bin/bash
-# VectoSiloAI Scaffold — ${id}
+# IncogniAI Scaffold — ${id}
 set -e
 echo "📦 Scaffolding ${title || id}..."
 ${[...mkdirs].map(d => `mkdir -p ${d}`).join("\n")}

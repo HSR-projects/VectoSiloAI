@@ -37,12 +37,12 @@ export default function ViewPage() {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0c0c0f] text-vectosilo-muted">
+      <div className="flex h-screen items-center justify-center bg-[#0c0c0f] text-incogni-muted">
         <div className="text-center">
-          <p className="text-lg font-medium text-vectosilo-text">404</p>
+          <p className="text-lg font-medium text-incogni-text">404</p>
           <p className="mt-1 text-sm">{error}</p>
-          <a href="/" className="mt-4 inline-block text-sm text-vectosilo-accent-soft hover:underline">
-            Go to VectoSiloAI
+          <a href="/" className="mt-4 inline-block text-sm text-incogni-accent-soft hover:underline">
+            Go to IncogniAI
           </a>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function ViewPage() {
   if (!data) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#0c0c0f]">
-        <Loader2 className="h-6 w-6 animate-spin text-vectosilo-accent" />
+        <Loader2 className="h-6 w-6 animate-spin text-incogni-accent" />
       </div>
     );
   }
@@ -62,7 +62,7 @@ export default function ViewPage() {
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2">
         <span className="text-sm font-semibold text-white/90">{data.title}</span>
         <span className="text-xs text-white/40">/view/{slug}</span>
-        <span className="ml-auto text-[10px] text-white/30">Built with VectoSiloAI</span>
+        <span className="ml-auto text-[10px] text-white/30">Built with IncogniAI</span>
       </div>
       <iframe
         title={data.title}

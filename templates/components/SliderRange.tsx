@@ -59,7 +59,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
             {label && (
               <label
                 htmlFor={id}
-                className="text-sm text-vectosilo-text"
+                className="text-sm text-incogni-text"
               >
                 {label}
               </label>
@@ -69,7 +69,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
                 key={value}
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm font-medium text-vectosilo-accent"
+                className="text-sm font-medium text-incogni-accent"
               >
                 {value}
               </motion.span>
@@ -83,11 +83,11 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
           onMouseLeave={() => setHover(false)}
         >
           {/* Track background */}
-          <div className="absolute left-0 right-0 h-1.5 rounded-full bg-vectosilo-border" />
+          <div className="absolute left-0 right-0 h-1.5 rounded-full bg-incogni-border" />
 
           {/* Track fill */}
           <motion.div
-            className="absolute left-0 h-1.5 rounded-full bg-vectosilo-accent"
+            className="absolute left-0 h-1.5 rounded-full bg-incogni-accent"
             style={{ width: `${pct}%` }}
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -102,7 +102,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
             }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <div className="h-5 w-5 rounded-full border-2 border-vectosilo-accent bg-white shadow" />
+            <div className="h-5 w-5 rounded-full border-2 border-incogni-accent bg-white shadow" />
           </motion.div>
 
           {/* Hidden native range */}
@@ -124,7 +124,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
         </div>
 
         {/* Min/Max labels */}
-        <div className="flex justify-between text-xs text-vectosilo-muted">
+        <div className="flex justify-between text-xs text-incogni-muted">
           <span>
             {min}
             {step < 1 ? "+" : ""}

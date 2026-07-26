@@ -50,12 +50,12 @@ export const TextareaAnimated = forwardRef<
       <div className={cn("relative", className)}>
         <div
           className={cn(
-            "relative rounded-lg border bg-vectosilo-surface transition-all duration-200",
+            "relative rounded-lg border bg-incogni-surface transition-all duration-200",
             error
               ? "border-red-500"
               : focused
-                ? "border-vectosilo-accent shadow-glow"
-                : "border-vectosilo-border hover:border-vectosilo-muted"
+                ? "border-incogni-accent shadow-glow"
+                : "border-incogni-border hover:border-incogni-muted"
           )}
         >
           <textarea
@@ -63,7 +63,7 @@ export const TextareaAnimated = forwardRef<
             id={id}
             rows={4}
             className={cn(
-              "peer w-full resize-none border-none bg-transparent px-3 pt-6 pb-2 text-vectosilo-text outline-none placeholder-transparent transition-colors"
+              "peer w-full resize-none border-none bg-transparent px-3 pt-6 pb-2 text-incogni-text outline-none placeholder-transparent transition-colors"
             )}
             placeholder={label ?? ""}
             onFocus={(e) => {
@@ -92,8 +92,8 @@ export const TextareaAnimated = forwardRef<
                 error
                   ? "text-red-400"
                   : focused
-                    ? "text-vectosilo-accent"
-                    : "text-vectosilo-muted"
+                    ? "text-incogni-accent"
+                    : "text-incogni-muted"
               )}
             >
               {label}
@@ -120,7 +120,7 @@ export const TextareaAnimated = forwardRef<
                 "text-xs transition-colors",
                 charCount >= maxLength
                   ? "text-red-400"
-                  : "text-vectosilo-muted"
+                  : "text-incogni-muted"
               )}
             >
               {charCount}/{maxLength}

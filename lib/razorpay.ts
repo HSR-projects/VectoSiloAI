@@ -21,14 +21,14 @@ export const PLAN_PRICES: Record<string, number> = {
 };
 
 export const PLAN_NAMES: Record<string, string> = {
-  go: "VectoSilo AI Go",
-  pro: "VectoSilo AI Pro",
-  max: "VectoSilo AI Max",
-  ultra: "VectoSilo AI Ultra",
+  go: "Incogni AI Go",
+  pro: "Incogni AI Pro",
+  max: "Incogni AI Max",
+  ultra: "Incogni AI Ultra",
 };
 
 export const PLAN_DESCRIPTIONS: Record<string, string> = {
-  go: "Agents, model choice, and VectoSilo's Computer at an entry price.",
+  go: "Agents, model choice, and Incogni's Computer at an entry price.",
   pro: "Autonomous research agents, multi-step tasks, and priority features.",
   max: "Maximum depth — the deepest research runs and early access.",
   ultra: "Enterprise org — manage teams, share chats, gift seats, and more.",

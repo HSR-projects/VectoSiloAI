@@ -118,14 +118,14 @@ const faqItems = [
 export default function LandingMobile() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-vectosilo-bg">
+      <div className="min-h-screen bg-incogni-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-vectosilo-text">Flow</span>}
+          logo={<span className="text-xl font-bold text-incogni-text">Flow</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+              className="rounded-lg bg-incogni-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
             >
               Download
             </a>
@@ -142,20 +142,20 @@ export default function LandingMobile() {
             />
           </div>
           <div className="mt-8 lg:mt-0">
-            <div className="relative mx-auto h-[500px] w-[250px] rounded-[2.5rem] border-4 border-vectosilo-border bg-vectosilo-surface shadow-2xl">
-              <div className="absolute left-1/2 top-0 h-5 w-28 -translate-x-1/2 rounded-b-xl bg-vectosilo-border" />
-              <div className="flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-b from-vectosilo-accent/20 via-vectosilo-surface to-vectosilo-surface-2 p-6">
+            <div className="relative mx-auto h-[500px] w-[250px] rounded-[2.5rem] border-4 border-incogni-border bg-incogni-surface shadow-2xl">
+              <div className="absolute left-1/2 top-0 h-5 w-28 -translate-x-1/2 rounded-b-xl bg-incogni-border" />
+              <div className="flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-b from-incogni-accent/20 via-incogni-surface to-incogni-surface-2 p-6">
                 <div className="text-center">
-                  <div className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-vectosilo-accent/20 p-4">
-                    <div className="h-full w-full rounded-lg bg-vectosilo-accent" />
+                  <div className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-incogni-accent/20 p-4">
+                    <div className="h-full w-full rounded-lg bg-incogni-accent" />
                   </div>
-                  <p className="text-2xl font-bold text-vectosilo-text">Flow</p>
-                  <p className="mt-1 text-xs text-vectosilo-muted">Your life, simplified</p>
+                  <p className="text-2xl font-bold text-incogni-text">Flow</p>
+                  <p className="mt-1 text-xs text-incogni-muted">Your life, simplified</p>
                   <div className="mt-6 space-y-3">
                     {["Today's Tasks", "Upcoming", "Habits"].map((item) => (
                       <div
                         key={item}
-                        className="rounded-lg bg-vectosilo-surface-2/50 px-4 py-2 text-sm text-vectosilo-muted"
+                        className="rounded-lg bg-incogni-surface-2/50 px-4 py-2 text-sm text-incogni-muted"
                       >
                         {item}
                       </div>
@@ -211,44 +211,44 @@ export default function LandingMobile() {
           buttonText="Join Waitlist"
         />
 
-        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
+        <footer className="border-t border-incogni-border bg-incogni-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <span className="text-lg font-bold text-vectosilo-text">Flow</span>
-                <p className="mt-2 text-sm text-vectosilo-muted">
+                <span className="text-lg font-bold text-incogni-text">Flow</span>
+                <p className="mt-2 text-sm text-incogni-muted">
                   Your life, simplified.
                 </p>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">App</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Downloads</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Updates</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">App</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Features</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Downloads</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Updates</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Support</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Help Center</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Contact</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Privacy</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Terms</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">Support</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Help Center</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Contact</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Terms</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Connect</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Twitter</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Instagram</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">TikTok</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Discord</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">Connect</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Twitter</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Instagram</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">TikTok</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Discord</a></li>
                 </ul>
               </div>
             </div>
-            <div className="mt-10 border-t border-vectosilo-border pt-6 text-center text-sm text-vectosilo-muted">
+            <div className="mt-10 border-t border-incogni-border pt-6 text-center text-sm text-incogni-muted">
               &copy; {new Date().getFullYear()} Flow. All rights reserved.
             </div>
           </div>

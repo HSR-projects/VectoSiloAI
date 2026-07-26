@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Attachment } from "@/types";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useModels } from "@/hooks/useModels";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -13,7 +13,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { SearchBar } from "@/components/search/SearchBar";
 import { SuggestedQueries } from "@/components/search/SuggestedQueries";
 import { VoiceModePanel } from "@/components/search/VoiceModePanel";
-import { Bot } from "lucide-react";
+import { IncognitoBanner } from "@/components/layout/IncognitoBanner";
+import { Bot, Image as ImageIcon, FileText, Search } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function HomePage() {
     setTargetUrl,
     activeCustomAIId,
     customAIs,
-  } = useVectoSiloStore();
+  } = useIncogniStore();
 
   const activeAI = activeCustomAIId ? customAIs.find(a => a.id === activeCustomAIId) : null;
 
@@ -73,9 +74,9 @@ export default function HomePage() {
   // Start a chat from voice messages
   const startFromVoice = useCallback((text: string) => {
     const id = createThread(text || "Voice conversation");
-    const state = useVectoSiloStore.getState();
+    const state = useIncogniStore.getState();
     const thread = state.getThread(id);
-    if (thread && !state.incognito) {
+    if (thread && !(thread as any).isTemporary) {
       fetch("/api/threads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,9 +88,9 @@ export default function HomePage() {
 
   const start = (query: string, attachments?: Attachment[]) => {
     const id = createThread(query || "Attachment");
-    const state = useVectoSiloStore.getState();
+    const state = useIncogniStore.getState();
     const thread = state.getThread(id);
-    if (thread && !state.incognito) {
+    if (thread && !(thread as any).isTemporary) {
       fetch("/api/threads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +98,7 @@ export default function HomePage() {
       }).catch(() => {});
     }
     if (attachments?.length) {
-      useVectoSiloStore.getState().setPendingAttachments(attachments);
+      useIncogniStore.getState().setPendingAttachments(attachments);
     }
     router.push(`/search/${id}?q=${encodeURIComponent(query)}`);
   };
@@ -108,7 +109,8 @@ export default function HomePage() {
 
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Header showMenu onToggleSidebar={() => setSidebarOpen((v) => !v)} />
-        <main className="vectosilo-hero-glow flex flex-1 flex-col items-center justify-center overflow-y-auto px-4">
+        <IncognitoBanner />
+        <main className="incogni-hero-glow flex flex-1 flex-col items-center justify-center overflow-y-auto px-4">
         <div className="w-full max-w-2xl pb-20">
           {activeAI ? (
             <motion.div
@@ -117,16 +119,16 @@ export default function HomePage() {
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
               className="mb-8 text-center"
             >
-              <motion.div variants={fadeUp} className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-vectosilo-surface border border-vectosilo-border shadow-sm">
-                <Bot className="h-8 w-8 text-vectosilo-text" />
+              <motion.div variants={fadeUp} className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-incogni-surface border border-incogni-border shadow-sm">
+                <Bot className="h-8 w-8 text-incogni-text" />
               </motion.div>
               <motion.h1
                 variants={fadeUp}
-                className="text-balance text-2xl font-semibold tracking-tight text-vectosilo-text sm:text-3xl"
+                className="text-balance text-2xl font-semibold tracking-tight text-incogni-text sm:text-3xl"
               >
                 {activeAI.name}
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-2 text-xs text-vectosilo-muted">
+              <motion.p variants={fadeUp} className="mt-2 text-xs text-incogni-muted">
                 {activeAI.description || "A custom AI persona."}
               </motion.p>
             </motion.div>
@@ -135,22 +137,14 @@ export default function HomePage() {
               initial="hidden"
               animate="show"
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
-              className="mb-6 text-center sm:mb-8"
+              className="mb-8 text-center"
             >
               <motion.h1
                 variants={fadeUp}
-                className="text-balance text-3xl font-semibold tracking-tight text-vectosilo-text sm:text-4xl md:text-5xl"
+                className="text-balance text-3xl font-semibold tracking-tight text-incogni-text sm:text-4xl"
               >
-                Ask anything,{" "}
-                <span className="bg-gradient-to-r from-vectosilo-accent-soft to-vectosilo-accent bg-clip-text text-transparent">
-                  privately
-                </span>
-                .
+                Where should we begin?
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-3 text-vectosilo-muted">
-                Search-augmented AI by VectoSilo AI — your queries never
-                touch OpenAI or Anthropic.
-              </motion.p>
             </motion.div>
           )}
 
@@ -169,9 +163,9 @@ export default function HomePage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 rounded-2xl border border-vectosilo-border bg-vectosilo-surface p-4"
+              className="mb-4 rounded-2xl border border-incogni-border bg-incogni-surface p-4"
             >
-              <p className="text-xs font-medium text-vectosilo-muted mb-3">Voice conversation</p>
+              <p className="text-xs font-medium text-incogni-muted mb-3">Voice conversation</p>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {voiceMessages.map((msg, i) => (
                   <div key={i} className={cn(
@@ -181,8 +175,8 @@ export default function HomePage() {
                     <div className={cn(
                       "max-w-[80%] rounded-xl px-3 py-2",
                       msg.role === 'user'
-                        ? "bg-vectosilo-accent text-white"
-                        : "bg-vectosilo-surface-2 text-vectosilo-text"
+                        ? "bg-incogni-accent text-white"
+                        : "bg-incogni-surface-2 text-incogni-text"
                     )}>
                       {msg.content}
                     </div>
@@ -194,13 +188,13 @@ export default function HomePage() {
                   const lastUser = [...voiceMessages].reverse().find(m => m.role === 'user')
                   startFromVoice(lastUser?.content || "Continue our conversation")
                 }}
-                className="mt-3 w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-2 text-xs text-vectosilo-muted hover:bg-vectosilo-border hover:text-vectosilo-text transition-colors"
+                className="mt-3 w-full rounded-lg border border-incogni-border bg-incogni-surface-2 px-3 py-2 text-xs text-incogni-muted hover:bg-incogni-border hover:text-incogni-text transition-colors"
               >
                 Continue in chat...
               </button>
               <button
                 onClick={() => setVoiceMessages([])}
-                className="mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs text-vectosilo-muted hover:text-vectosilo-text transition-colors"
+                className="mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs text-incogni-muted hover:text-incogni-text transition-colors"
               >
                 Dismiss
               </button>
@@ -228,21 +222,41 @@ export default function HomePage() {
             />
           </motion.div>
 
-          <div className="mt-8">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             {activeAI && activeAI.promptStarters?.length ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {activeAI.promptStarters.map((starter, i) => (
-                  <button
-                    key={i}
-                    onClick={() => start(starter)}
-                    className="flex flex-col items-start rounded-xl border border-vectosilo-border bg-vectosilo-surface p-4 text-left transition-colors hover:border-vectosilo-accent/50 hover:bg-vectosilo-surface-2"
-                  >
-                    <span className="text-sm font-medium text-vectosilo-text">{starter}</span>
-                  </button>
-                ))}
-              </div>
+              activeAI.promptStarters.map((starter, i) => (
+                <button
+                  key={i}
+                  onClick={() => start(starter)}
+                  className="flex items-center gap-2 rounded-full border border-incogni-border bg-incogni-bg px-4 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface"
+                >
+                  {starter}
+                </button>
+              ))
             ) : (
-              <SuggestedQueries onSelect={start} />
+              <>
+                <button
+                  onClick={() => start("Create an image")}
+                  className="flex items-center gap-2 rounded-full border border-incogni-border bg-incogni-bg px-4 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                  Create an image
+                </button>
+                <button
+                  onClick={() => start("Write or edit text")}
+                  className="flex items-center gap-2 rounded-full border border-incogni-border bg-incogni-bg px-4 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface"
+                >
+                  <FileText className="h-4 w-4" />
+                  Write or edit
+                </button>
+                <button
+                  onClick={() => start("Look something up")}
+                  className="flex items-center gap-2 rounded-full border border-incogni-border bg-incogni-bg px-4 py-2 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface"
+                >
+                  <Search className="h-4 w-4" />
+                  Look something up
+                </button>
+              </>
             )}
           </div>
 

@@ -75,7 +75,7 @@ export function Carousel({
       onMouseLeave={() => setHovered(false)}
       {...rest}
     >
-      <div className="relative aspect-video w-full overflow-hidden bg-vectosilo-surface">
+      <div className="relative aspect-video w-full overflow-hidden bg-incogni-surface">
         <AnimatePresence initial={false} custom={dir} mode="popLayout">
           <motion.div
             key={items[current].id}

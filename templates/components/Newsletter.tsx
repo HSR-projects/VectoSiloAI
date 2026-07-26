@@ -46,17 +46,17 @@ export function Newsletter({
 
   const formContent = (
     <>
-      <h3 className="text-2xl font-bold text-vectosilo-text sm:text-3xl">
+      <h3 className="text-2xl font-bold text-incogni-text sm:text-3xl">
         {title}
       </h3>
       {subtitle && (
-        <p className="mt-2 text-sm text-vectosilo-muted">{subtitle}</p>
+        <p className="mt-2 text-sm text-incogni-muted">{subtitle}</p>
       )}
       {subscribed ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mt-6 flex items-center gap-2 text-vectosilo-accent"
+          className="mt-6 flex items-center gap-2 text-incogni-accent"
         >
           <Check size={20} />
           <span className="text-sm font-medium">Subscribed successfully!</span>
@@ -74,7 +74,7 @@ export function Newsletter({
           <div className="relative flex-1">
             <Mail
               size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-vectosilo-muted"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-incogni-muted"
             />
             <input
               type="email"
@@ -82,7 +82,7 @@ export function Newsletter({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-surface py-3 pl-10 pr-3 text-sm text-vectosilo-text placeholder:text-vectosilo-muted outline-none transition-colors focus:border-vectosilo-accent"
+              className="w-full rounded-lg border border-incogni-border bg-incogni-surface py-3 pl-10 pr-3 text-sm text-incogni-text placeholder:text-incogni-muted outline-none transition-colors focus:border-incogni-accent"
             />
           </div>
           <motion.button
@@ -93,8 +93,8 @@ export function Newsletter({
             className={cn(
               "flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-colors whitespace-nowrap",
               loading
-                ? "bg-vectosilo-accent/70 cursor-not-allowed"
-                : "bg-vectosilo-accent hover:bg-vectosilo-accent/90",
+                ? "bg-incogni-accent/70 cursor-not-allowed"
+                : "bg-incogni-accent hover:bg-incogni-accent/90",
             )}
           >
             {loading ? (
@@ -118,7 +118,7 @@ export function Newsletter({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-vectosilo-border bg-vectosilo-surface/50 backdrop-blur-xl p-8 text-center shadow-xl"
+            className="rounded-2xl border border-incogni-border bg-incogni-surface/50 backdrop-blur-xl p-8 text-center shadow-xl"
           >
             {formContent}
           </motion.div>
@@ -136,13 +136,13 @@ export function Newsletter({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="overflow-hidden rounded-2xl border border-vectosilo-border bg-vectosilo-surface"
+            className="overflow-hidden rounded-2xl border border-incogni-border bg-incogni-surface"
           >
             <div className="grid lg:grid-cols-2">
               <div className="p-8 lg:p-12 flex flex-col justify-center">
                 {formContent}
               </div>
-              <div className="relative hidden lg:block min-h-[300px] bg-vectosilo-surface-2">
+              <div className="relative hidden lg:block min-h-[300px] bg-incogni-surface-2">
                 {imageSrc ? (
                   <Image
                     src={imageSrc}
@@ -152,7 +152,7 @@ export function Newsletter({
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center">
-                    <Mail size={64} className="text-vectosilo-muted/30" />
+                    <Mail size={64} className="text-incogni-muted/30" />
                   </div>
                 )}
               </div>

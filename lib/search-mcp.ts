@@ -47,7 +47,7 @@ async function getClient(): Promise<Client> {
   connectPromise = (async () => {
     connectAttempts++;
     const c = new Client(
-      { name: "vectosiloai-search", version: "1.0.0" },
+      { name: "incogni-ai-search", version: "1.0.0" },
       { capabilities: {} }
     );
 

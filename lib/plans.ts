@@ -35,15 +35,15 @@ export const PLANS: PlanDef[] = [
     name: "Go",
     price: "$10",
     period: "/month",
-    tagline: "Lightweight productivity — agents, model choice & VectoSilo's Computer.",
+    tagline: "Lightweight productivity — agents, model choice & Incogni's Computer.",
     cta: "Get Go",
     highlight: true,
     features: [
       "Everything in Free",
-      "All models — choose any VectoSiloAI model",
+      "All models — choose any IncogniAI model",
       "Autonomous task agent (multi-step research)",
       "Up to 4 agent steps per task",
-      "VectoSilo's Computer — build, preview & download live apps",
+      "Incogni's Computer — build, preview & download live apps",
       "PowerPoint slides — up to 70 per deck",
     ],
   },
@@ -57,12 +57,12 @@ export const PLANS: PlanDef[] = [
     highlight: true,
     features: [
       "Everything in Free",
-      "All models — choose any VectoSiloAI model",
+      "All models — choose any IncogniAI model",
       "Autonomous task agent (multi-step research)",
       "Up to 4 agent steps per task",
       "Agent Swarm — 3 parallel AI specialists",
       "AI image generation (text-to-image)",
-      "VectoSilo's Computer — build, preview & download live apps",
+      "Incogni's Computer — build, preview & download live apps",
       "PowerPoint slides — up to 70 per deck",
       "Priority answer streaming",
     ],
@@ -115,14 +115,16 @@ export interface PlanCaps {
   slidesMax: number;
   desktop: boolean;
   teachProjects: number;
+  /** Human-like visual web page exploration (visual page viewing/snapshots). */
+  visualPageExplore: boolean;
 }
 
 export const CAPS: Record<Plan, PlanCaps> = {
-  free:  { agent: false, agentSteps: 0,  chessMax: 10, allModels: false, swarm: false, swarmAgents: 0, imageGen: false, computer: false, slidesMax: 20, desktop: false, teachProjects: 5 },
-  go:    { agent: true,  agentSteps: 4,  chessMax: 10, allModels: true,  swarm: false, swarmAgents: 0, imageGen: false, computer: true,  slidesMax: 70, desktop: false, teachProjects: 99 },
-  pro:   { agent: true,  agentSteps: 4,  chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 3, imageGen: true,  computer: true,  slidesMax: 70, desktop: false, teachProjects: 99 },
-  max:   { agent: true,  agentSteps: 8,  chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 4, imageGen: true,  computer: true,  slidesMax: 70, desktop: false, teachProjects: 99 },
-  ultra: { agent: true,  agentSteps: 99, chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 8, imageGen: true,  computer: true,  slidesMax: 70, desktop: true,  teachProjects: 999 },
+  free:  { agent: false, agentSteps: 0,  chessMax: 10, allModels: false, swarm: false, swarmAgents: 0, imageGen: false, computer: false, slidesMax: 20, desktop: false, teachProjects: 5,   visualPageExplore: false },
+  go:    { agent: true,  agentSteps: 4,  chessMax: 10, allModels: true,  swarm: false, swarmAgents: 0, imageGen: false, computer: true,  slidesMax: 70, desktop: false, teachProjects: 99,  visualPageExplore: true },
+  pro:   { agent: true,  agentSteps: 4,  chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 3, imageGen: true,  computer: true,  slidesMax: 70, desktop: false, teachProjects: 99,  visualPageExplore: true },
+  max:   { agent: true,  agentSteps: 8,  chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 4, imageGen: true,  computer: true,  slidesMax: 70, desktop: false, teachProjects: 99,  visualPageExplore: true },
+  ultra: { agent: true,  agentSteps: 99, chessMax: 10, allModels: true,  swarm: true,  swarmAgents: 8, imageGen: true,  computer: true,  slidesMax: 70, desktop: true,  teachProjects: 999, visualPageExplore: true },
 };
 
 export function planDef(id: Plan): PlanDef {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Download, Loader2, RefreshCw, Palette } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/AuthProvider";
 import type { Slide } from "@/types";
 import { SLIDE_TEMPLATES, getTemplate, hex, type SlideTemplate } from "@/lib/slideTemplates";
@@ -16,10 +16,10 @@ const CATEGORIES = [
 ] as const;
 
 export function SlidesArtifact() {
-  const deck = useVectoSiloStore((s) => s.slides);
-  const setComposerDraft = useVectoSiloStore((s) => s.setComposerDraft);
-  const setSlidesTemplate = useVectoSiloStore((s) => s.setSlidesTemplate);
-  const closeArtifact = useVectoSiloStore((s) => s.closeArtifact);
+  const deck = useIncogniStore((s) => s.slides);
+  const setComposerDraft = useIncogniStore((s) => s.setComposerDraft);
+  const setSlidesTemplate = useIncogniStore((s) => s.setSlidesTemplate);
+  const closeArtifact = useIncogniStore((s) => s.closeArtifact);
   const { caps } = useAuth();
   const maxSlides = caps.slidesMax;
 
@@ -48,7 +48,7 @@ export function SlidesArtifact() {
       const pptxgen = (await import("pptxgenjs")).default;
       const p = new pptxgen();
       p.layout = "LAYOUT_WIDE";
-      p.author = "VectoSilo AI";
+      p.author = "Incogni AI";
       p.title = deck.title;
 
       const bg = tpl.bgGradient
@@ -126,8 +126,8 @@ export function SlidesArtifact() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-wrap items-center gap-2 border-b border-vectosilo-border px-3 py-2">
-        <span className="text-xs text-vectosilo-muted">
+      <div className="flex flex-wrap items-center gap-2 border-b border-incogni-border px-3 py-2">
+        <span className="text-xs text-incogni-muted">
           {slides.length} slide{slides.length === 1 ? "" : "s"}
           {deck.status === "building" && " · generating…"}
         </span>
@@ -138,7 +138,7 @@ export function SlidesArtifact() {
               type="button"
               onClick={() => setPickerOpen((o) => !o)}
               title="Choose a template"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs text-incogni-text transition-colors hover:bg-incogni-surface-2"
             >
               <span className="h-3 w-3 rounded-full" style={{ background: tpl.previewBg }} />
               <Palette className="h-3.5 w-3.5" />
@@ -147,13 +147,13 @@ export function SlidesArtifact() {
             {pickerOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
-                <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-xl border border-vectosilo-border bg-vectosilo-surface p-2 shadow-xl">
+                <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-xl border border-incogni-border bg-incogni-surface p-2 shadow-xl">
                   <div className="mb-1.5 flex gap-1">
                     <button
                       onClick={() => setPickerCategory(null)}
                       className={cn(
                         "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                        !pickerCategory ? "bg-vectosilo-accent/20 text-vectosilo-accent" : "text-vectosilo-muted hover:text-vectosilo-text"
+                        !pickerCategory ? "bg-incogni-accent/20 text-incogni-accent" : "text-incogni-muted hover:text-incogni-text"
                       )}
                     >
                       All
@@ -164,7 +164,7 @@ export function SlidesArtifact() {
                         onClick={() => setPickerCategory(cat.key)}
                         className={cn(
                           "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                          pickerCategory === cat.key ? "bg-vectosilo-accent/20 text-vectosilo-accent" : "text-vectosilo-muted hover:text-vectosilo-text"
+                          pickerCategory === cat.key ? "bg-incogni-accent/20 text-incogni-accent" : "text-incogni-muted hover:text-incogni-text"
                         )}
                       >
                         {cat.label}
@@ -180,17 +180,17 @@ export function SlidesArtifact() {
                           setPickerOpen(false);
                         }}
                         className={cn(
-                          "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-vectosilo-surface-2",
-                          t.id === tpl.id && "bg-vectosilo-surface-2"
+                          "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition-colors hover:bg-incogni-surface-2",
+                          t.id === tpl.id && "bg-incogni-surface-2"
                         )}
                       >
                         <span
                           className="h-6 w-8 shrink-0 rounded-md border border-white/10"
                           style={{ background: t.previewBg }}
                         />
-                        <span className="flex-1 text-vectosilo-text">{t.name}</span>
-                        <span className="text-[10px] text-vectosilo-muted">{t.category}</span>
-                        {t.id === tpl.id && <span className="h-1.5 w-1.5 rounded-full bg-vectosilo-accent" />}
+                        <span className="flex-1 text-incogni-text">{t.name}</span>
+                        <span className="text-[10px] text-incogni-muted">{t.category}</span>
+                        {t.id === tpl.id && <span className="h-1.5 w-1.5 rounded-full bg-incogni-accent" />}
                       </button>
                     ))}
                   </div>
@@ -199,23 +199,23 @@ export function SlidesArtifact() {
             )}
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2 py-1">
+          <div className="flex items-center gap-1 rounded-lg border border-incogni-border bg-incogni-surface px-2 py-1">
             <input
               type="number"
               min={1}
               max={maxSlides}
               value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(maxSlides, Number(e.target.value) || 1)))}
-              className="w-12 bg-transparent text-center text-xs text-vectosilo-text focus:outline-none"
+              className="w-12 bg-transparent text-center text-xs text-incogni-text focus:outline-none"
               aria-label="Number of slides"
             />
-            <span className="text-[10px] text-vectosilo-muted">/ {maxSlides}</span>
+            <span className="text-[10px] text-incogni-muted">/ {maxSlides}</span>
           </div>
           <button
             type="button"
             onClick={regenerate}
             title="Put a regenerate prompt in the composer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs text-incogni-text transition-colors hover:bg-incogni-surface-2"
           >
             <RefreshCw className="h-3.5 w-3.5" /> Regenerate
           </button>
@@ -223,7 +223,7 @@ export function SlidesArtifact() {
             type="button"
             onClick={exportPptx}
             disabled={!slides.length || exporting}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-2.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-2.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-50"
           >
             {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             .pptx
@@ -235,26 +235,26 @@ export function SlidesArtifact() {
         {slide ? (
           <SlideCard slide={slide} index={current} tpl={tpl} />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-vectosilo-muted">
+          <div className="flex h-full items-center justify-center text-sm text-incogni-muted">
             {deck.status === "building" ? "Generating slides…" : "No slides yet."}
           </div>
         )}
 
         {slide?.notes && (
-          <div className="mt-3 rounded-lg border border-vectosilo-border bg-vectosilo-surface/50 p-3">
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-vectosilo-muted">Speaker notes</p>
-            <p className="text-xs text-vectosilo-text/80">{slide.notes}</p>
+          <div className="mt-3 rounded-lg border border-incogni-border bg-incogni-surface/50 p-3">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-incogni-muted">Speaker notes</p>
+            <p className="text-xs text-incogni-text/80">{slide.notes}</p>
           </div>
         )}
       </div>
 
       {slides.length > 0 && (
-        <div className="flex items-center gap-2 border-t border-vectosilo-border px-3 py-2">
+        <div className="flex items-center gap-2 border-t border-incogni-border px-3 py-2">
           <button
             onClick={() => setCurrent((c) => Math.max(0, c - 1))}
             disabled={current === 0}
             aria-label="Previous slide"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-vectosilo-surface-2 disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-incogni-muted hover:bg-incogni-surface-2 disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -267,22 +267,22 @@ export function SlidesArtifact() {
                 className={cn(
                   "h-7 shrink-0 rounded-md border px-2 text-[11px] transition-colors",
                   i === current
-                    ? "border-vectosilo-accent bg-vectosilo-accent/15 text-vectosilo-accent-soft"
-                    : "border-vectosilo-border text-vectosilo-muted hover:bg-vectosilo-surface-2"
+                    ? "border-incogni-accent bg-incogni-accent/15 text-incogni-accent-soft"
+                    : "border-incogni-border text-incogni-muted hover:bg-incogni-surface-2"
                 )}
               >
                 {i + 1}
               </button>
             ))}
           </div>
-          <span className="shrink-0 text-xs text-vectosilo-muted">
+          <span className="shrink-0 text-xs text-incogni-muted">
             {current + 1} / {slides.length}
           </span>
           <button
             onClick={() => setCurrent((c) => Math.min(slides.length - 1, c + 1))}
             disabled={current >= slides.length - 1}
             aria-label="Next slide"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-vectosilo-surface-2 disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-incogni-muted hover:bg-incogni-surface-2 disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -295,7 +295,7 @@ export function SlidesArtifact() {
 function SlideCard({ slide, index, tpl }: { slide: Slide; index: number; tpl: SlideTemplate }) {
   return (
     <div
-      className="relative mx-auto flex aspect-video w-full max-w-2xl flex-col justify-start gap-4 overflow-hidden rounded-xl border border-vectosilo-border p-7 shadow-xl"
+      className="relative mx-auto flex aspect-video w-full max-w-2xl flex-col justify-start gap-4 overflow-hidden rounded-xl border border-incogni-border p-7 shadow-xl"
       style={{ background: tpl.previewBg }}
     >
       {tpl.decorationColor && index === 0 && (

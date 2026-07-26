@@ -1,7 +1,7 @@
 /**
  * Minimal, dependency-free ZIP writer (STORE method — no compression).
  *
- * Used by VectoSilo's Computer to package a generated project for download. STORE
+ * Used by Incogni's Computer to package a generated project for download. STORE
  * produces a fully valid .zip that every OS/unzip tool reads; we skip DEFLATE
  * to avoid pulling in a compression library for what are small text projects.
  */

@@ -1,14 +1,14 @@
 export const modelsData = JSON.stringify({
-  vectosiloai: {
-    id: "vectosiloai",
-    name: "VectoSiloAI",
+  incogni-ai: {
+    id: "incogni-ai",
+    name: "IncogniAI",
     env: ["VECTOSILO_API_KEY"],
     npm: "@ai-sdk/openai-compatible",
     api: "https://chat.hsrprojects.org/api/v1",
     models: {
       koder: {
         id: "koder",
-        name: "VectoSiloAI Koder",
+        name: "IncogniAI Koder",
         release_date: "2026-06-25",
         attachment: true,
         reasoning: true,
@@ -22,4 +22,4 @@ export const modelsData = JSON.stringify({
   },
 })
 
-console.log("Loaded VectoSiloAI model catalog")
+console.log("Loaded IncogniAI model catalog")

@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { Check, Copy, Download, Eye, FileText, Loader2, Share2 } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 type Tab = "preview" | "code";
@@ -17,7 +17,7 @@ type Tab = "preview" | "code";
  * the document as a .md file.
  */
 export function DocArtifact() {
-  const doc = useVectoSiloStore((s) => s.doc);
+  const doc = useIncogniStore((s) => s.doc);
   const [tab, setTab] = useState<Tab>("preview");
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
@@ -164,13 +164,13 @@ export function DocArtifact() {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar — wraps on narrow / mobile panels. */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-vectosilo-border px-3 py-2">
-        <div className="flex items-center rounded-lg bg-vectosilo-surface-2 p-0.5">
+      <div className="flex flex-wrap items-center gap-2 border-b border-incogni-border px-3 py-2">
+        <div className="flex items-center rounded-lg bg-incogni-surface-2 p-0.5">
           <TabBtn active={tab === "preview"} onClick={() => setTab("preview")} icon={<Eye className="h-3.5 w-3.5" />} label="Preview" />
           <TabBtn active={tab === "code"} onClick={() => setTab("code")} icon={<FileText className="h-3.5 w-3.5" />} label="Markdown" />
         </div>
         {status === "building" && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-vectosilo-muted">
+          <span className="inline-flex items-center gap-1.5 text-xs text-incogni-muted">
             <Loader2 className="h-3 w-3 animate-spin" /> writing…
           </span>
         )}
@@ -179,7 +179,7 @@ export function DocArtifact() {
             type="button"
             onClick={copy}
             disabled={!content}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-40"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied" : "Copy"}
@@ -188,7 +188,7 @@ export function DocArtifact() {
             type="button"
             onClick={share}
             disabled={!content}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-40"
           >
             <Share2 className="h-3.5 w-3.5" />
             {shared ? "Copied to share" : "Share"}
@@ -197,7 +197,7 @@ export function DocArtifact() {
             type="button"
             onClick={download}
             disabled={!content}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" /> .md
           </button>
@@ -205,7 +205,7 @@ export function DocArtifact() {
             type="button"
             onClick={downloadPdf}
             disabled={!content}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" /> PDF
           </button>
@@ -217,20 +217,20 @@ export function DocArtifact() {
         {tab === "preview" ? (
           <div className="h-full overflow-y-auto px-5 py-4">
             {content ? (
-              <div className="prose prose-invert max-w-none prose-headings:text-vectosilo-text prose-p:text-vectosilo-text/90 prose-li:text-vectosilo-text/90 prose-strong:text-vectosilo-text prose-a:text-vectosilo-accent-soft prose-code:text-vectosilo-accent-soft prose-code:before:content-none prose-code:after:content-none">
+              <div className="prose dark:prose-invert max-w-none prose-headings:text-incogni-text prose-p:text-incogni-text/90 prose-li:text-incogni-text/90 prose-strong:text-incogni-text prose-a:text-incogni-accent-soft prose-code:text-incogni-accent-soft prose-code:before:content-none prose-code:after:content-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                   {content}
                 </ReactMarkdown>
               </div>
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-vectosilo-muted">
+              <div className="flex h-full items-center justify-center text-sm text-incogni-muted">
                 Writing the prompt…
               </div>
             )}
           </div>
         ) : (
           <div className="h-full overflow-auto bg-[#0e0e11]">
-            <pre className="whitespace-pre-wrap break-words p-4 text-[13px] leading-relaxed text-vectosilo-text/90">
+            <pre className="whitespace-pre-wrap break-words p-4 text-[13px] leading-relaxed text-incogni-text/90">
               {content || "Writing…"}
             </pre>
           </div>
@@ -247,7 +247,7 @@ function TabBtn({ active, onClick, icon, label }: { active: boolean; onClick: ()
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-        active ? "bg-vectosilo-accent/20 text-vectosilo-accent-soft" : "text-vectosilo-muted hover:text-vectosilo-text"
+        active ? "bg-incogni-accent/20 text-incogni-accent-soft" : "text-incogni-muted hover:text-incogni-text"
       )}
     >
       {icon}

@@ -48,7 +48,7 @@ export function AuthTwoFactor() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-vectosilo-bg px-4">
+    <div className="flex min-h-screen items-center justify-center bg-incogni-bg px-4">
       <PageTransition className="w-full max-w-sm">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -61,12 +61,12 @@ export function AuthTwoFactor() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-vectosilo-accent to-blue-500 shadow-lg"
+              className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-incogni-accent to-blue-500 shadow-lg"
             >
               <Shield size={24} className="text-white" />
             </motion.div>
-            <h2 className="text-xl font-bold text-vectosilo-text">Two-Factor Authentication</h2>
-            <p className="mt-1 text-sm text-vectosilo-muted">
+            <h2 className="text-xl font-bold text-incogni-text">Two-Factor Authentication</h2>
+            <p className="mt-1 text-sm text-incogni-muted">
               Enter the authentication code from your app
             </p>
           </div>
@@ -88,9 +88,9 @@ export function AuthTwoFactor() {
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleCodeKeyDown(i, e)}
                     className={cn(
-                      "h-14 w-11 rounded-lg border text-center text-xl font-bold text-vectosilo-text outline-none transition-all",
-                      "bg-vectosilo-surface border-vectosilo-border",
-                      "focus:border-vectosilo-accent focus:ring-1 focus:ring-vectosilo-accent"
+                      "h-14 w-11 rounded-lg border text-center text-xl font-bold text-incogni-text outline-none transition-all",
+                      "bg-incogni-surface border-incogni-border",
+                      "focus:border-incogni-accent focus:ring-1 focus:ring-incogni-accent"
                     )}
                   />
                 ))}
@@ -98,7 +98,7 @@ export function AuthTwoFactor() {
 
               <button
                 disabled={code.some((d) => !d)}
-                className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-lg bg-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Verify
               </button>
@@ -109,7 +109,7 @@ export function AuthTwoFactor() {
                     setUseRecovery(true);
                     setTimer(30);
                   }}
-                  className="text-sm text-vectosilo-accent hover:underline"
+                  className="text-sm text-incogni-accent hover:underline"
                 >
                   Use recovery code instead
                 </button>
@@ -123,13 +123,13 @@ export function AuthTwoFactor() {
                 onChange={(e) => setRecoveryCode(e.target.value)}
                 placeholder="Enter your recovery code"
               />
-              <button className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90">
+              <button className="flex w-full items-center justify-center rounded-lg bg-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90">
                 Verify Recovery Code
               </button>
               <div className="text-center">
                 <button
                   onClick={() => setUseRecovery(false)}
-                  className="text-sm text-vectosilo-accent hover:underline"
+                  className="text-sm text-incogni-accent hover:underline"
                 >
                   Back to authentication code
                 </button>
@@ -146,14 +146,14 @@ export function AuthTwoFactor() {
           </div>
 
           <div className="text-center">
-            <button className="inline-flex items-center gap-1.5 text-sm text-vectosilo-muted transition-colors hover:text-vectosilo-text">
+            <button className="inline-flex items-center gap-1.5 text-sm text-incogni-muted transition-colors hover:text-incogni-text">
               <RefreshCw size={14} />
               Resend code in {timer}s
             </button>
           </div>
 
-          <p className="text-center text-sm text-vectosilo-muted">
-            <a href="#" className="font-medium text-vectosilo-accent hover:underline">Back to login</a>
+          <p className="text-center text-sm text-incogni-muted">
+            <a href="#" className="font-medium text-incogni-accent hover:underline">Back to login</a>
           </p>
         </motion.div>
       </PageTransition>

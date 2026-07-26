@@ -34,17 +34,17 @@ export function Breadcrumbs({ items, className, ...rest }: BreadcrumbsProps) {
           {index > 0 && (
             <ChevronRight
               size={14}
-              className="mx-0.5 text-vectosilo-muted/50 flex-shrink-0"
+              className="mx-0.5 text-incogni-muted/50 flex-shrink-0"
             />
           )}
           {item.href ? (
             <a
               href={item.href}
               className={cn(
-                "rounded px-1.5 py-0.5 transition-colors hover:text-vectosilo-text",
+                "rounded px-1.5 py-0.5 transition-colors hover:text-incogni-text",
                 index === items.length - 1
-                  ? "text-vectosilo-accent font-medium"
-                  : "text-vectosilo-muted"
+                  ? "text-incogni-accent font-medium"
+                  : "text-incogni-muted"
               )}
             >
               {item.label}
@@ -54,8 +54,8 @@ export function Breadcrumbs({ items, className, ...rest }: BreadcrumbsProps) {
               className={cn(
                 "rounded px-1.5 py-0.5",
                 index === items.length - 1
-                  ? "text-vectosilo-accent font-medium"
-                  : "text-vectosilo-muted"
+                  ? "text-incogni-accent font-medium"
+                  : "text-incogni-muted"
               )}
             >
               {item.label}

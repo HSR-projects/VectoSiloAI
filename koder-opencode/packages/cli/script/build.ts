@@ -111,7 +111,7 @@ for (const item of targets) {
     `./dist/${name}/package.json`,
     JSON.stringify(
       {
-        name: `@vectosiloai/${name.replace("cli", "koder-cli")}`,
+        name: `@incogni-ai/${name.replace("cli", "koder-cli")}`,
         version: Script.version,
         license: "MIT",
         repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },

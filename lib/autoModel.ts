@@ -109,8 +109,11 @@ export function pickAutoModel(
     if (m) return m;
   }
   if (hints.needsVision) {
+    const gemma4 = available.find((x) => /gemma4(?::31b)?|gemma-?4/i.test(x));
+    if (gemma4) return gemma4;
     const m = available.find((x) => supportsVision(x));
     if (m) return m;
+    return "gemma4:31b";
   }
 
   const kind = classifyTask(query, focusMode);

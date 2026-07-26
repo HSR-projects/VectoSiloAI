@@ -58,12 +58,12 @@ const userMgmtColumns = [
     sortable: true,
     render: (item: any) => (
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vectosilo-accent/20 text-xs font-medium text-vectosilo-accent">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-accent/20 text-xs font-medium text-incogni-accent">
           {item.name.split(" ").map((n: string) => n[0]).join("")}
         </div>
         <div>
-          <div className="text-sm font-medium text-vectosilo-text">{item.name}</div>
-          <div className="text-xs text-vectosilo-muted">{item.email}</div>
+          <div className="text-sm font-medium text-incogni-text">{item.name}</div>
+          <div className="text-xs text-incogni-muted">{item.email}</div>
         </div>
       </div>
     ),
@@ -95,7 +95,7 @@ const userMgmtColumns = [
     key: "actions",
     label: "",
     render: () => (
-      <button className="rounded-lg p-1.5 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text">
+      <button className="rounded-lg p-1.5 text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text">
         <MoreHorizontal size={16} />
       </button>
     ),
@@ -119,8 +119,8 @@ const contentColumns = [
     label: "Title",
     render: (item: any) => (
       <div>
-        <div className="text-sm font-medium text-vectosilo-text">{item.title}</div>
-        <div className="text-xs text-vectosilo-muted">{item.type} • by {item.author}</div>
+        <div className="text-sm font-medium text-incogni-text">{item.title}</div>
+        <div className="text-xs text-incogni-muted">{item.type} • by {item.author}</div>
       </div>
     ),
   },
@@ -150,11 +150,11 @@ export function DashboardAdmin() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="flex min-h-screen bg-vectosilo-bg">
-      <aside className="hidden w-60 flex-col border-r border-vectosilo-border bg-vectosilo-surface/50 lg:flex">
-        <div className="flex items-center gap-2 border-b border-vectosilo-border px-5 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-accent text-sm font-bold text-white">K</div>
-          <span className="text-lg font-bold text-vectosilo-text">VectoSiloAI</span>
+    <div className="flex min-h-screen bg-incogni-bg">
+      <aside className="hidden w-60 flex-col border-r border-incogni-border bg-incogni-surface/50 lg:flex">
+        <div className="flex items-center gap-2 border-b border-incogni-border px-5 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-accent text-sm font-bold text-white">K</div>
+          <span className="text-lg font-bold text-incogni-text">IncogniAI</span>
           <Badge variant="info" size="sm">Admin</Badge>
         </div>
 
@@ -166,8 +166,8 @@ export function DashboardAdmin() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 item.active
-                  ? "bg-vectosilo-accent/10 text-vectosilo-accent"
-                  : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                  ? "bg-incogni-accent/10 text-incogni-accent"
+                  : "text-incogni-muted hover:bg-incogni-surface hover:text-incogni-text"
               )}
             >
               <item.icon size={18} />
@@ -176,8 +176,8 @@ export function DashboardAdmin() {
           ))}
         </nav>
 
-        <div className="border-t border-vectosilo-border p-3">
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-vectosilo-muted transition-colors hover:bg-vectosilo-surface hover:text-vectosilo-text">
+        <div className="border-t border-incogni-border p-3">
+          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-incogni-muted transition-colors hover:bg-incogni-surface hover:text-incogni-text">
             <LogOut size={18} />
             Sign Out
           </button>
@@ -185,27 +185,27 @@ export function DashboardAdmin() {
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-vectosilo-border bg-vectosilo-surface/50 px-6 py-3">
+        <header className="flex items-center justify-between border-b border-incogni-border bg-incogni-surface/50 px-6 py-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-vectosilo-text">Admin Panel</h1>
+            <h1 className="text-lg font-bold text-incogni-text">Admin Panel</h1>
             <Badge variant="info" size="sm">v3.2.1</Badge>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-vectosilo-muted" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-incogni-muted" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-56 rounded-lg border border-vectosilo-border bg-vectosilo-bg py-2 pl-9 pr-3 text-sm text-vectosilo-text placeholder-vectosilo-muted outline-none transition-colors focus:border-vectosilo-accent"
+                className="w-56 rounded-lg border border-incogni-border bg-incogni-bg py-2 pl-9 pr-3 text-sm text-incogni-text placeholder-incogni-muted outline-none transition-colors focus:border-incogni-accent"
               />
             </div>
-            <button className="relative rounded-lg p-2 text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text">
+            <button className="relative rounded-lg p-2 text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text">
               <Bell size={18} />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
             </button>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vectosilo-accent/20 text-sm font-medium text-vectosilo-accent">JD</div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-incogni-accent/20 text-sm font-medium text-incogni-accent">JD</div>
           </div>
         </header>
 
@@ -222,8 +222,8 @@ export function DashboardAdmin() {
 
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-vectosilo-text">User Management</h3>
-                <button className="rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90">
+                <h3 className="text-sm font-semibold text-incogni-text">User Management</h3>
+                <button className="rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90">
                   Add User
                 </button>
               </div>
@@ -232,13 +232,13 @@ export function DashboardAdmin() {
 
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-vectosilo-text">Content Library</h3>
+                <h3 className="text-sm font-semibold text-incogni-text">Content Library</h3>
                 <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:text-vectosilo-text">
+                  <button className="flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:text-incogni-text">
                     <ChevronDown size={12} />
                     Filter
                   </button>
-                  <button className="rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90">
+                  <button className="rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90">
                     New Content
                   </button>
                 </div>

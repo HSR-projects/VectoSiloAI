@@ -105,18 +105,18 @@ export function AuthScreen() {
 
   if (pending2FA) {
     return (
-      <div className="vectosilo-hero-glow flex min-h-dvh items-center justify-center px-4">
+      <div className="incogni-hero-glow flex min-h-dvh items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="w-full max-w-sm rounded-2xl border border-vectosilo-border bg-vectosilo-surface/70 p-6 text-center backdrop-blur-xl"
+          className="w-full max-w-sm rounded-2xl border border-incogni-border bg-incogni-surface/70 p-6 text-center backdrop-blur-xl"
         >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vectosilo-accent/15">
-            <Shield className="h-6 w-6 text-vectosilo-accent" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-incogni-accent/15">
+            <Shield className="h-6 w-6 text-incogni-accent" />
           </div>
-          <h1 className="text-xl font-semibold text-vectosilo-text">Two-factor authentication</h1>
-          <p className="mt-2 text-sm text-vectosilo-muted">
+          <h1 className="text-xl font-semibold text-incogni-text">Two-factor authentication</h1>
+          <p className="mt-2 text-sm text-incogni-muted">
             Enter the 6-digit code from your authenticator app.
           </p>
 
@@ -129,7 +129,7 @@ export function AuthScreen() {
               maxLength={6}
               value={twoFactorCode}
               onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-              className="w-full rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-2.5 text-center text-lg tracking-[0.5em] text-vectosilo-text placeholder:text-vectosilo-muted/40 focus:border-vectosilo-accent/50 focus:outline-none"
+              className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-center text-lg tracking-[0.5em] text-incogni-text placeholder:text-incogni-muted/40 focus:border-incogni-accent/50 focus:outline-none"
             />
 
             {error && (
@@ -139,7 +139,7 @@ export function AuthScreen() {
             <button
               type="submit"
               disabled={busy || twoFactorCode.length !== 6}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               Verify
@@ -148,7 +148,7 @@ export function AuthScreen() {
             <button
               type="button"
               onClick={() => { setPending2FA(null); setError(null); setTwoFactorCode(""); }}
-              className="text-sm font-medium text-vectosilo-muted hover:text-vectosilo-text"
+              className="text-sm font-medium text-incogni-muted hover:text-incogni-text"
             >
               Back to sign in
             </button>
@@ -159,20 +159,20 @@ export function AuthScreen() {
   }
 
   return (
-    <div className="vectosilo-hero-glow flex min-h-dvh items-center justify-center px-4">
+    <div className="incogni-hero-glow flex min-h-dvh items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-sm rounded-2xl border border-vectosilo-border bg-vectosilo-surface/70 p-6 backdrop-blur-xl"
+        className="w-full max-w-sm rounded-2xl border border-incogni-border bg-incogni-surface/70 p-6 backdrop-blur-xl"
       >
         <div className="mb-6 flex flex-col items-center text-center">
-          <Image src="/vectosilo-logo.svg" alt="VectoSilo AI" width={40} height={40} priority />
-          <h1 className="mt-3 text-xl font-semibold text-vectosilo-text">
+          <Image src="/incogni-logo.svg" alt="Incogni AI" width={40} height={40} priority />
+          <h1 className="mt-3 text-xl font-semibold text-incogni-text">
             {mode === "register" ? "Create your account" : "Welcome back"}
           </h1>
-          <p className="mt-1 text-sm text-vectosilo-muted">
-            Private AI search, agents & chess — powered by VectoSilo AI.
+          <p className="mt-1 text-sm text-incogni-muted">
+            Private AI search, agents & chess — powered by Incogni AI.
           </p>
         </div>
 
@@ -207,7 +207,7 @@ export function AuthScreen() {
             <button
               type="button"
               onClick={() => { setForgotMode(true); setForgotEmail(email); setError(null); }}
-              className="text-xs text-vectosilo-muted hover:text-vectosilo-accent-soft"
+              className="text-xs text-incogni-muted hover:text-incogni-accent-soft"
             >
               Forgot password?
             </button>
@@ -222,7 +222,7 @@ export function AuthScreen() {
           <button
             type="submit"
             disabled={busy || googleBusy}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />}
             {mode === "register" ? "Create account" : "Sign in"}
@@ -234,24 +234,24 @@ export function AuthScreen() {
             {forgotSent ? (
               <div className="text-center">
                 <MailCheck className="mx-auto h-8 w-8 text-green-400" />
-                <p className="mt-2 text-sm text-vectosilo-muted">
+                <p className="mt-2 text-sm text-incogni-muted">
                   If an account with that email exists, we&apos;ve sent a password reset link.
                 </p>
                 <button
                   type="button"
                   onClick={() => { setForgotMode(false); setForgotSent(false); setError(null); }}
-                  className="mt-3 text-sm text-vectosilo-muted hover:text-vectosilo-text"
+                  className="mt-3 text-sm text-incogni-muted hover:text-incogni-text"
                 >
                   Back to sign in
                 </button>
               </div>
             ) : (
               <>
-                <p className="text-xs text-vectosilo-muted">Enter your email to receive a password reset link.</p>
+                <p className="text-xs text-incogni-muted">Enter your email to receive a password reset link.</p>
                 <button
                   type="submit"
                   disabled={forgotBusy || !forgotEmail.trim()}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60"
                 >
                   {forgotBusy && <Loader2 className="h-4 w-4 animate-spin" />}
                   Send reset link
@@ -259,7 +259,7 @@ export function AuthScreen() {
                 <button
                   type="button"
                   onClick={() => { setForgotMode(false); setForgotSent(false); setError(null); }}
-                  className="flex w-full items-center justify-center gap-1 text-sm text-vectosilo-muted hover:text-vectosilo-text"
+                  className="flex w-full items-center justify-center gap-1 text-sm text-incogni-muted hover:text-incogni-text"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
                 </button>
@@ -270,9 +270,9 @@ export function AuthScreen() {
 
         {/* Divider */}
         <div className="my-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-vectosilo-border" />
-          <span className="text-xs text-vectosilo-muted">or</span>
-          <div className="h-px flex-1 bg-vectosilo-border" />
+          <div className="h-px flex-1 bg-incogni-border" />
+          <span className="text-xs text-incogni-muted">or</span>
+          <div className="h-px flex-1 bg-incogni-border" />
         </div>
 
         {/* Google sign-in */}
@@ -280,7 +280,7 @@ export function AuthScreen() {
           type="button"
           onClick={handleGoogle}
           disabled={googleBusy || busy}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-vectosilo-border bg-vectosilo-bg px-4 py-2.5 text-sm font-medium text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border border-incogni-border bg-incogni-bg px-4 py-2.5 text-sm font-medium text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-60"
         >
           {googleBusy ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -290,14 +290,14 @@ export function AuthScreen() {
           Continue with Google
         </button>
 
-        <p className="mt-4 text-center text-sm text-vectosilo-muted">
+        <p className="mt-4 text-center text-sm text-incogni-muted">
           {mode === "register" ? "Already have an account?" : "New here?"}{" "}
           <button
             onClick={() => {
               setMode(mode === "register" ? "login" : "register");
               setError(null);
             }}
-            className="font-medium text-vectosilo-accent-soft hover:underline"
+            className="font-medium text-incogni-accent-soft hover:underline"
           >
             {mode === "register" ? "Sign in" : "Create one"}
           </button>
@@ -327,27 +327,27 @@ function VerifyNotice({ email, onBack }: { email: string; onBack: () => void }) 
   };
 
   return (
-    <div className="vectosilo-hero-glow flex min-h-dvh items-center justify-center px-4">
+    <div className="incogni-hero-glow flex min-h-dvh items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-sm rounded-2xl border border-vectosilo-border bg-vectosilo-surface/70 p-6 text-center backdrop-blur-xl"
+        className="w-full max-w-sm rounded-2xl border border-incogni-border bg-incogni-surface/70 p-6 text-center backdrop-blur-xl"
       >
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vectosilo-accent/15">
-          <MailCheck className="h-6 w-6 text-vectosilo-accent" />
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-incogni-accent/15">
+          <MailCheck className="h-6 w-6 text-incogni-accent" />
         </div>
-        <h1 className="text-xl font-semibold text-vectosilo-text">Check your inbox</h1>
-        <p className="mt-2 text-sm text-vectosilo-muted">
+        <h1 className="text-xl font-semibold text-incogni-text">Check your inbox</h1>
+        <p className="mt-2 text-sm text-incogni-muted">
           We sent a verification link to{" "}
-          <span className="font-medium text-vectosilo-text">{email}</span>. Click it to
+          <span className="font-medium text-incogni-text">{email}</span>. Click it to
           activate your account, then sign in.
         </p>
 
         <button
           onClick={resend}
           disabled={sending}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-vectosilo-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-60"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-60"
         >
           {sending && <Loader2 className="h-4 w-4 animate-spin" />}
           {sent ? "Email sent" : "Resend email"}
@@ -355,7 +355,7 @@ function VerifyNotice({ email, onBack }: { email: string; onBack: () => void }) 
 
         <button
           onClick={onBack}
-          className="mt-3 text-sm font-medium text-vectosilo-muted hover:text-vectosilo-text"
+          className="mt-3 text-sm font-medium text-incogni-muted hover:text-incogni-text"
         >
           Back to sign in
         </button>
@@ -380,8 +380,8 @@ function Field({
   autoComplete?: string;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-bg px-3 py-2.5 focus-within:border-vectosilo-accent/50">
-      <span className="text-vectosilo-muted">{icon}</span>
+    <div className="flex items-center gap-2 rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 focus-within:border-incogni-accent/50">
+      <span className="text-incogni-muted">{icon}</span>
       <input
         type={type}
         placeholder={placeholder}
@@ -389,7 +389,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete}
         required
-        className="w-full bg-transparent text-sm text-vectosilo-text placeholder:text-vectosilo-muted/60 focus:outline-none"
+        className="w-full bg-transparent text-sm text-incogni-text placeholder:text-incogni-muted/60 focus:outline-none"
       />
     </div>
   );

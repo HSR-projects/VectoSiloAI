@@ -47,14 +47,14 @@ export function ServicesPage({
 }: ServicesPageProps) {
   return (
     <PageTransition>
-      <div className={cn("min-h-screen bg-vectosilo-bg", className)}>
+      <div className={cn("min-h-screen bg-incogni-bg", className)}>
         <section className="relative overflow-hidden py-20 sm:py-28">
-          <div className="absolute inset-0 bg-gradient-to-b from-vectosilo-accent/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-incogni-accent/5 to-transparent" />
           <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl font-bold text-vectosilo-text sm:text-5xl lg:text-6xl"
+              className="text-4xl font-bold text-incogni-text sm:text-5xl lg:text-6xl"
             >
               {heroTitle}
             </motion.h1>
@@ -62,7 +62,7 @@ export function ServicesPage({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="mt-4 text-lg text-vectosilo-muted sm:text-xl max-w-2xl mx-auto"
+              className="mt-4 text-lg text-incogni-muted sm:text-xl max-w-2xl mx-auto"
             >
               {heroSubtitle}
             </motion.p>
@@ -79,32 +79,32 @@ export function ServicesPage({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="group rounded-xl border border-vectosilo-border bg-vectosilo-surface p-6 transition-all duration-300 hover:border-vectosilo-accent/40 hover:shadow-lg hover:shadow-vectosilo-accent/5"
+                  className="group rounded-xl border border-incogni-border bg-incogni-surface p-6 transition-all duration-300 hover:border-incogni-accent/40 hover:shadow-lg hover:shadow-incogni-accent/5"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-vectosilo-accent/10 text-vectosilo-accent">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-incogni-accent/10 text-incogni-accent">
                     {service.icon}
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-vectosilo-text">{service.title}</h3>
-                  <p className="mt-2 text-sm text-vectosilo-muted leading-relaxed">
+                  <h3 className="mt-4 text-lg font-semibold text-incogni-text">{service.title}</h3>
+                  <p className="mt-2 text-sm text-incogni-muted leading-relaxed">
                     {service.description}
                   </p>
                   <ul className="mt-4 space-y-2">
                     {service.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-vectosilo-muted">
-                        <Check size={12} className="mt-0.5 flex-shrink-0 text-vectosilo-accent" />
+                      <li key={f} className="flex items-start gap-2 text-xs text-incogni-muted">
+                        <Check size={12} className="mt-0.5 flex-shrink-0 text-incogni-accent" />
                         {f}
                       </li>
                     ))}
                   </ul>
                   {service.price && (
                     <p className="mt-4 text-sm">
-                      <span className="text-lg font-bold text-vectosilo-text">{service.price}</span>
+                      <span className="text-lg font-bold text-incogni-text">{service.price}</span>
                     </p>
                   )}
                   {service.href && (
                     <a
                       href={service.href}
-                      className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-vectosilo-accent opacity-0 transition-opacity group-hover:opacity-100"
+                      className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-incogni-accent opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       Learn more <ArrowRight size={14} />
                     </a>
@@ -116,13 +116,13 @@ export function ServicesPage({
         </section>
 
         {processSteps.length > 0 && (
-          <section className="border-t border-vectosilo-border py-20">
+          <section className="border-t border-incogni-border py-20">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl"
+                className="text-center text-3xl font-bold text-incogni-text sm:text-4xl"
               >
                 {processTitle}
               </motion.h2>
@@ -137,16 +137,16 @@ export function ServicesPage({
                     className="flex gap-5"
                   >
                     <div className="flex flex-col items-center">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-vectosilo-accent text-sm font-bold text-white">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-incogni-accent text-sm font-bold text-white">
                         {step.step}
                       </div>
                       {i < processSteps.length - 1 && (
-                        <div className="mt-2 h-full w-px bg-vectosilo-border" />
+                        <div className="mt-2 h-full w-px bg-incogni-border" />
                       )}
                     </div>
                     <div className="pb-8">
-                      <h3 className="text-lg font-semibold text-vectosilo-text">{step.title}</h3>
-                      <p className="mt-1 text-sm text-vectosilo-muted">{step.description}</p>
+                      <h3 className="text-lg font-semibold text-incogni-text">{step.title}</h3>
+                      <p className="mt-1 text-sm text-incogni-muted">{step.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -155,14 +155,14 @@ export function ServicesPage({
           </section>
         )}
 
-        <section className="relative overflow-hidden border-t border-vectosilo-border py-20">
-          <div className="absolute inset-0 bg-gradient-to-r from-vectosilo-accent/5 to-transparent" />
+        <section className="relative overflow-hidden border-t border-incogni-border py-20">
+          <div className="absolute inset-0 bg-gradient-to-r from-incogni-accent/5 to-transparent" />
           <div className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl font-bold text-vectosilo-text sm:text-4xl"
+              className="text-3xl font-bold text-incogni-text sm:text-4xl"
             >
               {ctaTitle}
             </motion.h2>
@@ -171,7 +171,7 @@ export function ServicesPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="mt-3 text-lg text-vectosilo-muted"
+              className="mt-3 text-lg text-incogni-muted"
             >
               {ctaSubtitle}
             </motion.p>
@@ -184,7 +184,7 @@ export function ServicesPage({
             >
               <a
                 href="#"
-                className="inline-flex items-center gap-2 rounded-lg bg-vectosilo-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+                className="inline-flex items-center gap-2 rounded-lg bg-incogni-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
               >
                 {ctaLabel} <ArrowRight size={16} />
               </a>

@@ -1,4 +1,4 @@
-# VectoSiloAI Template Registry — AI Reference
+# IncogniAI Template Registry — AI Reference
 
 You have access to **100+ premium animated templates** (Framer Motion + Tailwind). Use `[[scaffold:ID:Title]]` to auto-build a complete website in the sandbox without writing any code.
 

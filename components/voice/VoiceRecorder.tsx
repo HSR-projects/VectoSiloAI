@@ -267,7 +267,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: Props) {
   };
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface px-4 py-3">
+    <div className="flex items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-4 py-3">
       <button
         onClick={finishRecording}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600"
@@ -286,12 +286,12 @@ export function VoiceRecorder({ onRecorded, onCancel }: Props) {
         </div>
         <div ref={textRef} className="mt-0.5 min-h-[1em]">
           {transcript && (
-            <p className="truncate text-xs text-vectosilo-accent-soft font-medium">{transcript}</p>
+            <p className="truncate text-xs text-incogni-accent-soft font-medium">{transcript}</p>
           )}
         </div>
       </div>
 
-      <span className="shrink-0 text-xs tabular-nums text-vectosilo-muted">
+      <span className="shrink-0 text-xs tabular-nums text-incogni-muted">
         {silent ? "done?" : fmt(duration)}
       </span>
     </div>

@@ -59,11 +59,11 @@ export function Team({
           viewport={{ once: true }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-incogni-text sm:text-4xl">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-4 text-lg text-vectosilo-muted">{subtitle}</p>
+            <p className="mt-4 text-lg text-incogni-muted">{subtitle}</p>
           )}
         </motion.div>
 
@@ -86,7 +86,7 @@ export function Team({
               }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className="group relative overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface"
+              className="group relative overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface"
             >
               <div className="aspect-[3/4] overflow-hidden">
                 <Image
@@ -105,9 +105,9 @@ export function Team({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
                     transition={{ duration: 0.25 }}
-                    className="absolute inset-0 flex items-end bg-gradient-to-t from-vectosilo-bg/95 via-vectosilo-bg/60 to-transparent p-4"
+                    className="absolute inset-0 flex items-end bg-gradient-to-t from-incogni-bg/95 via-incogni-bg/60 to-transparent p-4"
                   >
-                    <p className="text-xs leading-relaxed text-vectosilo-text/90 line-clamp-4">
+                    <p className="text-xs leading-relaxed text-incogni-text/90 line-clamp-4">
                       {member.bio}
                     </p>
                   </motion.div>
@@ -120,10 +120,10 @@ export function Team({
                 transition={{ duration: 0.25 }}
                 className="absolute bottom-0 left-0 right-0 p-4"
               >
-                <h3 className="text-sm font-semibold text-vectosilo-text">
+                <h3 className="text-sm font-semibold text-incogni-text">
                   {member.name}
                 </h3>
-                <p className="text-xs text-vectosilo-muted">{member.role}</p>
+                <p className="text-xs text-incogni-muted">{member.role}</p>
               </motion.div>
 
               <motion.div
@@ -133,7 +133,7 @@ export function Team({
                   opacity: hoveredIndex === i ? 1 : 0,
                 }}
                 transition={{ duration: 0.25 }}
-                className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 bg-vectosilo-accent py-3"
+                className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 bg-incogni-accent py-3"
               >
                 {member.social?.map((s, j) => (
                   <a

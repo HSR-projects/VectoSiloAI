@@ -31,7 +31,7 @@ function roleTextColor(role: SwarmAgentRole) {
     case "researcher":  return "text-blue-400";
     case "analyst":     return "text-violet-400";
     case "critic":      return "text-amber-400";
-    case "synthesizer": return "text-vectosilo-accent";
+    case "synthesizer": return "text-incogni-accent";
   }
 }
 
@@ -40,14 +40,14 @@ function roleBorderActive(role: SwarmAgentRole) {
     case "researcher":  return "border-blue-500/50";
     case "analyst":     return "border-violet-500/50";
     case "critic":      return "border-amber-500/50";
-    case "synthesizer": return "border-vectosilo-accent/50";
+    case "synthesizer": return "border-incogni-accent/50";
   }
 }
 
 function StatusIcon({ status }: { status: SwarmAgentStatus }) {
   switch (status) {
-    case "pending":  return <span className="h-2 w-2 rounded-full bg-vectosilo-border/50" />;
-    case "thinking": return <Loader2 className="h-3.5 w-3.5 animate-spin text-vectosilo-accent" />;
+    case "pending":  return <span className="h-2 w-2 rounded-full bg-incogni-border/50" />;
+    case "thinking": return <Loader2 className="h-3.5 w-3.5 animate-spin text-incogni-accent" />;
     case "done":     return <Check className="h-3.5 w-3.5 text-emerald-400" />;
     case "error":    return <X className="h-3.5 w-3.5 text-red-400" />;
   }
@@ -71,10 +71,10 @@ function AgentCard({ agent }: { agent: SwarmAgentRun }) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-xl border bg-vectosilo-surface/50 px-3.5 py-3 text-xs",
+        "flex flex-col gap-2 rounded-xl border bg-incogni-surface/50 px-3.5 py-3 text-xs",
         (isStreaming || agent.status === "thinking")
           ? roleBorderActive(agent.role)
-          : "border-vectosilo-border"
+          : "border-incogni-border"
       )}
     >
       {/* Header */}
@@ -84,7 +84,7 @@ function AgentCard({ agent }: { agent: SwarmAgentRun }) {
           {agent.label}
         </span>
         {agent.sourceCount !== undefined && agent.sourceCount > 0 && (
-          <span className="rounded-full bg-vectosilo-surface-2 px-1.5 py-0.5 text-[10px] text-vectosilo-muted/70">
+          <span className="rounded-full bg-incogni-surface-2 px-1.5 py-0.5 text-[10px] text-incogni-muted/70">
             {agent.sourceCount} srcs
           </span>
         )}
@@ -97,23 +97,23 @@ function AgentCard({ agent }: { agent: SwarmAgentRun }) {
       {isStreaming && (
         <div
           ref={outputRef}
-          className="max-h-40 overflow-y-auto leading-relaxed text-vectosilo-text/75 scrollbar-thin"
+          className="max-h-40 overflow-y-auto leading-relaxed text-incogni-text/75 scrollbar-thin"
         >
           {agent.output}
-          <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-vectosilo-accent align-middle" />
+          <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-incogni-accent align-middle" />
         </div>
       )}
 
       {/* Done output — collapsed or expanded */}
       {isDone && agent.output && (
         <>
-          <p className={cn("leading-relaxed text-vectosilo-text/80", !expanded && long && "line-clamp-4")}>
+          <p className={cn("leading-relaxed text-incogni-text/80", !expanded && long && "line-clamp-4")}>
             {agent.output}
           </p>
           {long && (
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="self-start text-vectosilo-accent/70 transition-colors hover:text-vectosilo-accent"
+              className="self-start text-incogni-accent/70 transition-colors hover:text-incogni-accent"
             >
               {expanded ? "Show less" : "Show more"}
             </button>
@@ -123,7 +123,7 @@ function AgentCard({ agent }: { agent: SwarmAgentRun }) {
 
       {/* Pending */}
       {agent.status === "pending" && (
-        <p className="text-vectosilo-muted/40 italic">Waiting…</p>
+        <p className="text-incogni-muted/40 italic">Waiting…</p>
       )}
     </div>
   );
@@ -141,26 +141,26 @@ export function SwarmPanel({ agents }: { agents: SwarmAgentRun[] }) {
   const synthesizer = agents.find((a) => a.role === "synthesizer");
 
   return (
-    <div className="mb-4 rounded-xl border border-vectosilo-border bg-vectosilo-surface/40">
+    <div className="mb-4 rounded-xl border border-incogni-border bg-incogni-surface/40">
       {/* Header */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition-colors hover:bg-vectosilo-surface/60 rounded-xl"
+        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition-colors hover:bg-incogni-surface/60 rounded-xl"
       >
         {thinking > 0 ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-vectosilo-accent" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-incogni-accent" />
         ) : allDone ? (
           <Check className="h-3.5 w-3.5 text-emerald-400" />
         ) : (
-          <Network className="h-3.5 w-3.5 text-vectosilo-accent" />
+          <Network className="h-3.5 w-3.5 text-incogni-accent" />
         )}
-        <span className="font-semibold text-vectosilo-text/90">
+        <span className="font-semibold text-incogni-text/90">
           {allDone ? "Swarm complete" : thinking > 0 ? "Agent Swarm running…" : "Agent Swarm"}
         </span>
-        <span className="text-vectosilo-muted/60">{done}/{agents.length} done</span>
+        <span className="text-incogni-muted/60">{done}/{agents.length} done</span>
         <ChevronDown
-          className={cn("ml-auto h-3.5 w-3.5 text-vectosilo-muted transition-transform", open && "rotate-180")}
+          className={cn("ml-auto h-3.5 w-3.5 text-incogni-muted transition-transform", open && "rotate-180")}
         />
       </button>
 

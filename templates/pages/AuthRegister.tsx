@@ -41,11 +41,11 @@ export function AuthRegister() {
   const passwordsMatch = confirmPassword === "" || password === confirmPassword;
 
   return (
-    <div className="flex min-h-screen bg-vectosilo-bg">
+    <div className="flex min-h-screen bg-incogni-bg">
       <div className="relative hidden flex-1 items-center justify-center overflow-hidden lg:flex">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-vectosilo-surface to-vectosilo-bg" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-incogni-surface to-incogni-bg" />
         <div className="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-vectosilo-accent/10 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-incogni-accent/10 blur-3xl" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -53,11 +53,11 @@ export function AuthRegister() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 text-center"
         >
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-vectosilo-accent shadow-lg">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-incogni-accent shadow-lg">
             <span className="text-2xl font-bold text-white">K</span>
           </div>
-          <h1 className="text-4xl font-bold text-vectosilo-text">Join VectoSiloAI</h1>
-          <p className="mt-3 text-lg text-vectosilo-muted">Create your account and start<br />building amazing things</p>
+          <h1 className="text-4xl font-bold text-incogni-text">Join IncogniAI</h1>
+          <p className="mt-3 text-lg text-incogni-muted">Create your account and start<br />building amazing things</p>
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -75,9 +75,9 @@ export function AuthRegister() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + i * 0.15 }}
-                className="flex items-center gap-3 text-sm text-vectosilo-muted"
+                className="flex items-center gap-3 text-sm text-incogni-muted"
               >
-                <div className="h-1.5 w-1.5 rounded-full bg-vectosilo-accent" />
+                <div className="h-1.5 w-1.5 rounded-full bg-incogni-accent" />
                 {text}
               </motion.div>
             ))}
@@ -94,14 +94,14 @@ export function AuthRegister() {
             className="space-y-6"
           >
             <div className="text-center lg:hidden">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-vectosilo-accent">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-incogni-accent">
                 <span className="text-xl font-bold text-white">K</span>
               </div>
             </div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-vectosilo-text">Create Account</h2>
-              <p className="mt-1 text-sm text-vectosilo-muted">Get started with your free account</p>
+              <h2 className="text-2xl font-bold text-incogni-text">Create Account</h2>
+              <p className="mt-1 text-sm text-incogni-muted">Get started with your free account</p>
             </div>
 
             <form className="space-y-4">
@@ -135,7 +135,7 @@ export function AuthRegister() {
                 {password && (
                   <div className="mt-2">
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-xs text-vectosilo-muted">Password strength</span>
+                      <span className="text-xs text-incogni-muted">Password strength</span>
                       <span className={cn(
                         "text-xs font-medium",
                         strength.variant === "error" && "text-red-400",
@@ -175,7 +175,7 @@ export function AuthRegister() {
 
               <button
                 type="submit"
-                className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 Create Account
               </button>
@@ -183,10 +183,10 @@ export function AuthRegister() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-vectosilo-border" />
+                <div className="w-full border-t border-incogni-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-vectosilo-bg px-2 text-vectosilo-muted">Or register with</span>
+                <span className="bg-incogni-bg px-2 text-incogni-muted">Or register with</span>
               </div>
             </div>
 
@@ -199,7 +199,7 @@ export function AuthRegister() {
                 <button
                   key={btn.label}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg border border-vectosilo-border bg-vectosilo-surface py-2.5 text-sm text-vectosilo-muted transition-colors",
+                    "flex items-center justify-center gap-2 rounded-lg border border-incogni-border bg-incogni-surface py-2.5 text-sm text-incogni-muted transition-colors",
                     btn.color
                   )}
                 >
@@ -208,9 +208,9 @@ export function AuthRegister() {
               ))}
             </div>
 
-            <p className="text-center text-sm text-vectosilo-muted">
+            <p className="text-center text-sm text-incogni-muted">
               Already have an account?{" "}
-              <a href="#" className="font-medium text-vectosilo-accent hover:underline">Sign in</a>
+              <a href="#" className="font-medium text-incogni-accent hover:underline">Sign in</a>
             </p>
           </motion.div>
         </PageTransition>

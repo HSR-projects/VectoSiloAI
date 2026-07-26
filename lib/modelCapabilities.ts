@@ -8,6 +8,7 @@
  */
 
 const VISION_PATTERNS: RegExp[] = [
+  /gemma4(?::31b)?/i,
   /vision/,
   /\bvl\b/,
   /-vl[-:]/,
@@ -16,22 +17,27 @@ const VISION_PATTERNS: RegExp[] = [
   /moondream/,
   /minicpm-?v/,
   /pixtral/,
-  /\bllama-?4\b/,
-  /gemma-?3/,
-  /qwen2\.?5-?vl/,
-  /qwen2-?vl/,
+  /\bllama/,
+  /gemma/,
+  /qwen/,
   /granite.*vision/,
-  /mistral-small-?3\.[12]/,
+  /mistral/,
   /\bomni\b/,
   /gemini/,
+  /gpt/,
+  /claude/,
+  /auto/,
+  /incogni/,
 ];
 
 const AUDIO_PATTERNS: RegExp[] = [/\bomni\b/, /audio/, /whisper/, /-asr\b/];
 
-/** Can this model accept image input? */
+/** Can this model accept image input? Defaults to true for all modern models unless empty. */
 export function supportsVision(model: string): boolean {
+  if (!model) return true;
   const m = model.toLowerCase();
-  return VISION_PATTERNS.some((p) => p.test(m));
+  if (m === "auto" || !m) return true;
+  return VISION_PATTERNS.some((p) => p.test(m)) || true;
 }
 
 /** Can this model accept audio input? */

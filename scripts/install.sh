@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # ─────────────────────────────────────────────────────────────
-# VectoSiloAI — full-stack install script for a fresh Linux machine
+# IncogniAI — full-stack install script for a fresh Linux machine
 # ─────────────────────────────────────────────────────────────
 # Usage:  bash <(curl -fsSL https://raw.githubusercontent.com/.../scripts/install.sh)
 # Or:     chmod +x scripts/install.sh && ./scripts/install.sh
 # ─────────────────────────────────────────────────────────────
 
-REPO_URL="https://github.com/hemesh9/vectosilo-ai.git"
-REPO_DIR="$HOME/VectoSiloAI"
+REPO_URL="https://github.com/hemesh9/incogni-ai.git"
+REPO_DIR="$HOME/IncogniAI"
 NODE_MAJOR=20
 STT_PORT=5050
 WS_PORT=3003
@@ -112,7 +112,7 @@ setup_env() {
   fi
   # Create .env from scratch with self-hosted defaults
   cat > .env <<-ENVEOF
-# ─── VectoSiloAI Self-Hosted ──────────────────────────────────────
+# ─── IncogniAI Self-Hosted ──────────────────────────────────────
 # Get an API key at https://ollama.com  →  Settings → Keys
 OLLAMA_BASE_URL=https://ollama.com
 OLLAMA_API_KEY=
@@ -146,7 +146,7 @@ GITHUB_OAUTH_CLIENT_ID=
 GITHUB_OAUTH_CLIENT_SECRET=
 
 # ─── App ─────────────────────────────────────────────────────
-NEXT_PUBLIC_APP_NAME=VectoSiloAI
+NEXT_PUBLIC_APP_NAME=IncogniAI
 NEXT_PUBLIC_APP_VERSION=1.0.0
 APP_URL=http://localhost:$NEXT_PORT
 
@@ -155,13 +155,13 @@ SMTP_HOST=
 SMTP_PORT=465
 SMTP_USER=
 SMTP_PASS=
-EMAIL_FROM=VectoSiloAI <noreply@localhost>
+EMAIL_FROM=IncogniAI <noreply@localhost>
 
 # ─── Image generation ────────────────────────────────────────
 IMAGE_API_BASE=https://image.pollinations.ai/prompt
 IMAGE_API_MODEL=flux
 IMAGE_API_KEY=
-IMAGE_API_REFERRER=vectosiloai
+IMAGE_API_REFERRER=incogni-ai
 
 # ─── Nvidia NIM ──────────────────────────────────────────────
 NVIDIA_API_KEY=
@@ -279,9 +279,9 @@ setup_lxcfs() {
 setup_stt_service() {
   info "Creating systemd service for faster-whisper STT on port $STT_PORT..."
 
-  sudo tee /etc/systemd/system/vectosilo-stt.service >/dev/null <<-SERVICEEOF
+  sudo tee /etc/systemd/system/incogni-stt.service >/dev/null <<-SERVICEEOF
 [Unit]
-Description=VectoSiloAI faster-whisper STT server
+Description=IncogniAI faster-whisper STT server
 After=network.target
 
 [Service]
@@ -299,8 +299,8 @@ WantedBy=multi-user.target
 SERVICEEOF
 
   sudo systemctl daemon-reload
-  sudo systemctl enable vectosilo-stt
-  sudo systemctl start vectosilo-stt
+  sudo systemctl enable incogni-stt
+  sudo systemctl start incogni-stt
   log "STT service started (port $STT_PORT)"
 }
 
@@ -308,13 +308,13 @@ SERVICEEOF
 setup_tts_service() {
   # edge-tts is on-demand (called per-request), no daemon needed.
   # But create a helper alias
-  if ! command -v vectosilo-tts &>/dev/null; then
-    sudo tee /usr/local/bin/vectosilo-tts >/dev/null <<-TTSEOF
+  if ! command -v incogni-tts &>/dev/null; then
+    sudo tee /usr/local/bin/incogni-tts >/dev/null <<-TTSEOF
 #!/usr/bin/env bash
 exec $REPO_DIR/venv/bin/python $REPO_DIR/scripts/edge-tts-wrapper.py "\$@"
 TTSEOF
-    sudo chmod +x /usr/local/bin/vectosilo-tts
-    log "TTS helper installed at /usr/local/bin/vectosilo-tts"
+    sudo chmod +x /usr/local/bin/incogni-tts
+    log "TTS helper installed at /usr/local/bin/incogni-tts"
   fi
 }
 
@@ -322,9 +322,9 @@ TTSEOF
 setup_ws_service() {
   info "Creating systemd service for WebSocket server on port $WS_PORT..."
 
-  sudo tee /etc/systemd/system/vectosilo-ws.service >/dev/null <<-SERVICEEOF
+  sudo tee /etc/systemd/system/incogni-ws.service >/dev/null <<-SERVICEEOF
 [Unit]
-Description=VectoSiloAI WebSocket server (sandbox terminal, VNC proxy)
+Description=IncogniAI WebSocket server (sandbox terminal, VNC proxy)
 After=network.target docker.service
 Requires=docker.service
 
@@ -344,8 +344,8 @@ WantedBy=multi-user.target
 SERVICEEOF
 
   sudo systemctl daemon-reload
-  sudo systemctl enable vectosilo-ws
-  sudo systemctl start vectosilo-ws
+  sudo systemctl enable incogni-ws
+  sudo systemctl start incogni-ws
   log "WebSocket service started (port $WS_PORT)"
 }
 
@@ -353,11 +353,11 @@ SERVICEEOF
 setup_next_service() {
   info "Creating systemd service for Next.js on port $NEXT_PORT..."
 
-  sudo tee /etc/systemd/system/vectosilo-next.service >/dev/null <<-SERVICEEOF
+  sudo tee /etc/systemd/system/incogni-next.service >/dev/null <<-SERVICEEOF
 [Unit]
-Description=VectoSiloAI Next.js app server
-After=network.target vectosilo-ws.service
-Wants=vectosilo-ws.service
+Description=IncogniAI Next.js app server
+After=network.target incogni-ws.service
+Wants=incogni-ws.service
 
 [Service]
 Type=simple
@@ -375,8 +375,8 @@ WantedBy=multi-user.target
 SERVICEEOF
 
   sudo systemctl daemon-reload
-  sudo systemctl enable vectosilo-next
-  sudo systemctl start vectosilo-next
+  sudo systemctl enable incogni-next
+  sudo systemctl start incogni-next
   log "Next.js service started (port $NEXT_PORT)"
 }
 
@@ -385,9 +385,9 @@ setup_mcp_service() {
   info "Creating systemd service for SearXNG MCP server..."
 
   # We'll run it in HTTP mode on port 3004 for robustness
-  sudo tee /etc/systemd/system/vectosilo-mcp.service >/dev/null <<-SERVICEEOF
+  sudo tee /etc/systemd/system/incogni-mcp.service >/dev/null <<-SERVICEEOF
 [Unit]
-Description=VectoSiloAI SearXNG MCP server (multi-query parallel search)
+Description=IncogniAI SearXNG MCP server (multi-query parallel search)
 After=network.target docker.service
 Requires=docker.service
 
@@ -407,8 +407,8 @@ WantedBy=multi-user.target
 SERVICEEOF
 
   sudo systemctl daemon-reload
-  sudo systemctl enable vectosilo-mcp
-  sudo systemctl start vectosilo-mcp
+  sudo systemctl enable incogni-mcp
+  sudo systemctl start incogni-mcp
   log "MCP service started (port 3004)"
 }
 
@@ -436,7 +436,7 @@ setup_cloudflared() {
     warn "VECTOSILO_TUNNEL_TOKEN not set — skipping tunnel setup"
     warn "  export VECTOSILO_TUNNEL_TOKEN='...' and re-run to install"
     warn "  Or run: sudo cloudflared tunnel login"
-    warn "  Then:   sudo cloudflared tunnel create vectosiloai"
+    warn "  Then:   sudo cloudflared tunnel create incogni-ai"
   fi
 }
 
@@ -444,7 +444,7 @@ setup_cloudflared() {
 print_summary() {
   echo ""
   echo -e "${CYAN}══════════════════════════════════════════════════${NC}"
-  echo -e "${GREEN}  VectoSiloAI installation complete!${NC}"
+  echo -e "${GREEN}  IncogniAI installation complete!${NC}"
   echo -e "${CYAN}══════════════════════════════════════════════════${NC}"
   echo ""
   echo -e "  ${YELLOW}Services:${NC}"
@@ -454,23 +454,23 @@ print_summary() {
   echo -e "    MIT App Inventor    →  http://localhost:8888"
   echo -e "    STT (faster-whisper) →  http://localhost:$STT_PORT"
   echo -e "    MCP server          →  http://localhost:3004"
-  echo -e "    TTS (edge-tts)      →  /usr/local/bin/vectosilo-tts"
+  echo -e "    TTS (edge-tts)      →  /usr/local/bin/incogni-tts"
   echo ""
   echo -e "  ${YELLOW}Systemd services:${NC}"
-  echo -e "    sudo systemctl status vectosilo-next"
-  echo -e "    sudo systemctl status vectosilo-ws"
-  echo -e "    sudo systemctl status vectosilo-stt"
-  echo -e "    sudo systemctl status vectosilo-mcp"
+  echo -e "    sudo systemctl status incogni-next"
+  echo -e "    sudo systemctl status incogni-ws"
+  echo -e "    sudo systemctl status incogni-stt"
+  echo -e "    sudo systemctl status incogni-mcp"
   echo ""
   echo -e "  ${YELLOW}Logs:${NC}"
-  echo -e "    journalctl -u vectosilo-next -f"
-  echo -e "    journalctl -u vectosilo-ws -f"
-  echo -e "    journalctl -u vectosilo-stt -f"
-  echo -e "    journalctl -u vectosilo-mcp -f"
+  echo -e "    journalctl -u incogni-next -f"
+  echo -e "    journalctl -u incogni-ws -f"
+  echo -e "    journalctl -u incogni-stt -f"
+  echo -e "    journalctl -u incogni-mcp -f"
   echo ""
   echo -e "  ${YELLOW}Next steps:${NC}"
   echo -e "    1. Edit $REPO_DIR/.env with your real API keys"
-  echo -e "    2. Restart services: sudo systemctl restart vectosilo-next"
+  echo -e "    2. Restart services: sudo systemctl restart incogni-next"
   echo -e "    3. For faster-whisper, a large model download on first use"
   echo -e "    4. Log out and back in if Docker group was added"
   echo -e "    5. (Optional) Set up cloudflared tunnel for public access"
@@ -496,7 +496,7 @@ show_menu() {
 main() {
   echo ""
   echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-  echo -e "${CYAN}║        VectoSiloAI — full-stack installer             ║${NC}"
+  echo -e "${CYAN}║        IncogniAI — full-stack installer             ║${NC}"
   echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
   echo ""
 

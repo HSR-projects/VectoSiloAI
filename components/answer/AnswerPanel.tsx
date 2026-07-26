@@ -7,7 +7,7 @@ import rehypeHighlight from "rehype-highlight";
 import { motion } from "framer-motion";
 import { AlertTriangle, Download, Package, Loader2, MonitorPlay, Presentation, FileSpreadsheet, Globe, FileText, Crown, ChevronRight, ChevronDown, Brain } from "lucide-react";
 import type { GeneratedImage, Message } from "@/types";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { parseCitations } from "@/lib/citations";
 import { CitationBadge } from "./CitationBadge";
@@ -15,6 +15,9 @@ import { CodeBlock } from "./CodeBlock";
 import { StreamingCursor } from "./StreamingCursor";
 import { ComputerDiffCard } from "./ComputerDiffCard";
 import { VoiceMessageBubble } from "@/components/voice/VoiceMessageBubble";
+import { QuestionCard, type QuestionData } from "./QuestionCard";
+import { MapCard } from "./MapCard";
+import { StockCard } from "./StockCard";
 
 interface CodeFile {
   lang: string;
@@ -125,9 +128,9 @@ function DownloadBar({ content }: { content: string }) {
   const hasWeb = files.some((f) => WEB_LANGS.has(f.lang));
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-2.5">
-      <Package className="h-3.5 w-3.5 shrink-0 text-vectosilo-accent" />
-      <span className="text-xs font-medium text-vectosilo-text/80">
+    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-2.5">
+      <Package className="h-3.5 w-3.5 shrink-0 text-incogni-accent" />
+      <span className="text-xs font-medium text-incogni-text/80">
         {files.length} files detected
       </span>
       <div className="ml-auto flex flex-wrap gap-1.5">
@@ -135,7 +138,7 @@ function DownloadBar({ content }: { content: string }) {
           <button
             key={i}
             onClick={() => downloadBlob(f.code, f.filename)}
-            className="inline-flex items-center gap-1 rounded-md border border-vectosilo-border bg-vectosilo-surface px-2 py-1 text-[11px] text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            className="inline-flex items-center gap-1 rounded-md border border-incogni-border bg-incogni-surface px-2 py-1 text-[11px] text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
           >
             <Download className="h-3 w-3" />
             {f.filename}
@@ -144,7 +147,7 @@ function DownloadBar({ content }: { content: string }) {
         {hasWeb && (
           <button
             onClick={() => downloadBlob(bundleWebFiles(files), "project.html", "text/html")}
-            className="inline-flex items-center gap-1 rounded-md border border-vectosilo-accent/40 bg-vectosilo-accent/10 px-2.5 py-1 text-[11px] font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/20"
+            className="inline-flex items-center gap-1 rounded-md border border-incogni-accent/40 bg-incogni-accent/10 px-2.5 py-1 text-[11px] font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/20"
           >
             <Package className="h-3 w-3" />
             Bundle as HTML
@@ -201,6 +204,72 @@ interface AnswerPanelProps {
 export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelProps) {
   const sources = message.sources ?? [];
 
+  const questionData = useMemo(() => {
+    if (!message.content) return null;
+    const match = message.content.match(/\[\[question:\s*(\{[\s\S]*?\})\]\]/i);
+    if (!match) return null;
+    try {
+      return JSON.parse(match[1]) as QuestionData;
+    } catch {
+      return null;
+    }
+  }, [message.content]);
+
+  const parsedMapPlaces = useMemo(() => {
+    if (message.mapPlaces && message.mapPlaces.length > 0) {
+      return message.mapPlaces;
+    }
+    if (!message.content) return [];
+    const matches = Array.from(message.content.matchAll(/\[\[map:\s*([^\]]+)\]\]/gi));
+    if (!matches.length) return [];
+
+    const places: import("@/types").MapPlace[] = [];
+    for (const match of matches) {
+      const locStr = match[1].trim();
+      if (!locStr) continue;
+      const names = locStr.includes(" vs ")
+        ? locStr.split(/\s+vs\s+/i)
+        : locStr.includes(" versus ")
+        ? locStr.split(/\s+versus\s+/i)
+        : [locStr];
+
+      for (const name of names) {
+        const cleanName = name.trim();
+        if (cleanName) {
+          places.push({
+            title: cleanName,
+            latitude: 0,
+            longitude: 0,
+            address: cleanName,
+            category: "Location",
+            url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(cleanName)}`
+          });
+        }
+      }
+    }
+    return places;
+  }, [message.mapPlaces, message.content]);
+
+  const parsedStockData = useMemo(() => {
+    if (!message.content) return null;
+    const match = message.content.match(/\[\[stock:\s*(\{[\s\S]*?\})\]\]/i);
+    if (!match) return null;
+    try {
+      return JSON.parse(match[1]) as import("@/types").StockData;
+    } catch {
+      return null;
+    }
+  }, [message.content]);
+
+  const displayContent = useMemo(() => {
+    if (!message.content) return "";
+    return message.content
+      .replace(/\[\[question:\s*\{[\s\S]*?\}\]\]/gi, "")
+      .replace(/\[\[map:\s*[^\]]+\]\]/gi, "")
+      .replace(/\[\[stock:\s*\{[\s\S]*?\}\]\]/gi, "")
+      .trim();
+  }, [message.content]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -208,11 +277,11 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
       transition={{ duration: 0.3 }}
     >
       {message.error ? (
-        <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-200">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="font-medium">Something went wrong</p>
-            <p className="mt-1 text-red-200/80">{message.error}</p>
+            <p className="mt-1 opacity-80">{message.error}</p>
           </div>
         </div>
       ) : (
@@ -224,15 +293,19 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
               streaming={!!message.streaming && !message.content}
             />
           )}
+          {parsedStockData && <StockCard data={parsedStockData} />}
+          {parsedMapPlaces && parsedMapPlaces.length > 0 && (
+            <MapCard places={parsedMapPlaces} />
+          )}
           {message.searchImages && message.searchImages.length > 0 && (
-            <div className="mb-5 flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-vectosilo-border [&::-webkit-scrollbar-track]:bg-transparent">
+            <div className="mb-5 flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-incogni-border [&::-webkit-scrollbar-track]:bg-transparent">
               {message.searchImages.map((img, i) => (
                 <a
                   key={i}
                   href={img.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative block h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 transition-all hover:border-vectosilo-accent/50 sm:h-28 sm:w-28"
+                  className="group relative block h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface transition-all hover:border-incogni-accent/50 sm:h-28 sm:w-28"
                   title={img.title}
                 >
                   <img
@@ -250,7 +323,7 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
               ))}
             </div>
           )}
-          <div className="prose prose-invert max-w-none prose-headings:text-vectosilo-text prose-p:text-vectosilo-text/90 prose-li:text-vectosilo-text/90 prose-strong:text-vectosilo-text prose-a:text-vectosilo-accent-soft prose-code:text-vectosilo-accent-soft prose-code:before:content-none prose-code:after:content-none">
+          <div className="prose dark:prose-invert max-w-none prose-headings:text-incogni-text prose-p:text-incogni-text prose-li:text-incogni-text prose-strong:text-incogni-text prose-a:text-incogni-accent-soft prose-code:text-incogni-accent-soft prose-code:before:content-none prose-code:after:content-none break-words [overflow-wrap:anywhere]">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
@@ -258,16 +331,16 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
                 p: ({ children }) => <p>{injectCitations(children, sources)}</p>,
                 li: ({ children }) => <li>{injectCitations(children, sources)}</li>,
                 table: ({ children }) => (
-                  <div className="my-6 w-full overflow-x-auto rounded-xl border border-vectosilo-border bg-vectosilo-surface/20 shadow-sm">
+                  <div className="my-6 w-full overflow-x-auto rounded-xl border border-incogni-border bg-incogni-surface shadow-sm">
                     <table className="m-0 w-full border-collapse text-left text-sm">
                       {children}
                     </table>
                   </div>
                 ),
-                thead: ({ children }) => <thead className="bg-vectosilo-surface-2">{children}</thead>,
-                th: ({ children }) => <th className="border-b border-vectosilo-border px-4 py-3 font-medium text-vectosilo-text whitespace-nowrap">{children}</th>,
-                td: ({ children }) => <td className="border-b border-vectosilo-border/50 px-4 py-3 text-vectosilo-muted">{injectCitations(children, sources)}</td>,
-                tr: ({ children }) => <tr className="transition-colors hover:bg-vectosilo-surface/40 even:bg-vectosilo-surface/20 last:border-b-0">{children}</tr>,
+                thead: ({ children }) => <thead className="bg-incogni-surface-2">{children}</thead>,
+                th: ({ children }) => <th className="border-b border-incogni-border px-4 py-3 font-medium text-incogni-text whitespace-nowrap">{children}</th>,
+                td: ({ children }) => <td className="border-b border-incogni-border/50 px-4 py-3 text-incogni-muted">{injectCitations(children, sources)}</td>,
+                tr: ({ children }) => <tr className="transition-colors hover:bg-incogni-surface-2 even:bg-incogni-surface last:border-b-0">{children}</tr>,
                 h1: ({ children }) => <h1>{injectCitations(children, sources)}</h1>,
                 h2: ({ children }) => <h2>{injectCitations(children, sources)}</h2>,
                 h3: ({ children }) => <h3>{injectCitations(children, sources)}</h3>,
@@ -281,14 +354,15 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
                   <img
                     src={src}
                     alt={alt || ""}
-                    className="max-h-64 w-auto rounded-lg border border-vectosilo-border object-cover shadow-sm"
+                    className="max-h-64 w-auto rounded-lg border border-incogni-border object-cover shadow-sm"
                     loading="lazy"
                   />
                 ),
               }}
             >
-              {message.content || (message.streaming ? "" : "")}
+              {displayContent || (message.streaming ? "" : "")}
             </ReactMarkdown>
+            {questionData && <QuestionCard data={questionData} />}
             {message.streaming && <StreamingCursor />}
             {message.voiceUrl && !message.streaming && (
               <div className="mt-4 max-w-sm">
@@ -302,7 +376,7 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
             )}
           </div>
           {message.memorySaved && !message.streaming && (
-            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-vectosilo-border bg-vectosilo-surface/60 px-2.5 py-1 text-[11px] text-vectosilo-muted">
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-incogni-border bg-incogni-surface px-2.5 py-1 text-[11px] text-incogni-muted">
               <Brain className="h-3 w-3 text-amber-400" /> Memory updated
             </div>
           )}
@@ -338,24 +412,24 @@ function SlidesCard({
 }: {
   snapshot: NonNullable<Message["slides"]>;
 }) {
-  const loadSlides = useVectoSiloStore((s) => s.loadSlides);
+  const loadSlides = useIncogniStore((s) => s.loadSlides);
   const n = snapshot.slides.length;
   return (
     <button
       type="button"
       onClick={() => loadSlides(snapshot)}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-3 text-left transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-3 text-left transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/15 text-vectosilo-accent">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/15 text-incogni-accent">
         <Presentation className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">{snapshot.title}</span>
-        <span className="block text-xs text-vectosilo-muted">
+        <span className="block truncate text-sm font-medium text-incogni-text">{snapshot.title}</span>
+        <span className="block text-xs text-incogni-muted">
           Presentation · {n} slide{n === 1 ? "" : "s"} · click to open &amp; download
         </span>
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
@@ -366,24 +440,24 @@ function SheetCard({
 }: {
   snapshot: NonNullable<Message["sheet"]>;
 }) {
-  const loadWorkbook = useVectoSiloStore((s) => s.loadWorkbook);
+  const loadWorkbook = useIncogniStore((s) => s.loadWorkbook);
   const n = snapshot.sheets.length;
   return (
     <button
       type="button"
       onClick={() => loadWorkbook(snapshot)}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-3 text-left transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-3 text-left transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/15 text-vectosilo-accent">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/15 text-incogni-accent">
         <FileSpreadsheet className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">{snapshot.title}</span>
-        <span className="block text-xs text-vectosilo-muted">
+        <span className="block truncate text-sm font-medium text-incogni-text">{snapshot.title}</span>
+        <span className="block text-xs text-incogni-muted">
           Spreadsheet · {n} sheet{n === 1 ? "" : "s"} · click to open &amp; download
         </span>
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
@@ -394,24 +468,24 @@ function WebsiteCard({
 }: {
   snapshot: NonNullable<Message["website"]>;
 }) {
-  const loadWebsite = useVectoSiloStore((s) => s.loadWebsite);
+  const loadWebsite = useIncogniStore((s) => s.loadWebsite);
   const n = snapshot.files.length;
   return (
     <button
       type="button"
       onClick={() => loadWebsite(snapshot)}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-3 text-left transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-3 text-left transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/15 text-vectosilo-accent">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/15 text-incogni-accent">
         <Globe className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">{snapshot.title}</span>
-        <span className="block text-xs text-vectosilo-muted">
+        <span className="block truncate text-sm font-medium text-incogni-text">{snapshot.title}</span>
+        <span className="block text-xs text-incogni-muted">
           Website · {n} file{n === 1 ? "" : "s"} · click to preview &amp; download
         </span>
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
@@ -438,16 +512,16 @@ function ThinkingBlock({
     : "Thought process";
 
   return (
-    <div className="mb-3 overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface/50">
+    <div className="mb-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-xs font-medium text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+        className="flex items-center gap-2 text-left text-[13px] font-medium text-incogni-muted transition-colors hover:text-incogni-text"
       >
-        <Brain className={cn("h-3.5 w-3.5", streaming && "animate-pulse text-amber-400")} />
-        <span className="flex-1">{label}</span>
+        <Brain className={cn("h-3.5 w-3.5", streaming && "animate-pulse text-incogni-muted")} />
+        <span>{label}</span>
         {streaming ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <Loader2 className="h-3 w-3 animate-spin" />
         ) : expanded ? (
           <ChevronDown className="h-3.5 w-3.5" />
         ) : (
@@ -455,8 +529,8 @@ function ThinkingBlock({
         )}
       </button>
       {expanded && (
-        <div className="border-t border-vectosilo-border px-3.5 py-3">
-          <div className="prose prose-invert prose-sm max-w-none text-[13px] leading-relaxed text-vectosilo-muted prose-headings:text-vectosilo-text/90 prose-strong:text-vectosilo-text prose-code:text-vectosilo-accent-soft prose-code:before:content-none prose-code:after:content-none prose-a:text-vectosilo-accent-soft">
+        <div className="mt-2 pl-5 border-l-2 border-incogni-border/50">
+          <div className="prose dark:prose-invert prose-sm max-w-none text-[14px] italic leading-relaxed text-incogni-muted prose-headings:text-incogni-muted prose-strong:text-incogni-muted prose-code:text-incogni-muted prose-code:before:content-none prose-code:after:content-none">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
               {thinking}
             </ReactMarkdown>
@@ -474,46 +548,46 @@ function DocCard({
 }: {
   snapshot: NonNullable<Message["doc"]>;
 }) {
-  const loadDoc = useVectoSiloStore((s) => s.loadDoc);
+  const loadDoc = useIncogniStore((s) => s.loadDoc);
   return (
     <button
       type="button"
       onClick={() => loadDoc(snapshot)}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-3 text-left transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-3 text-left transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/15 text-vectosilo-accent">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/15 text-incogni-accent">
         <FileText className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">{snapshot.title}</span>
-        <span className="block text-xs text-vectosilo-muted">
+        <span className="block truncate text-sm font-medium text-incogni-text">{snapshot.title}</span>
+        <span className="block text-xs text-incogni-muted">
           Document · Markdown · click to open, copy &amp; share
         </span>
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
 
 /** Inline card to resume a chess game — reopens the board in the side panel. */
 function ChessCard({ playerColor }: { playerColor: "white" | "black" }) {
-  const openArtifact = useVectoSiloStore((s) => s.openArtifact);
+  const openArtifact = useIncogniStore((s) => s.openArtifact);
   return (
     <button
       type="button"
       onClick={() => openArtifact({ type: "chess", title: "Chess", playerColor })}
-      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-vectosilo-border bg-vectosilo-surface/60 px-3.5 py-3 text-left transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
+      className="group mt-3 flex w-full items-center gap-3 rounded-xl border border-incogni-border bg-incogni-surface px-3.5 py-3 text-left transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/15 text-vectosilo-accent">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/15 text-incogni-accent">
         <Crown className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">Chess</span>
-        <span className="block text-xs text-vectosilo-muted">
+        <span className="block truncate text-sm font-medium text-incogni-text">Chess</span>
+        <span className="block text-xs text-incogni-muted">
           You play {playerColor} · click to open &amp; resume the game
         </span>
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
@@ -524,20 +598,20 @@ function GeneratedImages({ images }: { images: GeneratedImage[] }) {
       {images.map((img) => (
         <div
           key={img.id}
-          className="overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface/60"
+          className="overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface"
         >
           {img.status === "done" && img.url ? (
             <figure className="m-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img.url} alt={img.prompt} className="block w-full" />
               <figcaption className="flex items-center justify-between gap-2 px-3 py-2">
-                <span className="truncate text-xs text-vectosilo-muted" title={img.prompt}>
+                <span className="truncate text-xs text-incogni-muted" title={img.prompt}>
                   {img.prompt}
                 </span>
                 <a
                   href={img.url}
-                  download={`vectosilo-image-${img.id}.png`}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-md border border-vectosilo-border bg-vectosilo-surface px-2 py-1 text-[11px] text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                  download={`incogni-image-${img.id}.png`}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-md border border-incogni-border bg-incogni-surface px-2 py-1 text-[11px] text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
                 >
                   <Download className="h-3 w-3" /> Save
                 </a>
@@ -551,8 +625,8 @@ function GeneratedImages({ images }: { images: GeneratedImage[] }) {
               </span>
             </div>
           ) : (
-            <div className="flex aspect-square w-full flex-col items-center justify-center gap-2 bg-vectosilo-surface-2/40 text-vectosilo-muted">
-              <Loader2 className="h-6 w-6 animate-spin text-vectosilo-accent" />
+            <div className="flex aspect-square w-full flex-col items-center justify-center gap-2 bg-incogni-surface-2/40 text-incogni-muted">
+              <Loader2 className="h-6 w-6 animate-spin text-incogni-accent" />
               <span className="px-4 text-center text-xs">Generating image…</span>
             </div>
           )}

@@ -44,6 +44,6 @@ export async function GET(req: Request) {
   const created = Math.floor(Date.now() / 1000);
   return json({
     object: "list",
-    data: names.map((id) => ({ id, object: "model", created, owned_by: "vectosiloai" })),
+    data: names.map((id) => ({ id, object: "model", created, owned_by: "incogni-ai" })),
   });
 }

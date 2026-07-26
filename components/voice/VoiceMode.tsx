@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mic, X, Loader2, Volume2 } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { AUTO_MODEL } from "@/lib/autoModel";
 import { speak as ttsSpeak, stopSpeaking } from "@/lib/tts";
 import { sttSupported, recordUntilSilence, transcribe, abortRecording } from "@/lib/stt";
@@ -30,9 +30,9 @@ function getRec(): SpeechRecCtor | null {
 }
 
 export function VoiceMode() {
-  const open = useVectoSiloStore((s) => s.voiceOpen);
-  const setOpen = useVectoSiloStore((s) => s.setVoiceOpen);
-  const selectedModel = useVectoSiloStore((s) => s.selectedModel);
+  const open = useIncogniStore((s) => s.voiceOpen);
+  const setOpen = useIncogniStore((s) => s.setVoiceOpen);
+  const selectedModel = useIncogniStore((s) => s.selectedModel);
 
   const [step, setStep] = useState<Step>("idle");
   const [transcript, setTranscript] = useState("");
@@ -97,7 +97,7 @@ export function VoiceMode() {
     setReply("");
     setCurrentWordIdx(-1);
 
-    const store = useVectoSiloStore.getState();
+    const store = useIncogniStore.getState();
     let threadId = store.activeThreadId && store.getThread(store.activeThreadId)
       ? store.activeThreadId : store.createThread(text);
 
@@ -116,7 +116,7 @@ export function VoiceMode() {
     let answer = "";
     try {
       const model = selectedModel && selectedModel !== AUTO_MODEL ? selectedModel : undefined;
-      const s = useVectoSiloStore.getState();
+      const s = useIncogniStore.getState();
       const res = await fetch("/api/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -177,7 +177,7 @@ export function VoiceMode() {
     if (!Ctor) { setError("Speech recognition not available in this browser."); return; }
     try { recRef.current?.abort(); } catch { /* noop */ }
     const rec = new Ctor();
-    rec.lang = useVectoSiloStore.getState().dictationLang || navigator.language || "en-US";
+    rec.lang = useIncogniStore.getState().dictationLang || navigator.language || "en-US";
     rec.continuous = false;
     rec.interimResults = true;
 
@@ -268,7 +268,7 @@ export function VoiceMode() {
   const close = () => setOpen(false);
 
   const highlightClass = (idx: number) =>
-    idx === currentWordIdx ? "text-vectosilo-accent-soft font-semibold" : "text-vectosilo-text/80";
+    idx === currentWordIdx ? "text-incogni-accent-soft font-semibold" : "text-incogni-text/80";
 
   return (
     <AnimatePresence>

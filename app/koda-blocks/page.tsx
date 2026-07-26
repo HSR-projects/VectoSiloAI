@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 
-export default function VectoSiloBlocksRedirect() {
+export default function IncogniBlocksRedirect() {
   useEffect(() => {
-    window.location.href = "/vectosiloblocks/index.html";
+    window.location.href = "/incogniblocks/index.html";
   }, []);
   return null;
 }

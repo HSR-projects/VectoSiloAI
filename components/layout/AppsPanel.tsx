@@ -7,7 +7,7 @@ import {
   Gitlab, Figma, Slack, Trello, Boxes, Rocket, Database, FileText,
   Cloud, CreditCard, Music2, Youtube, Palette, type LucideIcon,
 } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 interface GithubStatus {
@@ -35,11 +35,11 @@ interface AppDef {
 // ("coming soon") so the page matches the full app-store layout.
 const APPS: AppDef[] = [
   { id: "gitlab", name: "GitLab", desc: "Repos & CI/CD pipelines", category: "Developer", icon: Gitlab, tile: "bg-orange-500/15 text-orange-400" },
-  { id: "vercel", name: "Vercel", desc: "Deploy your apps instantly", category: "Developer", icon: Rocket, tile: "bg-vectosilo-surface-2 text-vectosilo-text" },
+  { id: "vercel", name: "Vercel", desc: "Deploy your apps instantly", category: "Developer", icon: Rocket, tile: "bg-incogni-surface-2 text-incogni-text" },
   { id: "codesandbox", name: "CodeSandbox", desc: "Run code in a sandbox", category: "Developer", icon: Boxes, tile: "bg-yellow-500/15 text-yellow-400" },
   { id: "figma", name: "Figma", desc: "Turn code into editable design", category: "Developer", icon: Figma, tile: "bg-pink-500/15 text-pink-400" },
   { id: "supabase", name: "Supabase", desc: "Postgres database & auth", category: "Developer", icon: Database, tile: "bg-emerald-500/15 text-emerald-400" },
-  { id: "notion", name: "Notion", desc: "Notes, docs & wikis", category: "Productivity", icon: FileText, tile: "bg-vectosilo-surface-2 text-vectosilo-text" },
+  { id: "notion", name: "Notion", desc: "Notes, docs & wikis", category: "Productivity", icon: FileText, tile: "bg-incogni-surface-2 text-incogni-text" },
   { id: "slack", name: "Slack", desc: "Send & summarize messages", category: "Productivity", icon: Slack, tile: "bg-purple-500/15 text-purple-400" },
   { id: "trello", name: "Trello", desc: "Boards, cards & tasks", category: "Productivity", icon: Trello, tile: "bg-sky-500/15 text-sky-400" },
   { id: "drive", name: "Google Drive", desc: "Find & read your files", category: "Productivity", icon: Cloud, tile: "bg-blue-500/15 text-blue-400" },
@@ -57,9 +57,9 @@ const TABS: Category[] = ["Featured", "Developer", "Productivity", "Lifestyle"];
  * Actions, edit the profile); the others are shown as upcoming.
  */
 export function AppsPanel() {
-  const open = useVectoSiloStore((s) => s.appsOpen);
-  const setOpen = useVectoSiloStore((s) => s.setAppsOpen);
-  const setGithubConnected = useVectoSiloStore((s) => s.setGithubConnected);
+  const open = useIncogniStore((s) => s.appsOpen);
+  const setOpen = useIncogniStore((s) => s.setAppsOpen);
+  const setGithubConnected = useIncogniStore((s) => s.setGithubConnected);
 
   const [gh, setGh] = useState<GithubStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -144,13 +144,13 @@ export function AppsPanel() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 z-40 overflow-y-auto bg-vectosilo-bg [scrollbar-width:thin]"
+          className="absolute inset-0 z-40 overflow-y-auto bg-incogni-bg [scrollbar-width:thin]"
         >
           {/* Close */}
           <button
             onClick={() => setOpen(false)}
             aria-label="Close apps"
-            className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-lg text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-lg text-incogni-muted transition-colors hover:bg-incogni-surface-2 hover:text-incogni-text"
           >
             <X className="h-5 w-5" />
           </button>
@@ -159,22 +159,22 @@ export function AppsPanel() {
             {/* Header + search */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight text-vectosilo-text">Apps</h1>
-                <p className="mt-1 text-sm text-vectosilo-muted">Chat with your favorite apps in VectoSiloAI</p>
+                <h1 className="text-3xl font-semibold tracking-tight text-incogni-text">Apps</h1>
+                <p className="mt-1 text-sm text-incogni-muted">Chat with your favorite apps in IncogniAI</p>
               </div>
               <div className="relative w-full sm:w-72">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vectosilo-muted" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-incogni-muted" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search apps"
-                  className="w-full rounded-full border border-vectosilo-border bg-vectosilo-surface py-2.5 pl-9 pr-3 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none"
+                  className="w-full rounded-full border border-incogni-border bg-incogni-surface py-2.5 pl-9 pr-3 text-sm text-incogni-text placeholder:text-incogni-muted focus:border-incogni-accent/50 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Hero — GitHub */}
-            <div className="relative mt-7 overflow-hidden rounded-2xl border border-vectosilo-border bg-gradient-to-br from-[#1f2430] via-[#161922] to-[#0f1117] p-6 sm:p-8">
+            <div className="relative mt-7 overflow-hidden rounded-2xl border border-incogni-border bg-gradient-to-br from-[#1f2430] via-[#161922] to-[#0f1117] p-6 sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="max-w-md">
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur">
@@ -221,7 +221,7 @@ export function AppsPanel() {
                       <span className="font-semibold">@github</span> list my private repos
                     </p>
                     <div className="mt-2 space-y-1.5">
-                      {["vectosilo-ai / web", "vectosilo-ai / mobile", "notes (private)"].map((r) => (
+                      {["incogni-ai / web", "incogni-ai / mobile", "notes (private)"].map((r) => (
                         <div key={r} className="flex items-center gap-2 rounded-lg bg-black/20 px-3 py-1.5 text-[11px] text-white/70">
                           <Github className="h-3 w-3" /> {r}
                         </div>
@@ -233,7 +233,7 @@ export function AppsPanel() {
             </div>
 
             {/* Tabs */}
-            <div className="mt-7 flex items-center gap-1 border-b border-vectosilo-border">
+            <div className="mt-7 flex items-center gap-1 border-b border-incogni-border">
               {TABS.map((t) => (
                 <button
                   key={t}
@@ -241,8 +241,8 @@ export function AppsPanel() {
                   className={cn(
                     "-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors",
                     tab === t
-                      ? "border-vectosilo-accent text-vectosilo-text"
-                      : "border-transparent text-vectosilo-muted hover:text-vectosilo-text"
+                      ? "border-incogni-accent text-incogni-text"
+                      : "border-transparent text-incogni-muted hover:text-incogni-text"
                   )}
                 >
                   {t}
@@ -257,7 +257,7 @@ export function AppsPanel() {
                   name="GitHub"
                   desc={gh?.connected ? `Connected as @${gh.login}` : "Repos, code, files & Actions"}
                   icon={Github}
-                  tile="bg-vectosilo-surface-2 text-vectosilo-text"
+                  tile="bg-incogni-surface-2 text-incogni-text"
                   badge={gh?.connected ? "connected" : "connect"}
                   onClick={gh?.connected ? () => setOpen(false) : connect}
                 />
@@ -276,7 +276,7 @@ export function AppsPanel() {
             </div>
 
             {filtered.length === 0 && !showGithub && (
-              <p className="py-16 text-center text-sm text-vectosilo-muted">No apps match “{q}”.</p>
+              <p className="py-16 text-center text-sm text-incogni-muted">No apps match “{q}”.</p>
             )}
           </div>
 
@@ -287,7 +287,7 @@ export function AppsPanel() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
-                className="fixed bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full border border-vectosilo-border bg-vectosilo-surface px-4 py-2 text-sm text-vectosilo-text shadow-xl"
+                className="fixed bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full border border-incogni-border bg-incogni-surface px-4 py-2 text-sm text-incogni-text shadow-xl"
               >
                 {soon} integration is coming soon.
               </motion.div>
@@ -313,27 +313,27 @@ function AppRow({
     <button
       type="button"
       onClick={onClick}
-      className="group flex items-center gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-vectosilo-surface-2"
+      className="group flex items-center gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-incogni-surface-2"
     >
       <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", tile)}>
         <Icon className="h-5 w-5" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-vectosilo-text">{name}</span>
-        <span className="block truncate text-xs text-vectosilo-muted">{desc}</span>
+        <span className="block truncate text-sm font-medium text-incogni-text">{name}</span>
+        <span className="block truncate text-xs text-incogni-muted">{desc}</span>
       </span>
       {badge === "connected" ? (
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
           <Check className="h-3 w-3" /> Connected
         </span>
       ) : badge === "connect" ? (
-        <span className="inline-flex items-center gap-1 rounded-full bg-vectosilo-accent/15 px-2 py-0.5 text-[10px] font-medium text-vectosilo-accent-soft">
+        <span className="inline-flex items-center gap-1 rounded-full bg-incogni-accent/15 px-2 py-0.5 text-[10px] font-medium text-incogni-accent-soft">
           Connect <ArrowUpRight className="h-3 w-3" />
         </span>
       ) : (
-        <span className="rounded-full border border-vectosilo-border px-2 py-0.5 text-[10px] text-vectosilo-muted">Soon</span>
+        <span className="rounded-full border border-incogni-border px-2 py-0.5 text-[10px] text-incogni-muted">Soon</span>
       )}
-      <ChevronRight className="h-4 w-4 shrink-0 text-vectosilo-muted transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-incogni-muted transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }

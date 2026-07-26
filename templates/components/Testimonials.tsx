@@ -57,7 +57,7 @@ export function Testimonials({
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl"
+            className="text-center text-3xl font-bold text-incogni-text sm:text-4xl"
           >
             {title}
           </motion.h2>
@@ -78,13 +78,13 @@ export function Testimonials({
                   hidden: { opacity: 0, y: 24 },
                   visible: { opacity: 1, y: 0 },
                 }}
-                className="relative rounded-xl border border-vectosilo-border bg-vectosilo-surface p-6"
+                className="relative rounded-xl border border-incogni-border bg-incogni-surface p-6"
               >
                 <Quote
                   size={28}
-                  className="absolute top-4 left-4 text-vectosilo-accent/20"
+                  className="absolute top-4 left-4 text-incogni-accent/20"
                 />
-                <p className="relative z-10 mt-2 text-sm leading-relaxed text-vectosilo-muted italic">
+                <p className="relative z-10 mt-2 text-sm leading-relaxed text-incogni-muted italic">
                   &ldquo;{t.quote}&rdquo;
                 </p>
                 <div className="mt-4 flex items-center gap-3">
@@ -96,10 +96,10 @@ export function Testimonials({
                     className="rounded-full object-cover"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-vectosilo-text">
+                    <p className="text-sm font-semibold text-incogni-text">
                       {t.author}
                     </p>
-                    <p className="text-xs text-vectosilo-muted">{t.role}</p>
+                    <p className="text-xs text-incogni-muted">{t.role}</p>
                   </div>
                 </div>
               </motion.div>
@@ -119,7 +119,7 @@ export function Testimonials({
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl"
+            className="text-center text-3xl font-bold text-incogni-text sm:text-4xl"
           >
             {title}
           </motion.h2>
@@ -131,13 +131,13 @@ export function Testimonials({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
                 transition={{ duration: 0.3 }}
-                className="relative rounded-xl border border-vectosilo-border bg-vectosilo-surface p-8 text-center"
+                className="relative rounded-xl border border-incogni-border bg-incogni-surface p-8 text-center"
               >
                 <Quote
                   size={36}
-                  className="mx-auto text-vectosilo-accent/20"
+                  className="mx-auto text-incogni-accent/20"
                 />
-                <p className="mt-4 text-lg leading-relaxed text-vectosilo-muted italic">
+                <p className="mt-4 text-lg leading-relaxed text-incogni-muted italic">
                   &ldquo;{t.quote}&rdquo;
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-3">
@@ -149,10 +149,10 @@ export function Testimonials({
                     className="rounded-full object-cover"
                   />
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-vectosilo-text">
+                    <p className="text-sm font-semibold text-incogni-text">
                       {t.author}
                     </p>
-                    <p className="text-xs text-vectosilo-muted">{t.role}</p>
+                    <p className="text-xs text-incogni-muted">{t.role}</p>
                   </div>
                 </div>
               </motion.div>
@@ -165,8 +165,8 @@ export function Testimonials({
                   className={cn(
                     "h-2 rounded-full transition-all",
                     i === current
-                      ? "w-6 bg-vectosilo-accent"
-                      : "w-2 bg-vectosilo-border hover:bg-vectosilo-muted",
+                      ? "w-6 bg-incogni-accent"
+                      : "w-2 bg-incogni-border hover:bg-incogni-muted",
                   )}
                   aria-label={`Go to testimonial ${i + 1}`}
                 />
@@ -190,7 +190,7 @@ export function Testimonials({
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center text-3xl font-bold text-vectosilo-text sm:text-4xl"
+          className="text-center text-3xl font-bold text-incogni-text sm:text-4xl"
         >
           {title}
         </motion.h2>
@@ -204,12 +204,12 @@ export function Testimonials({
                 viewport={{ once: true }}
                 className="min-w-[300px] flex-1 snap-start"
               >
-                <div className="relative h-full rounded-xl border border-vectosilo-border bg-vectosilo-surface p-6">
+                <div className="relative h-full rounded-xl border border-incogni-border bg-incogni-surface p-6">
                   <Quote
                     size={24}
-                    className="absolute top-4 left-4 text-vectosilo-accent/20"
+                    className="absolute top-4 left-4 text-incogni-accent/20"
                   />
-                  <p className="relative z-10 mt-2 text-sm leading-relaxed text-vectosilo-muted italic line-clamp-4">
+                  <p className="relative z-10 mt-2 text-sm leading-relaxed text-incogni-muted italic line-clamp-4">
                     &ldquo;{t.quote}&rdquo;
                   </p>
                   <div className="mt-4 flex items-center gap-3">
@@ -221,10 +221,10 @@ export function Testimonials({
                       className="rounded-full object-cover"
                     />
                     <div>
-                      <p className="text-sm font-semibold text-vectosilo-text">
+                      <p className="text-sm font-semibold text-incogni-text">
                         {t.author}
                       </p>
-                      <p className="text-xs text-vectosilo-muted">{t.role}</p>
+                      <p className="text-xs text-incogni-muted">{t.role}</p>
                     </div>
                   </div>
                 </div>
@@ -234,17 +234,17 @@ export function Testimonials({
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
               onClick={prev}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-vectosilo-border text-vectosilo-muted transition-colors hover:border-vectosilo-accent hover:text-vectosilo-accent"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-incogni-border text-incogni-muted transition-colors hover:border-incogni-accent hover:text-incogni-accent"
               aria-label="Previous"
             >
               <ChevronLeft size={20} />
             </button>
-            <span className="text-sm text-vectosilo-muted">
+            <span className="text-sm text-incogni-muted">
               {current + 1} / {testimonials.length}
             </span>
             <button
               onClick={next}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-vectosilo-border text-vectosilo-muted transition-colors hover:border-vectosilo-accent hover:text-vectosilo-accent"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-incogni-border text-incogni-muted transition-colors hover:border-incogni-accent hover:text-incogni-accent"
               aria-label="Next"
             >
               <ChevronRight size={20} />

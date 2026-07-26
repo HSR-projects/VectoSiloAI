@@ -1,28 +1,78 @@
 "use client";
 
+import { useEffect, useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Blocks, ChevronRight, Bot, Brain } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import {
+  Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Image as ImageIcon,
+  Blocks, Folder, PanelLeft, Pencil, Download, MoreHorizontal, Bot,
+} from "lucide-react";
+import { useIncogniStore } from "@/lib/store";
+import { useNewChat } from "@/hooks/useNewChat";
 import { ThreadSearch } from "@/components/search/ThreadSearch";
 import { Library } from "@/components/layout/Library";
-import { relativeTime, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { CustomAIsModal } from "./CustomAIsModal";
+import { AccountMenu } from "@/components/auth/AccountMenu";
+import type { Thread } from "@/types";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
 }
 
+/* ── Time-based grouping helpers ────────────────────────────────────── */
+
+function groupLabel(ts: number): string {
+  const now = new Date();
+  const d = new Date(ts);
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / 86_400_000);
+
+  if (diffDays === 0 && now.getDate() === d.getDate()) return "Today";
+  if (diffDays <= 1 && now.getDate() - d.getDate() === 1) return "Yesterday";
+  if (diffDays < 7) return "Previous 7 days";
+  if (diffDays < 30) return "Previous 30 days";
+  return d.toLocaleString("default", { month: "long", year: "numeric" });
+}
+
+interface ThreadGroup {
+  label: string;
+  threads: Thread[];
+}
+
+function groupThreads(threads: Thread[]): ThreadGroup[] {
+  const map = new Map<string, Thread[]>();
+  const order: string[] = [];
+  for (const t of threads) {
+    const label = groupLabel(t.updatedAt);
+    if (!map.has(label)) {
+      map.set(label, []);
+      order.push(label);
+    }
+    map.get(label)!.push(t);
+  }
+  return order.map((label) => ({ label, threads: map.get(label)! }));
+}
+
 export function Sidebar({ open, onClose }: SidebarProps) {
   const router = useRouter();
   const params = useParams();
   const activeId = (params?.threadId as string) ?? null;
-  const { threads, deleteThread, setActiveThread } = useVectoSiloStore();
-  const setSearchOpen = useVectoSiloStore((s) => s.setSearchOpen);
-  const setLibraryOpen = useVectoSiloStore((s) => s.setLibraryOpen);
-  const setSettingsOpen = useVectoSiloStore((s) => s.setSettingsOpen);
-  const setSettingsTab = useVectoSiloStore((s) => s.setSettingsTab);
-  const setCustomAIsOpen = useVectoSiloStore((s) => s.setCustomAIsOpen);
+  const { threads, deleteThread, setActiveThread, updateThreadTitle } = useIncogniStore();
+  const setSearchOpen = useIncogniStore((s) => s.setSearchOpen);
+  const setLibraryOpen = useIncogniStore((s) => s.setLibraryOpen);
+  const setCustomAIsOpen = useIncogniStore((s) => s.setCustomAIsOpen);
+  const newChat = useNewChat();
+
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   const openThread = (id: string) => {
     setActiveThread(id);
@@ -30,17 +80,54 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     onClose();
   };
 
-  const newSearch = () => {
-    setActiveThread(null);
-    router.push("/");
+  const handleNewChat = () => {
+    newChat();
     onClose();
   };
 
-  const openIntegrations = () => {
-    setSettingsTab("integrations");
-    setSettingsOpen(true);
-    onClose();
+  const startRename = (t: Thread) => {
+    setRenamingId(t.id);
+    setRenameValue(t.title);
   };
+
+  const commitRename = (id: string) => {
+    const title = renameValue.trim();
+    if (title) {
+      updateThreadTitle(id, title);
+      fetch(`/api/threads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      }).catch(() => {});
+    }
+    setRenamingId(null);
+  };
+
+  const exportThread = (t: Thread) => {
+    const md = t.messages
+      .map((m) => `## ${m.role === "user" ? "You" : "Assistant"}\n\n${m.content}`)
+      .join("\n\n---\n\n");
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${t.title || "chat"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteThread(id);
+    fetch(`/api/threads/${id}`, { method: "DELETE" }).catch(() => {});
+    if (id === activeId) handleNewChat();
+  };
+
+  // Filter out temporary threads from sidebar
+  const visibleThreads = useMemo(
+    () => threads.filter((t) => !(t as any).isTemporary),
+    [threads]
+  );
+  const groups = useMemo(() => groupThreads(visibleThreads), [visibleThreads]);
 
   return (
     <>
@@ -59,127 +146,170 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-vectosilo-border bg-vectosilo-surface transition-transform md:static md:z-auto",
-          // Open: visible everywhere. Closed: off-canvas on mobile, removed from
-          // the layout on desktop so the chat expands full-width.
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-incogni-border bg-incogni-surface transition-transform md:static md:z-auto",
           open ? "translate-x-0 md:flex" : "-translate-x-full md:hidden"
         )}
       >
+        {/* Top bar */}
         <div className="flex items-center justify-between p-3">
-          <button
-            onClick={newSearch}
-            className="flex flex-1 items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2.5 text-sm font-medium text-vectosilo-text transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2"
-          >
-            <Plus className="h-4 w-4 text-vectosilo-accent" />
-            New Search
-          </button>
-          <button
-            onClick={onClose}
-            aria-label="Close sidebar"
-            className="ml-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-vectosilo-muted hover:bg-vectosilo-surface-2 md:hidden"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2 px-2 font-semibold text-lg text-incogni-text select-none">
+             <img src="/incogni-logo.svg" alt="Incogni AI" width={24} height={24} />
+             IncogniAI
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleNewChat}
+              aria-label="New chat"
+              title="New chat"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-incogni-text transition-colors hover:bg-incogni-surface-2"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+            <button
+               onClick={onClose}
+               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-incogni-muted hover:bg-incogni-surface-2 transition-colors md:hidden"
+            >
+               <X className="h-4 w-4" />
+            </button>
+            <button
+               onClick={onClose}
+               title="Close sidebar"
+               className="hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-incogni-muted hover:bg-incogni-surface-2 transition-colors"
+            >
+               <PanelLeft className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Search chats — opens the Spotlight-style palette (⌘K). */}
-        <div className="px-3 pb-2">
+        {/* Nav items */}
+        <div className="px-3 pb-2 flex flex-col gap-0.5">
           <button
-            onClick={() => setSearchOpen(true)}
-            className="flex w-full items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            onClick={() => { router.push("/images"); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
           >
-            <Search className="h-4 w-4" />
-            <span className="flex-1 text-left">Search chats</span>
-            <span className="rounded border border-vectosilo-border px-1.5 py-0.5 text-[10px] text-vectosilo-muted">⌘K</span>
+            <ImageIcon className="h-4 w-4 text-incogni-muted" />
+            <span className="flex-1 text-left">Images</span>
           </button>
           <button
-            onClick={() => setLibraryOpen(true)}
-            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            onClick={() => { router.push("/library"); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
           >
-            <LibraryIcon className="h-4 w-4" />
+            <LibraryIcon className="h-4 w-4 text-incogni-muted" />
             <span className="flex-1 text-left">Library</span>
           </button>
           <button
-            onClick={openIntegrations}
-            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            onClick={() => { router.push("/plugins"); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
           >
-            <Blocks className="h-4 w-4" />
-            <span className="flex-1 text-left">Integrations</span>
-            <ChevronRight className="h-4 w-4 text-vectosilo-muted" />
+            <Blocks className="h-4 w-4 text-incogni-muted" />
+            <span className="flex-1 text-left">Plugins</span>
           </button>
           <button
-            onClick={() => {
-              setCustomAIsOpen(true);
-              onClose();
-            }}
-            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+            onClick={() => { router.push("/projects"); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
           >
-            <Bot className="h-4 w-4" />
+            <Folder className="h-4 w-4 text-incogni-muted" />
+            <span className="flex-1 text-left">Projects</span>
+          </button>
+          <button
+            onClick={() => { setCustomAIsOpen(true); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
+          >
+            <Bot className="h-4 w-4 text-incogni-muted" />
             <span className="flex-1 text-left">My AIs</span>
-          </button>
-          <button
-            onClick={() => { router.push("/teach"); onClose(); }}
-            className="mt-1.5 flex w-full items-center gap-2 rounded-xl border border-vectosilo-border bg-vectosilo-bg px-3 py-2 text-sm text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
-          >
-            <Brain className="h-4 w-4" />
-            <span className="flex-1 text-left">Teachable Machine</span>
           </button>
         </div>
 
+        {/* Chat history — time-grouped */}
         <div className="flex-1 overflow-y-auto px-2 pb-4 [scrollbar-width:thin]">
-          {threads.length === 0 ? (
-            <p className="px-3 py-6 text-center text-xs text-vectosilo-muted">
-              No threads yet. Start a search to begin.
+          {visibleThreads.length === 0 ? (
+            <p className="px-3 py-6 text-center text-xs text-incogni-muted">
+              No chats yet. Start a conversation.
             </p>
           ) : (
-            <ul className="space-y-1">
-              {threads.map((t, i) => {
-                const active = t.id === activeId;
-                return (
-                  <motion.li
-                    key={t.id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: Math.min(i * 0.03, 0.3) }}
-                  >
-                    <div
-                      className={cn(
-                        "group relative flex cursor-pointer items-start gap-2 rounded-lg border-l-2 px-3 py-2.5 transition-colors",
-                        active
-                          ? "border-vectosilo-accent bg-vectosilo-surface-2"
-                          : "border-transparent hover:bg-vectosilo-surface-2"
-                      )}
-                      onClick={() => openThread(t.id)}
-                    >
-                      <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-vectosilo-muted" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-vectosilo-text">{t.title}</p>
-                        <p className="text-xs text-vectosilo-muted">
-                          {relativeTime(t.updatedAt)}
-                        </p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteThread(t.id);
-                          fetch(`/api/threads/${t.id}`, { method: "DELETE" }).catch(() => {});
-                          if (active) newSearch();
-                        }}
-                        aria-label="Delete thread"
-                        className="shrink-0 p-1 opacity-100 transition-opacity hover:text-red-400 md:opacity-0 md:group-hover:opacity-100"
-                      >
-                        <Trash2 className="h-4 w-4 text-vectosilo-muted hover:text-red-400" />
-                      </button>
-                    </div>
-                  </motion.li>
-                );
-              })}
-            </ul>
+            groups.map((g) => (
+              <div key={g.label} className="mb-2">
+                <p className="px-3 pt-3 pb-1 text-[11px] font-medium text-incogni-muted uppercase tracking-wider">
+                  {g.label}
+                </p>
+                <ul className="space-y-0.5">
+                  {g.threads.map((t) => {
+                    const active = t.id === activeId;
+                    const isRenaming = renamingId === t.id;
+                    return (
+                      <li key={t.id}>
+                        <div
+                          className={cn(
+                            "group relative flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-colors",
+                            active
+                              ? "bg-incogni-surface-2"
+                              : "hover:bg-incogni-surface-2"
+                          )}
+                          onClick={() => !isRenaming && openThread(t.id)}
+                        >
+                          <div className="min-w-0 flex-1">
+                            {isRenaming ? (
+                              <input
+                                autoFocus
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onBlur={() => commitRename(t.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") commitRename(t.id);
+                                  if (e.key === "Escape") setRenamingId(null);
+                                }}
+                                className="w-full rounded bg-incogni-bg border border-incogni-border px-1.5 py-0.5 text-sm text-incogni-text focus:outline-none focus:border-incogni-accent"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            ) : (
+                              <p className="truncate text-sm text-incogni-text">{t.title}</p>
+                            )}
+                          </div>
+
+                          {/* Overflow menu */}
+                          {!isRenaming && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity text-incogni-muted hover:text-incogni-text rounded"
+                                  aria-label="Chat options"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem onSelect={() => startRename(t)}>
+                                  <span className="flex items-center gap-2 text-incogni-text">
+                                    <Pencil className="h-3.5 w-3.5" /> Rename
+                                  </span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => exportThread(t)}>
+                                  <span className="flex items-center gap-2 text-incogni-text">
+                                    <Download className="h-3.5 w-3.5" /> Export
+                                  </span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => handleDelete(t.id)}>
+                                  <span className="flex items-center gap-2 text-red-400">
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                  </span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))
           )}
         </div>
 
-        <div className="border-t border-vectosilo-border p-3 text-[11px] text-vectosilo-muted">
-          Powered by VectoSilo AI · Privacy-first
+        {/* Account menu at bottom */}
+        <div className="p-3">
+          <AccountMenu />
         </div>
       </aside>
 

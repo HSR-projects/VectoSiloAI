@@ -4,7 +4,7 @@ import { recordIncident } from "@/lib/incidentStore";
 /**
  * Ollama Cloud client.
  *
- * VectoSiloAI is configured to use Ollama Cloud (https://ollama.com) rather than a
+ * IncogniAI is configured to use Ollama Cloud (https://ollama.com) rather than a
  * local Ollama daemon. Requests are authenticated with a bearer API key.
  * The wire protocol is identical to local Ollama, so the same client works if
  * you ever point OLLAMA_BASE_URL back at http://localhost:11434.
@@ -32,7 +32,7 @@ export const FORCE_MODEL = process.env.OLLAMA_FORCE_MODEL || "";
  * Configurable via OLLAMA_BLOCKED_MODELS (comma-separated); falls back to a
  * sane default that excludes known data-retaining preview models.
  */
-const DEFAULT_BLOCKED = ["gemini", "glm", "deepseek", "rnj" , "kimi", "mistral"];
+const DEFAULT_BLOCKED = ["gemini", "glm", "deepseek", "rnj", "kimi", "mistral", "qwen"];
 const BLOCK_LIST = (process.env.OLLAMA_BLOCKED_MODELS || "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
@@ -46,7 +46,8 @@ export function isBlockedModel(name: string): boolean {
 }
 
 export function resolveModel(requested?: string): string {
-  const chosen = FORCE_MODEL || requested || DEFAULT_MODEL;
+  let chosen = FORCE_MODEL || requested || DEFAULT_MODEL;
+  if (!chosen || chosen === "auto") chosen = DEFAULT_MODEL;
   // Never route a blocked model upstream — fall back to the default.
   if (isBlockedModel(chosen) && !isBlockedModel(DEFAULT_MODEL)) return DEFAULT_MODEL;
   return chosen;
@@ -69,7 +70,7 @@ export class OllamaError extends Error {
 
 /** Friendly guidance attached to connection failures. */
 function connectionHint(): string {
-  return "Could not reach the VectoSiloAI model service. Check your connection and try again in a moment.";
+  return "Could not reach the IncogniAI model service. Check your connection and try again in a moment.";
 }
 
 /** Replace upstream Ollama errors with user-friendly messages and record incidents where needed. */
@@ -78,6 +79,7 @@ function sanitizeError(raw: string): string {
 
   // Session / rate-limit exhaustion — temporary, clears after a few hours.
   if (
+    lower.includes("nvidia workers reached") ||
     lower.includes("session usage") ||
     lower.includes("usage limit") ||
     lower.includes("rate limit") ||
@@ -116,6 +118,24 @@ interface ChatOptions {
   format?: "json" | object;
 }
 
+/** Wrapper around fetch that retries after 60s if NVIDIA workers are maxed out. */
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 1): Promise<Response> {
+  let attempt = 0;
+  while (true) {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      const cloned = res.clone();
+      const text = await cloned.text().catch(() => "");
+      if (text.toLowerCase().includes("nvidia workers reached") && attempt < maxRetries) {
+        attempt++;
+        await new Promise(resolve => setTimeout(resolve, 60000));
+        continue;
+      }
+    }
+    return res;
+  }
+}
+
 /** A streamed delta: reasoning tokens and/or answer tokens. */
 export interface RichDelta {
   content?: string;
@@ -132,7 +152,7 @@ export async function* chatStreamRich(
   opts: ChatOptions
 ): AsyncGenerator<RichDelta, void, unknown> {
   const doFetch = (think: boolean) =>
-    fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
       method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({
@@ -207,7 +227,7 @@ export async function* chatStream(
 ): AsyncGenerator<string, void, unknown> {
   let res: Response;
   try {
-    res = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
       method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({
@@ -262,7 +282,7 @@ export async function* chatStream(
 export async function chat(opts: ChatOptions): Promise<string> {
   let res: Response;
   try {
-    res = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/chat`, {
       method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({
@@ -294,7 +314,7 @@ export async function chat(opts: ChatOptions): Promise<string> {
 export async function listModels(): Promise<OllamaModel[]> {
   let res: Response;
   try {
-    res = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
+    res = await fetchWithRetry(`${OLLAMA_BASE_URL}/api/tags`, {
       headers: authHeaders(),
       cache: "no-store",
     });

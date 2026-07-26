@@ -69,11 +69,11 @@ export function FeaturesGrid({
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-incogni-text sm:text-4xl">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-4 text-lg text-vectosilo-muted">{subtitle}</p>
+            <p className="mt-4 text-lg text-incogni-muted">{subtitle}</p>
           )}
         </motion.div>
 
@@ -89,15 +89,15 @@ export function FeaturesGrid({
               key={i}
               variants={itemVariants}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="group rounded-xl border border-vectosilo-border bg-vectosilo-surface p-6 transition-colors hover:border-vectosilo-accent/30"
+              className="group rounded-xl border border-incogni-border bg-incogni-surface p-6 transition-colors hover:border-incogni-accent/30"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-vectosilo-accent/10 text-vectosilo-accent">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-incogni-accent/10 text-incogni-accent">
                 {IconComponent(feature.icon)}
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-vectosilo-text">
+              <h3 className="mt-4 text-lg font-semibold text-incogni-text">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-vectosilo-muted">
+              <p className="mt-2 text-sm leading-relaxed text-incogni-muted">
                 {feature.description}
               </p>
             </motion.div>

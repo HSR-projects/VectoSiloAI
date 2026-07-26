@@ -138,14 +138,14 @@ const teamMembers = [
 export default function LandingStartup() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-vectosilo-bg">
+      <div className="min-h-screen bg-incogni-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-vectosilo-text">StartupOS</span>}
+          logo={<span className="text-xl font-bold text-incogni-text">StartupOS</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+              className="rounded-lg bg-incogni-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
             >
               Get Early Access
             </a>
@@ -249,17 +249,17 @@ export default function LandingStartup() {
           />
         </div>
 
-        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
+        <footer className="border-t border-incogni-border bg-incogni-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <span className="text-sm text-vectosilo-muted">
+              <span className="text-sm text-incogni-muted">
                 &copy; {new Date().getFullYear()} StartupOS. All rights reserved.
               </span>
-              <div className="flex gap-6 text-sm text-vectosilo-muted">
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Privacy</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Terms</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">Twitter</a>
-                <a href="#" className="hover:text-vectosilo-text transition-colors">LinkedIn</a>
+              <div className="flex gap-6 text-sm text-incogni-muted">
+                <a href="#" className="hover:text-incogni-text transition-colors">Privacy</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">Terms</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">Twitter</a>
+                <a href="#" className="hover:text-incogni-text transition-colors">LinkedIn</a>
               </div>
             </div>
           </div>

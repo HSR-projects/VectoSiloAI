@@ -7,7 +7,7 @@ import {
   HelpCircle, Lock, Zap, ArrowRight, Shield, AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { effectiveCaps } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
@@ -167,17 +167,17 @@ export function WhatsAppSettings() {
   if (!canUseWhatsApp) {
     return (
       <div className="pt-2">
-        <div className="rounded-xl border border-vectosilo-accent/30 bg-vectosilo-accent/5 p-4">
+        <div className="rounded-xl border border-incogni-accent/30 bg-incogni-accent/5 p-4">
           <div className="flex items-center gap-3">
-            <Lock className="h-5 w-5 text-vectosilo-accent-soft shrink-0" />
+            <Lock className="h-5 w-5 text-incogni-accent-soft shrink-0" />
             <div>
-              <p className="font-medium text-vectosilo-text">WhatsApp requires Go plan or above</p>
-              <p className="text-sm text-vectosilo-muted">
-                Connect your WhatsApp to chat with VectoSiloAI from your phone.
+              <p className="font-medium text-incogni-text">WhatsApp requires Go plan or above</p>
+              <p className="text-sm text-incogni-muted">
+                Connect your WhatsApp to chat with IncogniAI from your phone.
               </p>
             </div>
           </div>
-          <button onClick={goUpgrade} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-vectosilo-accent/90">
+          <button onClick={goUpgrade} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-incogni-accent/90">
             <ArrowRight className="h-3 w-3" /> Upgrade to Go
           </button>
         </div>
@@ -188,8 +188,8 @@ export function WhatsAppSettings() {
   return (
     <div className="pt-2 space-y-4">
       {/* Mode Selection */}
-      <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
-        <p className="mb-3 text-sm font-medium text-vectosilo-text">Connection Mode</p>
+      <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
+        <p className="mb-3 text-sm font-medium text-incogni-text">Connection Mode</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
@@ -197,22 +197,22 @@ export function WhatsAppSettings() {
             className={cn(
               "relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
               mode === "self"
-                ? "border-vectosilo-accent bg-vectosilo-accent/5"
-                : "border-vectosilo-border hover:border-vectosilo-accent/50"
+                ? "border-incogni-accent bg-incogni-accent/5"
+                : "border-incogni-border hover:border-incogni-accent/50"
             )}
           >
             <div className={cn(
               "flex h-12 w-12 items-center justify-center rounded-xl",
-              mode === "self" ? "bg-vectosilo-accent/15 text-vectosilo-accent" : "bg-vectosilo-surface-2 text-vectosilo-muted"
+              mode === "self" ? "bg-incogni-accent/15 text-incogni-accent" : "bg-incogni-surface-2 text-incogni-muted"
             )}>
               <Smartphone className="h-6 w-6" />
             </div>
-            <span className="text-sm font-medium text-vectosilo-text">Message Myself</span>
-            <p className="text-center text-xs text-vectosilo-muted">
-              Scan QR and chat with VectoSiloAI on your own WhatsApp
+            <span className="text-sm font-medium text-incogni-text">Message Myself</span>
+            <p className="text-center text-xs text-incogni-muted">
+              Scan QR and chat with IncogniAI on your own WhatsApp
             </p>
             {mode === "self" && (
-              <Check className="absolute top-2 right-2 h-5 w-5 text-vectosilo-accent" />
+              <Check className="absolute top-2 right-2 h-5 w-5 text-incogni-accent" />
             )}
           </button>
 
@@ -222,22 +222,22 @@ export function WhatsAppSettings() {
             className={cn(
               "relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
               mode === "separate"
-                ? "border-vectosilo-accent bg-vectosilo-accent/5"
-                : "border-vectosilo-border hover:border-vectosilo-accent/50"
+                ? "border-incogni-accent bg-incogni-accent/5"
+                : "border-incogni-border hover:border-incogni-accent/50"
             )}
           >
             <div className={cn(
               "flex h-12 w-12 items-center justify-center rounded-xl",
-              mode === "separate" ? "bg-vectosilo-accent/15 text-vectosilo-accent" : "bg-vectosilo-surface-2 text-vectosilo-muted"
+              mode === "separate" ? "bg-incogni-accent/15 text-incogni-accent" : "bg-incogni-surface-2 text-incogni-muted"
             )}>
               <MessageSquare className="h-6 w-6" />
             </div>
-            <span className="text-sm font-medium text-vectosilo-text">Separate Number</span>
-            <p className="text-center text-xs text-vectosilo-muted">
-              Use a dedicated WhatsApp number for VectoSiloAI
+            <span className="text-sm font-medium text-incogni-text">Separate Number</span>
+            <p className="text-center text-xs text-incogni-muted">
+              Use a dedicated WhatsApp number for IncogniAI
             </p>
             {mode === "separate" && (
-              <Check className="absolute top-2 right-2 h-5 w-5 text-vectosilo-accent" />
+              <Check className="absolute top-2 right-2 h-5 w-5 text-incogni-accent" />
             )}
           </button>
         </div>
@@ -245,13 +245,13 @@ export function WhatsAppSettings() {
 
       {/* Phone Number Input (Separate mode only) */}
       {mode === "separate" && (
-        <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
-          <p className="mb-3 text-sm font-medium text-vectosilo-text">WhatsApp Number</p>
+        <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
+          <p className="mb-3 text-sm font-medium text-incogni-text">WhatsApp Number</p>
           <div className="flex gap-2">
             <select
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="flex h-10 w-28 shrink-0 items-center rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2 py-1.5 text-sm text-vectosilo-text focus:border-vectosilo-accent/50 focus:outline-none"
+              className="flex h-10 w-28 shrink-0 items-center rounded-lg border border-incogni-border bg-incogni-surface px-2 py-1.5 text-sm text-incogni-text focus:border-incogni-accent/50 focus:outline-none"
             >
               {COUNTRY_CODES.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -267,11 +267,11 @@ export function WhatsAppSettings() {
                 setPhoneNumber(formatNumber(cleaned));
               }}
               placeholder="Phone number"
-              className="flex-1 h-10 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-sm text-vectosilo-text placeholder:text-vectosilo-muted focus:border-vectosilo-accent/50 focus:outline-none"
+              className="flex-1 h-10 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-sm text-incogni-text placeholder:text-incogni-muted focus:border-incogni-accent/50 focus:outline-none"
               maxLength={15}
             />
           </div>
-          <p className="mt-1 text-xs text-vectosilo-muted">
+          <p className="mt-1 text-xs text-incogni-muted">
             Format: {countryCode} {formatNumber(phoneNumber.replace(/\D/g, ""))}
           </p>
         </div>
@@ -279,18 +279,18 @@ export function WhatsAppSettings() {
 
       {/* Connect / Status */}
       {whatsappState.status === "disconnected" ? (
-        <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
+        <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-vectosilo-text">Not connected</p>
-              <p className="text-sm text-vectosilo-muted">
+              <p className="font-medium text-incogni-text">Not connected</p>
+              <p className="text-sm text-incogni-muted">
                 Click Connect to link your WhatsApp account
               </p>
             </div>
             <button
               onClick={handleConnect}
               disabled={loading || (mode === "separate" && !phoneNumber.trim())}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-vectosilo-accent/90 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-incogni-accent/90 disabled:opacity-40"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
               Connect
@@ -298,10 +298,10 @@ export function WhatsAppSettings() {
           </div>
         </div>
       ) : whatsappState.status === "qr" ? (
-        <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
+        <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
           <div className="text-center">
-            <p className="mb-3 flex items-center justify-center gap-1.5 text-sm font-medium text-vectosilo-text">
-              <Loader2 className="h-4 w-4 animate-spin text-vectosilo-accent" />
+            <p className="mb-3 flex items-center justify-center gap-1.5 text-sm font-medium text-incogni-text">
+              <Loader2 className="h-4 w-4 animate-spin text-incogni-accent" />
               Scan QR Code
             </p>
             {whatsappState.qrCode && (
@@ -309,14 +309,14 @@ export function WhatsAppSettings() {
                 <img
                   src={whatsappState.qrCode}
                   alt="WhatsApp QR Code"
-                  className="h-64 w-64 rounded-xl border border-vectosilo-border bg-white p-2"
+                  className="h-64 w-64 rounded-xl border border-incogni-border bg-white p-2"
                 />
               </div>
             )}
-            <p className="text-sm text-vectosilo-muted">
+            <p className="text-sm text-incogni-muted">
               Open WhatsApp → Settings → Linked Devices → Link a Device
             </p>
-            <p className="mt-1 text-xs text-vectosilo-muted/70">
+            <p className="mt-1 text-xs text-incogni-muted/70">
               QR refreshes every 20s. Keep this window open.
             </p>
             {error && (
@@ -327,7 +327,7 @@ export function WhatsAppSettings() {
             <button
               onClick={handleDisconnect}
               disabled={loading}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs font-medium text-vectosilo-muted transition-colors hover:bg-vectosilo-surface-2"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs font-medium text-incogni-muted transition-colors hover:bg-incogni-surface-2"
             >
               <X className="h-3 w-3" /> Cancel
             </button>
@@ -342,7 +342,7 @@ export function WhatsAppSettings() {
               </div>
               <div>
                 <p className="font-medium text-emerald-400">WhatsApp Connected</p>
-                <p className="text-sm text-vectosilo-muted">
+                <p className="text-sm text-incogni-muted">
                   {whatsappState.useSelfChat
                     ? "Messaging yourself"
                     : `Connected to ${whatsappState.phoneNumber}`}
@@ -364,21 +364,21 @@ export function WhatsAppSettings() {
             <AlertCircle className="h-5 w-5" />
             <p className="font-medium">Connection Error</p>
           </div>
-          <p className="mt-1 text-sm text-vectosilo-muted">
+          <p className="mt-1 text-sm text-incogni-muted">
             {error || "Failed to connect. Please try again."}
           </p>
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-vectosilo-accent/90"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-incogni-accent/90"
           >
             {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowRight className="h-3 w-3" />}
             Retry
           </button>
         </div>
       ) : (
-        <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
-          <div className="flex items-center gap-2 text-vectosilo-muted">
+        <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
+          <div className="flex items-center gap-2 text-incogni-muted">
             <Loader2 className="h-4 w-4 animate-spin" />
             <p>Connecting…</p>
           </div>
@@ -386,23 +386,23 @@ export function WhatsAppSettings() {
       )}
 
       {/* Plan Info & Rate Limits */}
-      <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
-        <p className="mb-3 flex items-center gap-2 text-sm font-medium text-vectosilo-text">
-          <Shield className="h-4 w-4 text-vectosilo-accent" />
+      <div className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
+        <p className="mb-3 flex items-center gap-2 text-sm font-medium text-incogni-text">
+          <Shield className="h-4 w-4 text-incogni-accent" />
           Plan: {planName.charAt(0).toUpperCase() + planName.slice(1)}
         </p>
         <div className="grid gap-2 text-xs sm:grid-cols-2">
-          <div className="rounded-lg bg-vectosilo-bg p-3">
-            <p className="font-medium text-vectosilo-text">Rate Limits</p>
-            <p className="text-vectosilo-muted">
+          <div className="rounded-lg bg-incogni-bg p-3">
+            <p className="font-medium text-incogni-text">Rate Limits</p>
+            <p className="text-incogni-muted">
               {isGoPlan
                 ? "Highest rate limit (Go plan) — 100 messages/hour"
                 : "Unlimited messages"}
             </p>
           </div>
-          <div className="rounded-lg bg-vectosilo-bg p-3">
-            <p className="font-medium text-vectosilo-text">Features</p>
-            <p className="text-vectosilo-muted">
+          <div className="rounded-lg bg-incogni-bg p-3">
+            <p className="font-medium text-incogni-text">Features</p>
+            <p className="text-incogni-muted">
               Text, images, voice messages, commands
             </p>
           </div>
@@ -418,18 +418,18 @@ export function WhatsAppSettings() {
       </div>
 
 {/* Help */}
-  <details className="rounded-xl border border-vectosilo-border bg-vectosilo-surface/50 p-4">
-    <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-vectosilo-text">
+  <details className="rounded-xl border border-incogni-border bg-incogni-surface/50 p-4">
+    <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-incogni-text">
       <HelpCircle className="h-4 w-4 transition-transform" />
       How it works
     </summary>
-    <div className="mt-3 space-y-2 text-sm text-vectosilo-muted">
+    <div className="mt-3 space-y-2 text-sm text-incogni-muted">
       <p>1. Choose &ldquo;Message Myself&rdquo; or &ldquo;Separate Number&rdquo;</p>
       <p>2. Click Connect — a QR code appears</p>
       <p>3. Open WhatsApp → Settings → Linked Devices → Link a Device</p>
       <p>4. Scan the QR code with your phone</p>
-      <p>5. Start chatting with VectoSiloAI on WhatsApp!</p>
-      <p className="mt-2 text-xs text-vectosilo-muted/70">
+      <p>5. Start chatting with IncogniAI on WhatsApp!</p>
+      <p className="mt-2 text-xs text-incogni-muted/70">
         Voice messages are transcribed using faster-whisper. Images are analyzed with vision models.
         Commands like /model, /search, /code work the same as in web chat.
       </p>

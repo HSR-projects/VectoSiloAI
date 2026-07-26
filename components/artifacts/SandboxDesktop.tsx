@@ -49,8 +49,8 @@ export function SandboxDesktop({ containerId }: Props) {
     <div className="relative h-full w-full">
       {status !== "Connected" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/60">
-          <Loader2 className="h-8 w-8 animate-spin text-vectosilo-accent" />
-          <p className="text-sm text-vectosilo-muted">{status}</p>
+          <Loader2 className="h-8 w-8 animate-spin text-incogni-accent" />
+          <p className="text-sm text-incogni-muted">{status}</p>
         </div>
       )}
       <div ref={ref} className="h-full w-full" />

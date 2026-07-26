@@ -50,7 +50,7 @@ export function DropdownMenu({
               exit={{ opacity: 0, y: -6, scale: 0.95 }}
               transition={{ duration: 0.12 }}
               className={cn(
-                "absolute top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface p-1 shadow-2xl",
+                "absolute top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface p-1 shadow-2xl",
                 align === "end" ? "right-0" : "left-0"
               )}
               onClick={() => setOpen(false)}
@@ -58,7 +58,7 @@ export function DropdownMenu({
               {items.map((item, i) => (
                 <div key={i}>
                   {item.divider && (
-                    <div className="my-1 border-t border-vectosilo-border" />
+                    <div className="my-1 border-t border-incogni-border" />
                   )}
                   {item.href ? (
                     <a
@@ -67,7 +67,7 @@ export function DropdownMenu({
                         "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                         item.disabled
                           ? "pointer-events-none opacity-40"
-                          : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                          : "text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text"
                       )}
                     >
                       {item.icon && <span className="flex-shrink-0">{item.icon}</span>}
@@ -81,7 +81,7 @@ export function DropdownMenu({
                         "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                         item.disabled
                           ? "pointer-events-none opacity-40"
-                          : "text-vectosilo-muted hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+                          : "text-incogni-muted hover:bg-incogni-surface-2 hover:text-incogni-text"
                       )}
                     >
                       {item.icon && <span className="flex-shrink-0">{item.icon}</span>}

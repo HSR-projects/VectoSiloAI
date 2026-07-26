@@ -2,7 +2,7 @@ import { randomBytes, createCipheriv, createDecipheriv, createHash, createHmac }
 import bcrypt from "bcrypt";
 import QRCode from "qrcode";
 
-const AUTH_SECRET = process.env.AUTH_SECRET || "vectosilo-dev-secret-change-me-in-production";
+const AUTH_SECRET = process.env.AUTH_SECRET || "incogni-dev-secret-change-me-in-production";
 const TWO_FACTOR_TOKEN_TTL = 1000 * 60 * 5; // 5 minutes
 const BACKUP_CODE_COUNT = 8;
 const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -61,7 +61,7 @@ export function generateTwoFactorSecret(): string {
  */
 export function getOTPAuthURL(secret: string, email: string): string {
   const encoded = encodeURIComponent(email);
-  return `otpauth://totp/VectoSiloAI:${encoded}?secret=${secret}&issuer=VectoSiloAI`;
+  return `otpauth://totp/IncogniAI:${encoded}?secret=${secret}&issuer=IncogniAI`;
 }
 
 /**

@@ -2,6 +2,7 @@ import { getApiKeyAuth, deductCredits, getBillableCredits } from "@/lib/auth";
 import { chat, chatStream, DEFAULT_MODEL, OllamaError } from "@/lib/ollama";
 import { estimateTokens, computeCost, API_MIN_CENTS } from "@/lib/credits";
 import { recordUsage } from "@/lib/usageStore";
+import { getCurrentDatePrompt } from "@/lib/prompts";
 import type { OllamaMessage, Role } from "@/types";
 
 export const runtime = "nodejs";
@@ -9,9 +10,9 @@ export const dynamic = "force-dynamic";
 
 /**
  * OpenAI-compatible chat completions, so OpenAI-API clients (Open WebUI, the
- * OpenAI SDKs, LangChain, etc.) can talk to VectoSiloAI.
+ * OpenAI SDKs, LangChain, etc.) can talk to IncogniAI.
  *
- * Point the client at base URL `<origin>/api/v1` with the key `sk-vectosilo-…`.
+ * Point the client at base URL `<origin>/api/v1` with the key `sk-incogni-…`.
  * Supports streaming + non-streaming and is metered against prepaid credits.
  */
 
@@ -72,6 +73,18 @@ function mapMessages(messages: OAIMessage[]): OllamaMessage[] {
     out.push({ role, content });
   }
 
+  const hasSystem = out.some((m) => m.role === "system");
+  if (!hasSystem) {
+    out.unshift({ role: "system", content: getCurrentDatePrompt() });
+  } else {
+    for (const m of out) {
+      if (m.role === "system") {
+        m.content = `${getCurrentDatePrompt()}\n\n${m.content}`;
+        break;
+      }
+    }
+  }
+
   // Attach any inline images to the most recent user turn (for vision models).
   if (images.length) {
     for (let i = out.length - 1; i >= 0; i--) {
@@ -118,8 +131,9 @@ export async function POST(req: Request) {
     return json({ error: { message: "Invalid JSON body.", type: "invalid_request_error" } }, 400);
   }
 
-  const model = body.model?.trim() || DEFAULT_MODEL;
   const messages = mapMessages(body.messages ?? []);
+  const hasImages = messages.some((m) => Array.isArray(m.images) && m.images.length > 0);
+  const model = hasImages ? "gemma4:31b" : (body.model?.trim() || DEFAULT_MODEL);
   if (!messages.some((m) => m.role === "user")) {
     return json({ error: { message: "`messages` must include a user message.", type: "invalid_request_error" } }, 400);
   }
@@ -205,7 +219,7 @@ export async function POST(req: Request) {
       prompt_tokens: promptTokens,
       completion_tokens: completionTokens,
       total_tokens: promptTokens + completionTokens,
-      // VectoSiloAI extension: credits charged + remaining (US cents).
+      // IncogniAI extension: credits charged + remaining (US cents).
       credits_charged: cost,
       credits_remaining: remaining,
     },

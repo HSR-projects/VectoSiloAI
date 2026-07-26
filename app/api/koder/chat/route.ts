@@ -5,7 +5,7 @@
  *   - API-key sessions: metered by prepaid credits (same as /api/v1/chat/completions)
  *
  * Supports streaming SSE and JSON responses.
- * Request body mirrors the VectoSiloAI chat format used by the Koder CLI.
+ * Request body mirrors the IncogniAI chat format used by the Koder CLI.
  */
 
 import { NextResponse } from "next/server";
@@ -37,7 +37,7 @@ function json(body: unknown, status = 200) {
 }
 
 // Koder system prompt — coding-focused
-const KODER_SYSTEM = `You are Koder, an autonomous AI coding agent built on VectoSiloAI. You help developers write, debug, refactor, and understand code. You have access to the user's codebase through tool descriptions they provide. Be concise, precise, and action-oriented. When writing code, always write complete, working implementations. Use markdown code blocks with language tags.`;
+const KODER_SYSTEM = `You are Koder, an autonomous AI coding agent built on IncogniAI. You help developers write, debug, refactor, and understand code. You have access to the user's codebase through tool descriptions they provide. Be concise, precise, and action-oriented. When writing code, always write complete, working implementations. Use markdown code blocks with language tags.`;
 
 export async function POST(req: Request) {
   const auth = req.headers.get("Authorization") ?? "";
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     if (m.role !== "user" && m.role !== "assistant") continue;
     let content = m.content ?? "";
 
-    // Strip inline base64 image tags and attach them for VectoSiloAI vision-capable models.
+    // Strip inline base64 image tags and attach them for IncogniAI vision-capable models.
     const imageMatch = content.match(/<image>([A-Za-z0-9+/=\s]+)<\/image>/);
     if (imageMatch && m.role === "user") {
       const b64 = imageMatch[1].replace(/\s/g, "");

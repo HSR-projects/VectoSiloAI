@@ -31,7 +31,7 @@ const infoCards = [
   {
     icon: Mail,
     title: "Email",
-    content: "hello@vectosiloai.dev\nsupport@vectosiloai.dev",
+    content: "hello@incogni-ai.dev\nsupport@incogni-ai.dev",
   },
   {
     icon: Clock,
@@ -269,7 +269,7 @@ export default function ContactPage() {
 
         <footer className="border-t border-[#424242] bg-[#2f2f2f] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
+            &copy; {new Date().getFullYear()} IncogniAI. All rights reserved.
           </div>
         </footer>
       </div>

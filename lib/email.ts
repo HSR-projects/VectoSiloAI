@@ -70,10 +70,10 @@ export async function sendVerificationEmail(
   link: string
 ): Promise<void> {
   const safeName = (name || "there").trim();
-  const subject = "Verify your VectoSiloAI email";
+  const subject = "Verify your IncogniAI email";
   const text =
     `Hi ${safeName},\n\n` +
-    `Confirm your email to activate your VectoSiloAI account:\n${link}\n\n` +
+    `Confirm your email to activate your IncogniAI account:\n${link}\n\n` +
     `This link expires in 24 hours. If you didn't sign up, you can ignore this email.`;
 
   const html = `
@@ -81,7 +81,7 @@ export async function sendVerificationEmail(
     <div style="max-width:480px;margin:0 auto;background:#141416;border:1px solid #26262b;border-radius:16px;padding:32px">
       <h1 style="margin:0 0 8px;font-size:20px;color:#fff">Verify your email</h1>
       <p style="margin:0 0 20px;color:#a1a1aa;font-size:14px;line-height:1.6">
-        Hi ${escapeHtml(safeName)}, confirm your email to activate your VectoSiloAI account.
+        Hi ${escapeHtml(safeName)}, confirm your email to activate your IncogniAI account.
       </p>
       <a href="${link}" style="display:inline-block;background:#7c5cff;color:#000;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:14px">
         Verify email
@@ -112,9 +112,9 @@ export async function sendPasswordResetEmail(
   to: string,
   link: string
 ): Promise<void> {
-  const subject = "Reset your VectoSiloAI password";
+  const subject = "Reset your IncogniAI password";
   const text =
-    `Reset your VectoSiloAI password:\n${link}\n\n` +
+    `Reset your IncogniAI password:\n${link}\n\n` +
     `This link expires in 24 hours. If you didn't request this, you can ignore this email.`;
 
   const html = `
@@ -122,7 +122,7 @@ export async function sendPasswordResetEmail(
     <div style="max-width:480px;margin:0 auto;background:#141416;border:1px solid #26262b;border-radius:16px;padding:32px">
       <h1 style="margin:0 0 8px;font-size:20px;color:#fff">Reset your password</h1>
       <p style="margin:0 0 20px;color:#a1a1aa;font-size:14px;line-height:1.6">
-        Click the button below to set a new password for your VectoSiloAI account.
+        Click the button below to set a new password for your IncogniAI account.
       </p>
       <a href="${link}" style="display:inline-block;background:#7c5cff;color:#000;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:14px">
         Reset password

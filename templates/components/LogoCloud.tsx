@@ -69,7 +69,7 @@ export function LogoCloud({
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mb-8 text-center text-xs font-medium uppercase tracking-widest text-vectosilo-muted"
+            className="mb-8 text-center text-xs font-medium uppercase tracking-widest text-incogni-muted"
           >
             {title}
           </motion.p>
@@ -91,8 +91,8 @@ export function LogoCloud({
               <div className="flex shrink-0 gap-12">{logoElements}</div>
               <div className="flex shrink-0 gap-12">{logoElements}</div>
             </motion.div>
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-vectosilo-bg to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-vectosilo-bg to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-incogni-bg to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-incogni-bg to-transparent" />
           </div>
         ) : (
           <motion.div

@@ -50,14 +50,14 @@ export function HeroBasic({
       >
         <motion.h1
           variants={fadeSlide}
-          className="text-4xl font-bold tracking-tight text-vectosilo-text sm:text-5xl lg:text-6xl"
+          className="text-4xl font-bold tracking-tight text-incogni-text sm:text-5xl lg:text-6xl"
         >
           {title}
         </motion.h1>
         {subtitle && (
           <motion.p
             variants={fadeSlide}
-            className="mt-4 text-lg text-vectosilo-muted sm:text-xl"
+            className="mt-4 text-lg text-incogni-muted sm:text-xl"
           >
             {subtitle}
           </motion.p>
@@ -70,7 +70,7 @@ export function HeroBasic({
             {primaryCta && (
               <a
                 href={primaryCta.href}
-                className="rounded-lg bg-vectosilo-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent-dim"
+                className="rounded-lg bg-incogni-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent-dim"
               >
                 {primaryCta.label}
               </a>
@@ -78,7 +78,7 @@ export function HeroBasic({
             {secondaryCta && (
               <a
                 href={secondaryCta.href}
-                className="rounded-lg border border-vectosilo-border px-6 py-3 text-sm font-semibold text-vectosilo-text transition-colors hover:bg-vectosilo-surface"
+                className="rounded-lg border border-incogni-border px-6 py-3 text-sm font-semibold text-incogni-text transition-colors hover:bg-incogni-surface"
               >
                 {secondaryCta.label}
               </a>

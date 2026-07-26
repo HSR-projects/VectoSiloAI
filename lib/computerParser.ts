@@ -1,21 +1,21 @@
 import type { ProjectFile } from "@/types";
 
 /**
- * Parses the model's VectoSilo's Computer output out of the streaming text.
+ * Parses the model's Incogni's Computer output out of the streaming text.
  *
  * The model emits, as the very first characters, `[[computer:Title]]`, then one
- * `<vectosilo-file path="...">…</vectosilo-file>` block per file and `<vectosilo-cmd>…</vectosilo-cmd>`
+ * `<incogni-file path="...">…</incogni-file>` block per file and `<incogni-cmd>…</incogni-cmd>`
  * blocks for shell commands. We parse only fully-closed blocks so partial,
  * mid-stream tags never render or half-load.
  */
 
 const DIRECTIVE_RE = /\[\[computer(?::\s*([^\]]*))?\]\]/i;
 const WEBSITE_RE = /\[\[website(?::\s*([^\]]*))?\]\]/i;
-const FILE_RE = /<vectosilo-file\s+path=["']([^"']+)["']\s*>([\s\S]*?)<\/vectosilo-file>/gi;
-const CMD_RE = /<vectosilo-cmd>\s*([\s\S]*?)<\/vectosilo-cmd>/gi;
+const FILE_RE = /<incogni-file\s+path=["']([^"']+)["']\s*>([\s\S]*?)<\/incogni-file>/gi;
+const CMD_RE = /<incogni-cmd>\s*([\s\S]*?)<\/incogni-cmd>/gi;
 const SCAFFOLD_RE = /\[\[scaffold(?::\s*([^\]]+))?\]\]/i;
 
-/** Detect the Website builder directive (shares the <vectosilo-file> format). */
+/** Detect the Website builder directive (shares the <incogni-file> format). */
 export function parseWebsiteDirective(text: string): { title: string } | null {
   const m = text.match(WEBSITE_RE);
   if (!m) return null;
@@ -70,7 +70,7 @@ export function parseComputerCommands(text: string): string[] {
 
 /** True if the stream contains (or is starting) a computer directive. */
 export function hasComputerSyntax(text: string): boolean {
-  return DIRECTIVE_RE.test(text) || /<vectosilo-file|<vectosilo-cmd/i.test(text);
+  return DIRECTIVE_RE.test(text) || /<incogni-file|<incogni-cmd/i.test(text);
 }
 
 /** Remove all computer syntax (directive, file/cmd blocks, partials) from visible text. */
@@ -80,8 +80,8 @@ export function stripComputerSyntax(text: string): string {
     .replace(new RegExp(FILE_RE.source, "gi"), "")
     .replace(new RegExp(CMD_RE.source, "gi"), "")
     // Trailing unclosed blocks still streaming in.
-    .replace(/<vectosilo-file[\s\S]*$/i, "")
-    .replace(/<vectosilo-cmd[\s\S]*$/i, "")
+    .replace(/<incogni-file[\s\S]*$/i, "")
+    .replace(/<incogni-cmd[\s\S]*$/i, "")
     .replace(/\[\[computer[^\]]*$/i, "")
     .replace(/\[\[scaffold[^\]]*$/i, "")
     .replace(/^\s+/, "");

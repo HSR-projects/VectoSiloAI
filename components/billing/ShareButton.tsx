@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Share2, Check, Link2, Loader2, Download, Printer, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
@@ -33,7 +33,7 @@ export function ShareButton({ threadId }: { threadId: string }) {
   };
 
   const exportPDF = async () => {
-    const thread = useVectoSiloStore.getState().getThread(threadId);
+    const thread = useIncogniStore.getState().getThread(threadId);
     if (!thread) return;
 
     // Dynamically import pdfmake to avoid SSR issues and keep the initial bundle small
@@ -50,14 +50,14 @@ export function ShareButton({ threadId }: { threadId: string }) {
     }
 
     const content: any[] = [
-      { text: `Thread: ${thread.title || "VectoSilo AI Chat"}`, style: "header" },
+      { text: `Thread: ${thread.title || "Incogni AI Chat"}`, style: "header" },
       { text: `Generated on: ${new Date().toLocaleString()}`, style: "subheader", margin: [0, 0, 0, 20] }
     ];
 
     thread.messages.forEach(msg => {
       const isUser = msg.role === "user";
       content.push({
-        text: isUser ? "You" : "VectoSilo AI",
+        text: isUser ? "You" : "Incogni AI",
         style: isUser ? "userLabel" : "aiLabel",
         margin: [0, 10, 0, 2]
       });
@@ -82,19 +82,19 @@ export function ShareButton({ threadId }: { threadId: string }) {
       }
     };
 
-    pdfMake.createPdf(docDefinition).download(`vectosilo-chat-${threadId.slice(0, 8)}.pdf`);
+    pdfMake.createPdf(docDefinition).download(`incogni-chat-${threadId.slice(0, 8)}.pdf`);
   };
 
   const exportRTF = () => {
-    const thread = useVectoSiloStore.getState().getThread(threadId);
+    const thread = useIncogniStore.getState().getThread(threadId);
     if (!thread) return;
 
     let rtf = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang1033{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}\n";
-    rtf += "{\\*\\generator VectoSiloAI Export;}\\viewkind4\\uc1\n";
-    rtf += "\\pard\\sa200\\sl276\\slmult1\\b\\f0\\fs28 VectoSilo AI Chat Export\\b0\\fs22\\par\n";
+    rtf += "{\\*\\generator IncogniAI Export;}\\viewkind4\\uc1\n";
+    rtf += "\\pard\\sa200\\sl276\\slmult1\\b\\f0\\fs28 Incogni AI Chat Export\\b0\\fs22\\par\n";
     
     thread.messages.forEach((msg) => {
-      const role = msg.role === "user" ? "You" : "VectoSilo AI";
+      const role = msg.role === "user" ? "You" : "Incogni AI";
       const cleanContent = msg.content.replace(/\\/g, "\\\\").replace(/\{/g, "\\{").replace(/\}/g, "\\}").replace(/\n/g, "\\par\n");
       rtf += `\\b ${role}:\\b0\\par\n${cleanContent}\\par\\par\n`;
     });
@@ -104,7 +104,7 @@ export function ShareButton({ threadId }: { threadId: string }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `vectosilo-chat-${threadId.slice(0, 8)}.rtf`;
+    a.download = `incogni-chat-${threadId.slice(0, 8)}.rtf`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -115,7 +115,7 @@ export function ShareButton({ threadId }: { threadId: string }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border px-2.5 py-1.5 text-xs font-medium text-vectosilo-text hover:bg-vectosilo-surface-2 transition-colors disabled:opacity-50">
+      <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border px-2.5 py-1.5 text-xs font-medium text-incogni-text hover:bg-incogni-surface-2 transition-colors disabled:opacity-50">
         {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" />}
         Export
       </DropdownMenuTrigger>

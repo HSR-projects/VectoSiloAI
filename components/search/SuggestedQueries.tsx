@@ -19,7 +19,7 @@ export function SuggestedQueries({ onSelect }: { onSelect: (q: string) => void }
       transition={{ delay: 0.3 }}
       className="flex flex-wrap items-center justify-center gap-2"
     >
-      <span className="inline-flex items-center gap-1 text-xs text-vectosilo-muted">
+      <span className="inline-flex items-center gap-1 text-xs text-incogni-muted">
         <Sparkles className="h-3.5 w-3.5" /> Try
       </span>
       {SUGGESTIONS.map((s, i) => (
@@ -30,7 +30,7 @@ export function SuggestedQueries({ onSelect }: { onSelect: (q: string) => void }
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 + i * 0.05 }}
-          className="rounded-full border border-vectosilo-border bg-vectosilo-surface px-3 py-1.5 text-xs text-vectosilo-muted transition-colors hover:border-vectosilo-accent/40 hover:bg-vectosilo-surface-2 hover:text-vectosilo-text"
+          className="rounded-full border border-incogni-border bg-incogni-surface px-3 py-1.5 text-xs text-incogni-muted transition-colors hover:border-incogni-accent/40 hover:bg-incogni-surface-2 hover:text-incogni-text"
         >
           {s}
         </motion.button>

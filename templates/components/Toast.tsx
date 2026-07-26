@@ -62,7 +62,7 @@ export function toast(opts: {
   duration?: number;
 }) {
   if (typeof window !== "undefined") {
-    const event = new CustomEvent("vectosilo-toast", {
+    const event = new CustomEvent("incogni-toast", {
       detail: {
         id: ++toastCounter + "",
         message: opts.message,
@@ -103,8 +103,8 @@ export function Toaster() {
       const detail = (e as CustomEvent<Toast>).detail;
       addToast(detail);
     };
-    window.addEventListener("vectosilo-toast", handler);
-    return () => window.removeEventListener("vectosilo-toast", handler);
+    window.addEventListener("incogni-toast", handler);
+    return () => window.removeEventListener("incogni-toast", handler);
   }, [addToast]);
 
   useEffect(() => {

@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Download, FileSpreadsheet, Loader2 } from "lucide-react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { downloadXlsx, downloadCsv } from "@/lib/xlsx";
 import type { SheetTable } from "@/types";
 import { cn } from "@/lib/utils";
 
 export function SheetArtifact() {
-  const wb = useVectoSiloStore((s) => s.workbook);
+  const wb = useIncogniStore((s) => s.workbook);
   const [activeSheet, setActiveSheet] = useState(0);
 
   const sheets = wb?.sheets ?? [];
@@ -23,8 +23,8 @@ export function SheetArtifact() {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar — wraps on narrow / mobile panels. */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-vectosilo-border px-3 py-2">
-        <span className="text-xs text-vectosilo-muted">
+      <div className="flex flex-wrap items-center gap-2 border-b border-incogni-border px-3 py-2">
+        <span className="text-xs text-incogni-muted">
           {sheets.length} sheet{sheets.length === 1 ? "" : "s"}
           {wb.status === "building" && " · generating…"}
         </span>
@@ -33,7 +33,7 @@ export function SheetArtifact() {
             type="button"
             onClick={() => sheet && downloadCsv(`${wb.title}-${sheet.name}`, sheet.rows)}
             disabled={!sheet?.rows.length}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-vectosilo-border bg-vectosilo-surface px-2.5 py-1.5 text-xs text-vectosilo-text transition-colors hover:bg-vectosilo-surface-2 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-incogni-border bg-incogni-surface px-2.5 py-1.5 text-xs text-incogni-text transition-colors hover:bg-incogni-surface-2 disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" /> .csv
           </button>
@@ -41,7 +41,7 @@ export function SheetArtifact() {
             type="button"
             onClick={() => downloadXlsx(wb.title, sheets)}
             disabled={!sheets.length}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-2.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-vectosilo-accent-soft disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-incogni-accent px-2.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-50"
           >
             {wb.status === "building" ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -58,7 +58,7 @@ export function SheetArtifact() {
         {sheet && sheet.rows.length ? (
           <Grid sheet={sheet} />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-vectosilo-muted">
+          <div className="flex h-full items-center justify-center text-sm text-incogni-muted">
             {wb.status === "building" ? "Generating spreadsheet…" : "No data yet."}
           </div>
         )}
@@ -66,7 +66,7 @@ export function SheetArtifact() {
 
       {/* Sheet tabs */}
       {sheets.length > 0 && (
-        <div className="flex items-center gap-1 overflow-x-auto border-t border-vectosilo-border px-2 py-1.5 [scrollbar-width:thin]">
+        <div className="flex items-center gap-1 overflow-x-auto border-t border-incogni-border px-2 py-1.5 [scrollbar-width:thin]">
           {sheets.map((s, i) => (
             <button
               key={i}
@@ -74,8 +74,8 @@ export function SheetArtifact() {
               className={cn(
                 "shrink-0 rounded-md px-2.5 py-1 text-xs transition-colors",
                 i === activeSheet
-                  ? "bg-vectosilo-surface-2 text-vectosilo-text"
-                  : "text-vectosilo-muted hover:bg-vectosilo-surface-2/60"
+                  ? "bg-incogni-surface-2 text-incogni-text"
+                  : "text-incogni-muted hover:bg-incogni-surface-2/60"
               )}
             >
               {s.name}
@@ -93,11 +93,11 @@ function Grid({ sheet }: { sheet: SheetTable }) {
     <table className="w-full border-collapse text-sm">
       <thead className="sticky top-0 z-10">
         <tr>
-          <th className="w-10 border border-vectosilo-border bg-vectosilo-surface-2 px-2 py-1.5 text-[10px] font-normal text-vectosilo-muted" />
+          <th className="w-10 border border-incogni-border bg-incogni-surface-2 px-2 py-1.5 text-[10px] font-normal text-incogni-muted" />
           {header?.map((cell, i) => (
             <th
               key={i}
-              className="border border-vectosilo-border bg-vectosilo-surface-2 px-3 py-1.5 text-left font-semibold text-vectosilo-text"
+              className="border border-incogni-border bg-incogni-surface-2 px-3 py-1.5 text-left font-semibold text-incogni-text"
             >
               {cell}
             </th>
@@ -106,12 +106,12 @@ function Grid({ sheet }: { sheet: SheetTable }) {
       </thead>
       <tbody>
         {body.map((row, r) => (
-          <tr key={r} className="even:bg-vectosilo-surface/40">
-            <td className="border border-vectosilo-border bg-vectosilo-surface-2 px-2 py-1.5 text-center text-[10px] text-vectosilo-muted">
+          <tr key={r} className="even:bg-incogni-surface/40">
+            <td className="border border-incogni-border bg-incogni-surface-2 px-2 py-1.5 text-center text-[10px] text-incogni-muted">
               {r + 1}
             </td>
             {header?.map((_h, c) => (
-              <td key={c} className="border border-vectosilo-border px-3 py-1.5 text-vectosilo-text/90">
+              <td key={c} className="border border-incogni-border px-3 py-1.5 text-incogni-text/90">
                 {row[c] ?? ""}
               </td>
             ))}

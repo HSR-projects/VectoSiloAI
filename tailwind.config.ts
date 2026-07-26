@@ -11,17 +11,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        vectosilo: {
-          bg: "#212121",
-          surface: "#2f2f2f",
-          "surface-2": "#343541",
-          border: "#424242",
-          accent: "#10a37f",
-          "accent-soft": "#1a7f64",
-          "accent-dim": "#0d8c6d",
-          text: "#ececec",
-          muted: "#8e8e93",
+        incogni: {
+          bg: "var(--incogni-bg)",
+          surface: "var(--incogni-surface)",
+          "surface-2": "var(--incogni-surface-2)",
+          border: "var(--incogni-border)",
+          accent: "var(--incogni-accent)",
+          "accent-soft": "var(--incogni-accent-soft)",
+          "accent-dim": "var(--incogni-accent-dim)",
+          text: "var(--incogni-text)",
+          muted: "var(--incogni-muted)",
         },
+      },
+      borderRadius: {
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+      },
+      transitionDuration: {
+        fast: "var(--motion-fast)",
+        normal: "var(--motion-normal)",
+        slow: "var(--motion-slow)",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
@@ -50,7 +60,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 };
 
 export default config;

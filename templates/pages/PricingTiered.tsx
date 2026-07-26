@@ -304,7 +304,7 @@ export default function PricingTiered() {
 
         <footer className="border-t border-[#424242] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
+            &copy; {new Date().getFullYear()} IncogniAI. All rights reserved.
           </div>
         </footer>
       </div>

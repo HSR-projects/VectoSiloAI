@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import { effectiveCaps } from "@/lib/plans";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,10 +18,19 @@ export async function POST(req: Request) {
   }
 
   const safe = urls
-    .filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
+    .filter((u) => typeof u === "string" && u.trim().length > 0)
+    .map((u) => {
+      const trimmed = u.trim();
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return `https://${trimmed}`;
+    })
     .slice(0, 6);
 
+  const currentUser = await getCurrentUser();
+  const userPlan = currentUser?.plan ?? "free";
+  const caps = effectiveCaps(userPlan);
+
   const { scrapeUrlsWithMedia } = await import("@/lib/scraper");
-  const { sources, pageImages } = await scrapeUrlsWithMedia(safe);
+  const { sources, pageImages } = await scrapeUrlsWithMedia(safe, { visualExplore: caps.visualPageExplore });
   return NextResponse.json({ sources, pageImages });
 }

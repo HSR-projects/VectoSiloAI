@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { useVectoSiloStore } from "@/lib/store";
+import { useIncogniStore } from "@/lib/store";
 import { uid, modelLabel } from "@/lib/utils";
 import { AUTO_MODEL, pickAutoModel } from "@/lib/autoModel";
 import { buildAttachments, toDisplayAttachment } from "@/lib/attachments";
@@ -51,7 +51,7 @@ interface SendOptions {
   attachments?: Attachment[];
   /** Whether the plan allows text-to-image generation (Pro/Max). */
   imageGen?: boolean;
-  /** Whether the plan allows VectoSilo's Computer (build/preview apps) (Pro/Max). */
+  /** Whether the plan allows Incogni's Computer (build/preview apps) (Pro/Max). */
   computer?: boolean;
   /** Max slides per deck for this plan (Free 20, Pro/Max 70). */
   slidesMax?: number;
@@ -74,7 +74,7 @@ export function useChat(threadId: string | null) {
   const [searchWarning, setSearchWarning] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const store = useVectoSiloStore;
+  const store = useIncogniStore;
 
   const send = useCallback(
     async (query: string, opts: SendOptions = {}) => {
@@ -99,7 +99,7 @@ export function useChat(threadId: string | null) {
 
       if (!model) {
         // No model selected/available — surface as an assistant error.
-        s.appendMessage(threadId, makeMsg("assistant", "", { error: "No model selected. Pick an Ollama Cloud model in the header.", focusMode }));
+        s.appendMessage(threadId, makeMsg("assistant", "", { error: "No model selected. Pick an IncogniAI model in the header.", focusMode }));
         return;
       }
 
@@ -122,10 +122,7 @@ export function useChat(threadId: string | null) {
         (/@github\b/i.test(query) || (s.githubConnected && isGithubInvoke(query)));
       const modelQuery = githubInvoke ? query.replace(/@github\b/gi, "").trim() : query;
 
-      // Existing VectoSilo's Computer project in THIS chat (if any). When present, we
-      // feed its files back to the model and merge edits into it, so follow-ups
-      // modify the project instead of recreating it from scratch.
-      const existingProject = opts.computer ? latestComputerSnapshot(s.getThread(threadId)) : null;
+      const existingProject = latestProjectSnapshot(s.getThread(threadId));
 
       setLoading(true);
       setSearchWarning(null);
@@ -284,7 +281,7 @@ export function useChat(threadId: string | null) {
           if (swarmArtifacts.computer && swarmArtifacts.computer.files.length > 0) {
             void runComputerTerminal(swarmArtifacts.computer.files, swarmArtifacts.computer.commands);
           } else if (swarmArtifacts.computer) {
-            useVectoSiloStore.getState().setComputerStatus("ready");
+            useIncogniStore.getState().setComputerStatus("ready");
           }
 
           update({ streaming: false });
@@ -428,7 +425,7 @@ export function useChat(threadId: string | null) {
       // Prepend the current sandbox project so edit requests modify it in place
       // (sent to the model only — not shown in the user's chat bubble).
       const effectiveQuery = existingProject
-        ? `${computerContext(existingProject)}\n\n${built.query}`
+        ? `${projectContext(existingProject)}\n\n${built.query}`
         : built.query;
 
       const currentThread = s.getThread(threadId);
@@ -449,10 +446,7 @@ export function useChat(threadId: string | null) {
             sources,
             images: (() => {
               // Merge user-uploaded images with images crawled from pages.
-              // Only send to vision-capable models; cap total to avoid huge payloads.
-              const all = attachmentCaps.vision
-                ? [...built.images, ...pageImages].slice(0, 8)
-                : built.images;
+              const all = [...(built.images || []), ...(pageImages || [])].slice(0, 8);
               return all.length ? all : undefined;
             })(),
             provider: store.getState().provider,
@@ -487,7 +481,7 @@ export function useChat(threadId: string | null) {
           : null;
 
         // Kick off image generation for an emitted [[image: …]] prompt.
-        // If a savePath is given and VectoSilo's Computer is open, the image is
+        // If a savePath is given and Incogni's Computer is open, the image is
         // injected as a file in the project.
         const startImage = (prompt: string, savePath?: string) => {
           const imgId = uid();
@@ -515,7 +509,7 @@ export function useChat(threadId: string | null) {
             .then((url) => {
               patch((g) => ({ ...g, url, status: "done" }));
               syncThread(threadId);
-              // If VectoSilo's Computer is active and a save path was given,
+              // If Incogni's Computer is active and a save path was given,
               // inject the image into the project files.
               if (savePath) {
                 injectImageIntoComputer(savePath, url);
@@ -767,7 +761,7 @@ export function useChat(threadId: string | null) {
           void runComputerTerminal(artifacts.computer.files, artifacts.computer.commands, artifacts.computer.isEdit);
         } else if (artifacts.computer) {
           // No files — skip fake terminal, let sandbox handle it
-          useVectoSiloStore.getState().setComputerStatus("ready");
+          useIncogniStore.getState().setComputerStatus("ready");
         }
 
         // Generate a smart AI title after the very first response in a thread.
@@ -783,7 +777,7 @@ export function useChat(threadId: string | null) {
         if ((e as Error).name !== "AbortError") {
           update({
             streaming: false,
-            error: "Connection to Ollama Cloud was interrupted.",
+            error: "Connection to IncogniAI servers was interrupted.",
           });
         } else {
           update({ streaming: false });
@@ -1014,10 +1008,9 @@ function buildSources(results: SearchResult[], scraped: Source[]): Source[] {
 }
 
 function syncThread(threadId: string) {
-  const state = useVectoSiloStore.getState();
-  if (state.incognito) return;
+  const state = useIncogniStore.getState();
   const thread = state.getThread(threadId);
-  if (!thread) return;
+  if (!thread || (thread as any).isTemporary) return;
   fetch("/api/threads", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1029,24 +1022,38 @@ function urlDomain_(url: string): string {
   try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url.slice(0, 30); }
 }
 
-/** The most recent VectoSilo's Computer project saved in this thread, if any. */
-function latestComputerSnapshot(
+/** Get the active or latest computer/website project files in this chat session. */
+function latestProjectSnapshot(
   thread: { messages: Message[] } | undefined
-): { title: string; files: ProjectFile[]; commands: string[] } | null {
-  if (!thread) return null;
-  for (let i = thread.messages.length - 1; i >= 0; i--) {
-    const c = thread.messages[i].computer;
-    if (c && c.files?.length) return c;
+): { title: string; files: ProjectFile[]; commands?: string[]; type: "computer" | "website" } | null {
+  const store = useIncogniStore.getState();
+  if (store.computer?.files?.length) {
+    return { title: store.computer.title, files: store.computer.files, commands: store.computer.commands, type: "computer" };
+  }
+  if (store.website?.files?.length) {
+    return { title: store.website.title, files: store.website.files, type: "website" };
+  }
+  if (thread) {
+    for (let i = thread.messages.length - 1; i >= 0; i--) {
+      const msg = thread.messages[i];
+      if (msg.computer?.files?.length) {
+        return { title: msg.computer.title, files: msg.computer.files, commands: msg.computer.commands, type: "computer" };
+      }
+      if (msg.website?.files?.length) {
+        return { title: msg.website.title, files: msg.website.files, type: "website" };
+      }
+    }
   }
   return null;
 }
 
-/** Render the current project as context so the model edits it (not recreates). */
-function computerContext(project: { title: string; files: ProjectFile[] }): string {
+/** Render the current project as context so the model performs incremental agent edits without rewriting everything. */
+function projectContext(project: { title: string; files: ProjectFile[]; type: "computer" | "website" }): string {
   const files = project.files
-    .map((f) => `<vectosilo-file path="${f.path}">\n${f.content}\n</vectosilo-file>`)
+    .map((f) => `<incogni-file path="${f.path}">\n${f.content}\n</incogni-file>`)
     .join("\n");
-  return `[VectoSilo's Computer — current project "${project.title}". The user is iterating on this existing project. Apply only the requested change on top of these files and re-emit the changed files; do not start a new project.]\n${files}`;
+  const directive = project.type === "website" ? `[[website:${project.title}]]` : `[[computer:${project.title}]]`;
+  return `[Incogni AI Agentic Project Context — current project "${project.title}" (${project.type}). You are an AGENTIC NATIVE AI assistant. The user is requesting an incremental edit or fix on this existing project. Do NOT rewrite unchanged files or start over. Apply only the requested change on top of these existing files, preserve all surrounding code and functionality, and re-emit the modified or new files using ${directive} and <incogni-file path="..."> tags.]\n${files}`;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -1057,14 +1064,14 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * live preview. Purely cosmetic — the actual preview runs in the iframe.
  */
 async function runComputerTerminal(files: ProjectFile[], commands: string[], isEdit = false) {
-  const st = useVectoSiloStore.getState();
+  const st = useIncogniStore.getState();
   if (!st.computer) return;
-  const term = (line: string) => useVectoSiloStore.getState().appendComputerTerminal(line);
+  const term = (line: string) => useIncogniStore.getState().appendComputerTerminal(line);
   const status = (s: Parameters<typeof st.setComputerStatus>[0]) =>
-    useVectoSiloStore.getState().setComputerStatus(s);
+    useIncogniStore.getState().setComputerStatus(s);
 
   if (isEdit) {
-    term(`\nvectosilo@sandbox:~/project$ applying edits (${files.length} file${files.length === 1 ? "" : "s"})…`);
+    term(`\nincogni@sandbox:~/project$ applying edits (${files.length} file${files.length === 1 ? "" : "s"})…`);
     await sleep(200);
     const changed = files.length > (st.computer?.files.length ?? 0)
       ? files
@@ -1088,7 +1095,7 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[], isE
 
   // Scaffold: show each file being written, one by one, so the build feels live.
   const dir = slug(st.computer.title);
-  term(`vectosilo@sandbox:~/${dir}$ scaffolding project (${files.length} file${files.length === 1 ? "" : "s"})…`);
+  term(`incogni@sandbox:~/${dir}$ scaffolding project (${files.length} file${files.length === 1 ? "" : "s"})…`);
   await sleep(150);
   for (const f of files) {
     term(`  ✎ creating  ${f.path}`);
@@ -1098,12 +1105,12 @@ async function runComputerTerminal(files: ProjectFile[], commands: string[], isE
   }
   term(`✓ wrote ${files.length} file${files.length === 1 ? "" : "s"}`);
   await sleep(150);
-  term(`vectosilo@sandbox:~/${dir}$ ls`);
+  term(`incogni@sandbox:~/${dir}$ ls`);
   term(files.map((f) => f.path.split("/")[0]).filter((v, i, a) => a.indexOf(v) === i).join("  "));
   await sleep(250);
 
   for (const cmd of cmds) {
-    term(`vectosilo@sandbox:~/${slug(st.computer.title)}$ ${cmd}`);
+    term(`incogni@sandbox:~/${slug(st.computer.title)}$ ${cmd}`);
     await sleep(300);
     if (/install|^npm i\b|pnpm|yarn/.test(cmd)) {
       status("installing");
@@ -1231,11 +1238,11 @@ async function readSse(
 }
 
 /**
- * Inject a generated image into the VectoSilo's Computer project files.
+ * Inject a generated image into the Incogni's Computer project files.
  * Converts the data URL to base64 content and adds it as a project file.
  */
 function injectImageIntoComputer(savePath: string, dataUrl: string) {
-  const store = useVectoSiloStore.getState();
+  const store = useIncogniStore.getState();
   const comp = store.computer;
   if (!comp) return;
 

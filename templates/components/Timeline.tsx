@@ -30,7 +30,7 @@ function TimelineEntry({
 }) {
   const [ref, inView] = useAnimatedInView<HTMLDivElement>({ once: true });
   const isLeft = index % 2 === 0;
-  const dotColor = item.color ?? "bg-vectosilo-accent";
+  const dotColor = item.color ?? "bg-incogni-accent";
 
   return (
     <div
@@ -47,10 +47,10 @@ function TimelineEntry({
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="w-full"
         >
-          <span className="text-xs font-semibold text-vectosilo-accent">{item.date}</span>
-          <h3 className="mt-1 text-sm font-semibold text-vectosilo-text">{item.title}</h3>
+          <span className="text-xs font-semibold text-incogni-accent">{item.date}</span>
+          <h3 className="mt-1 text-sm font-semibold text-incogni-text">{item.title}</h3>
           {item.description && (
-            <p className="mt-1 text-xs leading-relaxed text-vectosilo-muted">
+            <p className="mt-1 text-xs leading-relaxed text-incogni-muted">
               {item.description}
             </p>
           )}
@@ -63,7 +63,7 @@ function TimelineEntry({
           animate={inView ? { scale: 1 } : {}}
           transition={{ duration: 0.35, delay: 0.15, type: "spring" }}
           className={cn(
-            "relative z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-vectosilo-bg",
+            "relative z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-incogni-bg",
             dotColor
           )}
         >
@@ -116,7 +116,7 @@ export function Timeline({ items, className, ...rest }: TimelineProps) {
     >
       <div className="relative mx-auto max-w-3xl">
         <motion.div
-          className="absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-vectosilo-border"
+          className="absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-incogni-border"
           style={{ height: "100%", scaleY: scrollYProgress, transformOrigin: "top" }}
         />
 

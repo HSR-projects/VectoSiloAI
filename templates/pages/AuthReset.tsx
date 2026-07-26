@@ -34,7 +34,7 @@ export function AuthReset() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-vectosilo-bg px-4">
+    <div className="flex min-h-screen items-center justify-center bg-incogni-bg px-4">
       <PageTransition className="w-full max-w-md">
         <AnimatePresence mode="wait">
           {step === 1 && (
@@ -46,11 +46,11 @@ export function AuthReset() {
               className="space-y-6"
             >
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-vectosilo-accent shadow-lg shadow-vectosilo-accent/30">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-incogni-accent shadow-lg shadow-incogni-accent/30">
                   <span className="text-xl font-bold text-white">K</span>
                 </div>
-                <h2 className="text-2xl font-bold text-vectosilo-text">Reset Password</h2>
-                <p className="mt-1 text-sm text-vectosilo-muted">Enter your email and we&apos;ll send you a reset link</p>
+                <h2 className="text-2xl font-bold text-incogni-text">Reset Password</h2>
+                <p className="mt-1 text-sm text-incogni-muted">Enter your email and we&apos;ll send you a reset link</p>
               </div>
 
               <InputAnimated
@@ -64,13 +64,13 @@ export function AuthReset() {
 
               <button
                 onClick={() => setStep(2)}
-                className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="flex w-full items-center justify-center rounded-lg bg-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 Send Reset Link
               </button>
 
-              <p className="text-center text-sm text-vectosilo-muted">
-                <a href="#" className="inline-flex items-center gap-1 font-medium text-vectosilo-accent hover:underline">
+              <p className="text-center text-sm text-incogni-muted">
+                <a href="#" className="inline-flex items-center gap-1 font-medium text-incogni-accent hover:underline">
                   <ArrowLeft size={14} />
                   Back to login
                 </a>
@@ -91,13 +91,13 @@ export function AuthReset() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-vectosilo-accent/20"
+                  className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-incogni-accent/20"
                 >
-                  <Mail size={28} className="text-vectosilo-accent" />
+                  <Mail size={28} className="text-incogni-accent" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-vectosilo-text">Check your email</h2>
-                <p className="mt-1 text-sm text-vectosilo-muted">
-                  We sent a 6-digit code to <span className="font-medium text-vectosilo-text">{email || "your email"}</span>
+                <h2 className="text-2xl font-bold text-incogni-text">Check your email</h2>
+                <p className="mt-1 text-sm text-incogni-muted">
+                  We sent a 6-digit code to <span className="font-medium text-incogni-text">{email || "your email"}</span>
                 </p>
               </div>
 
@@ -113,9 +113,9 @@ export function AuthReset() {
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleCodeKeyDown(i, e)}
                     className={cn(
-                      "h-12 w-10 rounded-lg border text-center text-lg font-bold text-vectosilo-text outline-none transition-all",
-                      "bg-vectosilo-surface border-vectosilo-border",
-                      "focus:border-vectosilo-accent focus:ring-1 focus:ring-vectosilo-accent"
+                      "h-12 w-10 rounded-lg border text-center text-lg font-bold text-incogni-text outline-none transition-all",
+                      "bg-incogni-surface border-incogni-border",
+                      "focus:border-incogni-accent focus:ring-1 focus:ring-incogni-accent"
                     )}
                   />
                 ))}
@@ -124,20 +124,20 @@ export function AuthReset() {
               <button
                 onClick={() => setStep(3)}
                 disabled={code.some((d) => !d)}
-                className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-lg bg-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Verify Code
               </button>
 
-              <p className="text-center text-sm text-vectosilo-muted">
+              <p className="text-center text-sm text-incogni-muted">
                 Didn&apos;t receive the code?{" "}
-                <button className="font-medium text-vectosilo-accent hover:underline">Resend</button>
+                <button className="font-medium text-incogni-accent hover:underline">Resend</button>
               </p>
 
-              <p className="text-center text-sm text-vectosilo-muted">
+              <p className="text-center text-sm text-incogni-muted">
                 <button
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1 font-medium text-vectosilo-accent hover:underline"
+                  className="inline-flex items-center gap-1 font-medium text-incogni-accent hover:underline"
                 >
                   <ArrowLeft size={14} />
                   Change email
@@ -162,8 +162,8 @@ export function AuthReset() {
                 >
                   <CheckCircle size={28} className="text-green-500" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-vectosilo-text">Set New Password</h2>
-                <p className="mt-1 text-sm text-vectosilo-muted">Choose a strong password for your account</p>
+                <h2 className="text-2xl font-bold text-incogni-text">Set New Password</h2>
+                <p className="mt-1 text-sm text-incogni-muted">Choose a strong password for your account</p>
               </div>
 
               <InputAnimated
@@ -186,13 +186,13 @@ export function AuthReset() {
               />
 
               <button
-                className="flex w-full items-center justify-center rounded-lg bg-vectosilo-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="flex w-full items-center justify-center rounded-lg bg-incogni-accent py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 Reset Password
               </button>
 
-              <p className="text-center text-sm text-vectosilo-muted">
-                <a href="#" className="inline-flex items-center gap-1 font-medium text-vectosilo-accent hover:underline">
+              <p className="text-center text-sm text-incogni-muted">
+                <a href="#" className="inline-flex items-center gap-1 font-medium text-incogni-accent hover:underline">
                   <ArrowLeft size={14} />
                   Back to login
                 </a>

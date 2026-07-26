@@ -11,6 +11,37 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const ALLOWED_PREFIXES = [
+  "curl -s 'https://chat.hsrprojects.org/api/templates/scaffold",
+  "npm install",
+  "npm run dev",
+  "npm run build",
+  "npm run preview",
+  "python3 -m http.server",
+  "mkdir",
+  "cat",
+  "echo",
+  "ls",
+  "bash"
+];
+
+function validateCommand(cmd: string): boolean {
+  // Split by chaining operators
+  const parts = cmd.split(/(?:&&|;|\b\|\|\b|\|)/).map(p => p.trim()).filter(Boolean);
+  
+  for (const part of parts) {
+    let allowed = false;
+    for (const prefix of ALLOWED_PREFIXES) {
+      if (part.startsWith(prefix)) {
+        allowed = true;
+        break;
+      }
+    }
+    if (!allowed) return false;
+  }
+  return true;
+}
+
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   const caps = effectiveCaps(user?.plan ?? "free");
@@ -45,6 +76,15 @@ export async function POST(req: Request) {
         if (!body.containerId || !body.command) {
           return new Response(JSON.stringify({ error: "containerId and command required." }), { status: 400 });
         }
+        
+        if (!validateCommand(body.command)) {
+          return Response.json({ 
+            stdout: "", 
+            stderr: "Unauthorized Command. This sandbox is restricted to approved build operations only.", 
+            exitCode: 126 
+          });
+        }
+
         const result = await exec(body.containerId, body.command, { workdir: body.workdir });
         return Response.json(result);
       }

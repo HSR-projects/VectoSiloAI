@@ -176,14 +176,14 @@ const faqItems = [
 export default function LandingSaaS() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-vectosilo-bg">
+      <div className="min-h-screen bg-incogni-bg">
         <Navbar
-          logo={<span className="text-xl font-bold text-vectosilo-text">Product</span>}
+          logo={<span className="text-xl font-bold text-incogni-text">Product</span>}
           links={navLinks}
           cta={
             <a
               href="#"
-              className="rounded-lg bg-vectosilo-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vectosilo-accent/90"
+              className="rounded-lg bg-incogni-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-incogni-accent/90"
             >
               Get Started
             </a>
@@ -195,12 +195,12 @@ export default function LandingSaaS() {
           subtitle="The all-in-one platform that empowers your team to build, deploy, and scale applications with unprecedented speed and reliability."
           cta={{ label: "Start Free Trial", href: "#" }}
           image={
-            <div className="flex h-80 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-vectosilo-accent/30 via-vectosilo-surface to-vectosilo-surface-2">
+            <div className="flex h-80 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-incogni-accent/30 via-incogni-surface to-incogni-surface-2">
               <div className="text-center">
-                <div className="mx-auto mb-4 h-16 w-16 rounded-xl bg-vectosilo-accent/20 p-3 text-vectosilo-accent">
+                <div className="mx-auto mb-4 h-16 w-16 rounded-xl bg-incogni-accent/20 p-3 text-incogni-accent">
                   <Zap className="h-full w-full" />
                 </div>
-                <p className="text-sm text-vectosilo-muted">Product Dashboard Preview</p>
+                <p className="text-sm text-incogni-muted">Product Dashboard Preview</p>
               </div>
             </div>
           }
@@ -252,44 +252,44 @@ export default function LandingSaaS() {
           buttonText="Subscribe"
         />
 
-        <footer className="border-t border-vectosilo-border bg-vectosilo-surface py-12">
+        <footer className="border-t border-incogni-border bg-incogni-surface py-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <span className="text-lg font-bold text-vectosilo-text">Product</span>
-                <p className="mt-2 text-sm text-vectosilo-muted">
+                <span className="text-lg font-bold text-incogni-text">Product</span>
+                <p className="mt-2 text-sm text-incogni-muted">
                   Building the future of software development.
                 </p>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Product</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Integrations</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Changelog</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">Product</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Features</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Integrations</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Changelog</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Company</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">About</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Blog</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Contact</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">Company</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">About</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Blog</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Careers</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Contact</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-vectosilo-text">Legal</h4>
-                <ul className="space-y-2 text-sm text-vectosilo-muted">
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Privacy</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Terms</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Security</a></li>
-                  <li><a href="#" className="hover:text-vectosilo-text transition-colors">Cookies</a></li>
+                <h4 className="mb-3 text-sm font-semibold text-incogni-text">Legal</h4>
+                <ul className="space-y-2 text-sm text-incogni-muted">
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Terms</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Security</a></li>
+                  <li><a href="#" className="hover:text-incogni-text transition-colors">Cookies</a></li>
                 </ul>
               </div>
             </div>
-            <div className="mt-10 border-t border-vectosilo-border pt-6 text-center text-sm text-vectosilo-muted">
+            <div className="mt-10 border-t border-incogni-border pt-6 text-center text-sm text-incogni-muted">
               &copy; {new Date().getFullYear()} Product. All rights reserved.
             </div>
           </div>

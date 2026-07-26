@@ -102,7 +102,7 @@ XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
 OpenCode uključuje dva ugrađena agenta između kojih možeš prebacivati tasterom `Tab`.
 
 - **build** - Podrazumijevani agent sa punim pristupom za razvoj
-- **plan** - Agent samo za čitanje za analizu i istraživanje vectosilo
+- **plan** - Agent samo za čitanje za analizu i istraživanje incogni
   - Podrazumijevano zabranjuje izmjene datoteka
   - Traži dozvolu prije pokretanja bash komandi
   - Idealan za istraživanje nepoznatih codebase-ova ili planiranje izmjena

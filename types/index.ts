@@ -97,6 +97,7 @@ export interface User {
   onboarded: boolean;
   defaultAgent?: string;
   avatarColor?: string;
+  orgId?: string;
   createdAt: number;
   /** Whether the user has confirmed their email address. */
   emailVerified: boolean;
@@ -131,7 +132,7 @@ export interface ApiKeyPublic {
   spentCents: number;
 }
 
-/** A registered "Sign in with VectoSiloAI" OAuth application (safe to expose). */
+/** A registered "Sign in with IncogniAI" OAuth application (safe to expose). */
 export interface OAuthClientPublic {
   clientId: string;
   name: string;
@@ -236,7 +237,7 @@ export interface SlideDeck {
   template?: string;
 }
 
-// ─── VectoSilo's Computer (sandboxed project workspace) ────────────
+// ─── Incogni's Computer (sandboxed project workspace) ────────────
 /** One file in a generated project. Path is relative, e.g. "src/App.jsx". */
 export interface ProjectFile {
   path: string;
@@ -268,7 +269,7 @@ export type ComputerStatus =
   | "error";
 
 /**
- * A project the model built inside VectoSilo's Computer. This lives ONLY in the
+ * A project the model built inside Incogni's Computer. This lives ONLY in the
  * transient part of the store — it is never persisted to localStorage nor
  * written into thread history, so a sandbox can't leak into other chats.
  */
@@ -326,6 +327,47 @@ export interface GeneratedImage {
   error?: string;
 }
 
+export interface MapPlace {
+  title: string;
+  latitude: number;
+  longitude: number;
+  address?: string;
+  boundingbox?: number[];
+  url?: string;
+  category?: string;
+  description?: string;
+  imgSrc?: string;
+  rating?: string;
+  status?: string;
+}
+
+export interface StockPoint {
+  time: string;
+  price: number;
+}
+
+export interface StockData {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  afterHoursPrice?: number;
+  afterHoursChange?: number;
+  afterHoursChangePercent?: number;
+  currency?: string;
+  marketCap?: string;
+  volume?: string;
+  open?: number;
+  dayLow?: number;
+  dayHigh?: number;
+  yearLow?: number;
+  yearHigh?: number;
+  eps?: number;
+  peRatio?: number;
+  history?: Record<string, StockPoint[]>;
+}
+
 export interface Message {
   id: string;
   role: Role;
@@ -336,6 +378,8 @@ export interface Message {
   generatedImages?: GeneratedImage[];
   /** Images fetched from search (e.g. product photos) for Perplexity-like display. */
   searchImages?: ImageResult[];
+  /** SearXNG Map locations and places attached to this message. */
+  mapPlaces?: MapPlace[];
   /** AI-generated follow-up questions shown under an assistant answer. */
   followups?: string[];
   /** Live agent activity trace (understanding → search → reading → writing). */
@@ -345,7 +389,7 @@ export interface Message {
   /** Files the user attached to this message (display metadata only). */
   attachments?: Attachment[];
   /**
-   * Snapshot of a VectoSilo's Computer sandbox built in this answer. Persisted with
+   * Snapshot of a Incogni's Computer sandbox built in this answer. Persisted with
    * the thread so re-opening (or revisiting the chat later) restores the exact
    * project without re-generating it — but it stays scoped to THIS chat and is
    * never shared into other conversations.
@@ -480,7 +524,7 @@ export interface ChatRequestBody {
   githubInvoke?: boolean;
   /** Think mode — model reasons in a <think> block before answering. */
   think?: boolean;
-  /** Selected AI provider (defaults to vectosiloai). */
+  /** Selected AI provider (defaults to incogni-ai). */
   provider?: string;
   /** API key for external providers. */
   providerApiKey?: string;
@@ -497,6 +541,7 @@ export type ChatStreamEvent =
   | { type: "thinking"; content: string }
   | { type: "followups"; questions: string[] }
   | { type: "search_images"; images: ImageResult[] }
+  | { type: "map_places"; places: MapPlace[] }
   | { type: "error"; message: string }
   | { type: "done" };
 

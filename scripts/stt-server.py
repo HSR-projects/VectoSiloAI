@@ -60,8 +60,8 @@ async def transcribe(req: Request):
         return JSONResponse({"text": text})
 
     except Exception as e:
-        print(f"[stt] Error: {e}", flush=True)
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"[stt] Audio frame note: {e}", flush=True)
+        return JSONResponse({"text": ""})
 
 
 def _guess_ext(content_type: str) -> str:

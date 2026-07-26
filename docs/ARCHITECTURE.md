@@ -1,8 +1,8 @@
-# VectoSiloAI — Architecture & Design
+# IncogniAI — Architecture & Design
 
 ## Overview
 
-VectoSiloAI is a privacy-first AI search and chat application. All inference runs on **VectoSiloAI's own private models** — no data is sent to OpenAI, Anthropic, or any third-party AI provider.
+IncogniAI is a privacy-first AI search and chat application. All inference runs on **IncogniAI's own private models** — no data is sent to OpenAI, Anthropic, or any third-party AI provider.
 
 ## Stack
 
@@ -21,7 +21,7 @@ VectoSiloAI is a privacy-first AI search and chat application. All inference run
 
 ### Design principles
 
-1. **Privacy by default** — zero telemetry, no third-party AI calls. Users bring their own API key to VectoSiloAI's private cloud.
+1. **Privacy by default** — zero telemetry, no third-party AI calls. Users bring their own API key to IncogniAI's private cloud.
 2. **Streaming-first** — every chat response streams token-by-token via SSE with an animated cursor for real-time feedback.
 3. **Search-augmented RAG** — queries go through web search → page scraping → grounded answer with inline citations `[1]` `[2]`.
 4. **Mobile-first responsive** — all pages adapt from 320px phones to widescreen desktops with proper touch targets (40px+).
@@ -30,9 +30,9 @@ VectoSiloAI is a privacy-first AI search and chat application. All inference run
 
 ```
 User types query
-  → /api/search (VectoSiloAI Private Cloud search → top 5 results with page content)
+  → /api/search (IncogniAI Private Cloud search → top 5 results with page content)
   → /api/scrape (cheerio fallback if search results lack content)
-  → /api/chat (VectoSiloAI Private Cloud inference via streamed SSE)
+  → /api/chat (IncogniAI Private Cloud inference via streamed SSE)
   → follow-up questions (second non-streaming call)
 ```
 
@@ -42,7 +42,7 @@ User types query
 |---|---|
 | Agentic RAG | Web search + scrape → cited answer with sources |
 | Thread management | Conversation history in localStorage |
-| Model switching | Choose from available VectoSiloAI models |
+| Model switching | Choose from available IncogniAI models |
 | Focus modes | All / No Search / Code / Academic |
 | Privacy dashboard | Live counter: 0 third-party AI calls |
 | Ultra plan ($1000/mo) | Team orgs, 99 agent steps, 8 swarm agents |
@@ -73,8 +73,8 @@ Gift ── has code (VECTOSILO-XXXXXXXX)
 
 ### Infrastructure
 
-- **Inference**: VectoSiloAI Private Cloud — fully managed model infrastructure
-- **Search**: VectoSiloAI Private Cloud Search API (primary), SearXNG (fallback), Brave (optional)
+- **Inference**: IncogniAI Private Cloud — fully managed model infrastructure
+- **Search**: IncogniAI Private Cloud Search API (primary), SearXNG (fallback), Brave (optional)
 - **Auth**: Google OAuth + magic-link email OTP
 - **Payments**: Razorpay for subscriptions, upgrades, and gift purchases
 - **Storage**: JSON files on disk (auth, orgs, gifts, shares) + browser localStorage (threads)
@@ -93,7 +93,7 @@ components/
   layout/       — Sidebar, Header, SettingsModal, ModelSwitcher
   search/       — SearchBar, FocusModes, AnswerPanel
 lib/
-  cloud.ts      — VectoSiloAI Private Cloud client (bearer auth, streaming)
+  cloud.ts      — IncogniAI Private Cloud client (bearer auth, streaming)
   auth.ts       — Authentication, user management, persistence
   store.ts      — Zustand store (threads, model, focus mode, UI state)
   plans.ts      — Plan definitions (Free / Go / Pro / Max / Ultra)

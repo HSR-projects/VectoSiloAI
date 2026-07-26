@@ -180,17 +180,17 @@ export function CodeBlock({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="group relative my-4 overflow-hidden rounded-xl border border-vectosilo-border bg-[#141416]">
+    <div className="group relative my-4 overflow-hidden rounded-xl border border-incogni-border bg-[#141416]">
       {/* Toolbar — wraps on narrow screens so no action gets clipped. */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-vectosilo-border/70 bg-vectosilo-surface/40 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-1 border-b border-incogni-border/70 bg-incogni-surface/40 px-2 py-1.5">
         {lang && (
-          <span className="mr-1 px-1.5 text-[11px] font-medium uppercase tracking-wide text-vectosilo-muted">
+          <span className="mr-1 px-1.5 text-[11px] font-medium uppercase tracking-wide text-incogni-muted">
             {lang}
           </span>
         )}
 
         {canPreview && !editMode && (
-          <div className="flex items-center rounded-md bg-vectosilo-surface-2 p-0.5">
+          <div className="flex items-center rounded-md bg-incogni-surface-2 p-0.5">
             <TabButton
               active={tab === "code"}
               onClick={() => setTab("code")}
@@ -212,7 +212,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => setRunKey((k) => k + 1)}
               aria-label="Re-run preview"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
             >
               <RefreshCw className="h-3 w-3" /> Rerun
             </button>
@@ -223,7 +223,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={exitEdit}
-              className="inline-flex items-center gap-1 rounded-md border border-vectosilo-accent/40 bg-vectosilo-accent/10 px-2 py-1 text-xs font-medium text-vectosilo-accent-soft transition-colors hover:bg-vectosilo-accent/20"
+              className="inline-flex items-center gap-1 rounded-md border border-incogni-accent/40 bg-incogni-accent/10 px-2 py-1 text-xs font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/20"
             >
               <Check className="h-3 w-3" /> Done
             </button>
@@ -232,7 +232,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
               type="button"
               onClick={enterEdit}
               aria-label="Edit code"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
             >
               <PencilLine className="h-3 w-3" /> Edit
             </button>
@@ -244,7 +244,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
               type="button"
               onClick={reset}
               aria-label="Reset to original"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-vectosilo-muted transition-colors hover:text-red-400"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-red-400"
             >
               <RotateCcw className="h-3 w-3" /> Reset
             </button>
@@ -254,7 +254,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
             type="button"
             onClick={download}
             aria-label="Download file"
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
           >
             <Download className="h-3 w-3" /> Download
           </button>
@@ -262,11 +262,11 @@ export function CodeBlock({ children }: { children: ReactNode }) {
             type="button"
             onClick={copy}
             aria-label="Copy code"
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-vectosilo-muted transition-colors hover:text-vectosilo-text"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
           >
             {copied ? (
               <>
-                <Check className="h-3 w-3 text-vectosilo-accent" /> Copied
+                <Check className="h-3 w-3 text-incogni-accent" /> Copied
               </>
             ) : (
               <>
@@ -284,7 +284,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
           value={editedCode ?? rawText}
           onChange={(e) => setEditedCode(e.target.value)}
           spellCheck={false}
-          className="w-full resize-none bg-[#141416] p-4 font-mono text-sm leading-relaxed text-vectosilo-text/90 outline-none"
+          className="w-full resize-none bg-[#141416] p-4 font-mono text-sm leading-relaxed text-incogni-text/90 outline-none"
           style={{ minHeight: `${Math.max(6, (editedCode ?? rawText).split("\n").length + 1) * 1.5}rem` }}
         />
       ) : canPreview && tab === "preview" ? (
@@ -322,8 +322,8 @@ function TabButton({
       className={cn(
         "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors",
         active
-          ? "bg-vectosilo-accent/20 text-vectosilo-accent-soft"
-          : "text-vectosilo-muted hover:text-vectosilo-text"
+          ? "bg-incogni-accent/20 text-incogni-accent-soft"
+          : "text-incogni-muted hover:text-incogni-text"
       )}
     >
       {icon}

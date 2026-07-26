@@ -18,8 +18,8 @@ async function loginWithApiKey(key) {
   config.set("authType","apikey");
   config.set("name",    res.name);
   config.set("userId",  res.userId);
-  // store masked key for display: sk-vectosilo-****xxxx
-  const masked = key.length > 12 ? key.slice(0,10) + "…" + key.slice(-4) : "sk-vectosilo-…";
+  // store masked key for display: sk-incogni-****xxxx
+  const masked = key.length > 12 ? key.slice(0,10) + "…" + key.slice(-4) : "sk-incogni-…";
   config.set("apiKey",  masked);
   return res;
 }
@@ -44,7 +44,7 @@ async function loginWithBrowser() {
     if (r?.error && !r?.pending) throw new Error(r.error);
     await sleep(1500);
   }
-  throw new Error("VectoSiloAI login timed out (5 min).");
+  throw new Error("IncogniAI login timed out (5 min).");
 }
 
 function logout() { config.clear(); }

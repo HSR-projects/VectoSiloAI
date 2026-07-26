@@ -28,7 +28,7 @@ const milestones = [
     date: "2018",
     title: "Company Founded",
     description:
-      "VectoSiloAI was founded in San Francisco with a mission to democratize AI development.",
+      "IncogniAI was founded in San Francisco with a mission to democratize AI development.",
   },
   {
     date: "2019",
@@ -153,7 +153,7 @@ const teamMembers = [
 const testimonials = [
   {
     quote:
-      "VectoSiloAI has completely transformed how our engineering team builds and ships products. The platform is incredibly intuitive.",
+      "IncogniAI has completely transformed how our engineering team builds and ships products. The platform is incredibly intuitive.",
     author: "Jennifer Walsh",
     role: "CTO, CloudScale Inc.",
     avatar: placeholderImg,
@@ -167,7 +167,7 @@ const testimonials = [
   },
   {
     quote:
-      "We evaluated a dozen platforms before choosing VectoSiloAI. The decision was clear after seeing their security model.",
+      "We evaluated a dozen platforms before choosing IncogniAI. The decision was clear after seeing their security model.",
     author: "Linda Park",
     role: "VP Engineering, SafeNet",
     avatar: placeholderImg,
@@ -180,7 +180,7 @@ export default function AboutPage() {
       <div className="min-h-screen bg-[#212121]">
         <HeroSplit
           title="Our Mission: Empowering Developers Worldwide"
-          subtitle="We believe that great tools enable great work. VectoSiloAI is building the platform that helps developers create, deploy, and scale applications with unprecedented ease."
+          subtitle="We believe that great tools enable great work. IncogniAI is building the platform that helps developers create, deploy, and scale applications with unprecedented ease."
           cta={{ label: "Join Our Team", href: "#" }}
           image={
             <div className="flex h-80 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-[#10a37f]/30 via-[#343541] to-[#212121]">
@@ -196,7 +196,7 @@ export default function AboutPage() {
                 Our Story
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-[#8e8e93]">
-                VectoSiloAI started in a small garage in San Francisco with a simple
+                IncogniAI started in a small garage in San Francisco with a simple
                 idea: building AI-powered applications should be as easy as
                 writing a few lines of code. Today, we are a global team of over
                 120 passionate individuals working to make that vision a reality
@@ -227,7 +227,7 @@ export default function AboutPage() {
           <div className="mx-auto max-w-6xl">
             <Team
               title="Meet the Team"
-              subtitle="The people behind VectoSiloAI."
+              subtitle="The people behind IncogniAI."
               members={teamMembers}
             />
           </div>
@@ -268,14 +268,14 @@ export default function AboutPage() {
 
         <Newsletter
           title="Stay Updated"
-          subtitle="Get the latest news and updates from the VectoSiloAI team."
+          subtitle="Get the latest news and updates from the IncogniAI team."
           variant="card"
           buttonText="Subscribe"
         />
 
         <footer className="border-t border-[#424242] bg-[#2f2f2f] py-12">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-[#8e8e93]">
-            &copy; {new Date().getFullYear()} VectoSiloAI. All rights reserved.
+            &copy; {new Date().getFullYear()} IncogniAI. All rights reserved.
           </div>
         </footer>
       </div>

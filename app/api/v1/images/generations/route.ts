@@ -129,7 +129,7 @@ export async function POST(req: Request) {
   return json({
     created: Math.floor(Date.now() / 1000),
     data,
-    // VectoSiloAI extension fields.
+    // IncogniAI extension fields.
     credits_charged: charged,
     credits_remaining: remaining,
   });

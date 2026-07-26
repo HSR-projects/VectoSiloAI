@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const sb3 = await zip.generateAsync({ type: "nodebuffer" });
 
     const b64 = sb3.toString("base64");
-    return NextResponse.json({ sb3: b64, filename: "vectosiloblocks-project.sb3" });
+    return NextResponse.json({ sb3: b64, filename: "incogniblocks-project.sb3" });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
@@ -298,7 +298,7 @@ function generateScratchProject(prompt: string): ScratchProject {
     meta: {
       semver: "3.0.0",
       vm: "0.2.0",
-      agent: "VectoSiloAI",
+      agent: "IncogniAI",
     },
   };
 

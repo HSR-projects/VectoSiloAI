@@ -30,12 +30,15 @@ function pickActiveFile(files: ProjectFile[]): string | undefined {
   return files[0].path;
 }
 
-interface VectoSiloState {
+export interface IncogniState {
   // ─── Model ──────────────────────────────────────────────
   selectedModel: string;
   availableModels: string[];
-  setSelectedModel: (m: string) => void;
+  customModels: string[];
+  setSelectedModel: (model: string) => void;
   setAvailableModels: (models: string[]) => void;
+  addCustomModel: (model: string) => void;
+  removeCustomModel: (model: string) => void;
 
   // ─── Focus ──────────────────────────────────────────────
   focusMode: FocusMode;
@@ -61,7 +64,7 @@ interface VectoSiloState {
   setPendingAttachments: (a: Attachment[]) => void;
 
   /**
-   * Text to seed the composer with (e.g. from the "Ask VectoSilo AI" selection
+   * Text to seed the composer with (e.g. from the "Ask Incogni AI" selection
    * popover). SearchBar picks it up, fills the input, and clears it.
    */
   composerDraft: string;
@@ -71,12 +74,20 @@ interface VectoSiloState {
   /** Chess engine strength, 1 (easy) … 10 (hard). */
   chessDifficulty: number;
   setChessDifficulty: (n: number) => void;
-  /** Selected AI provider (defaults to VectoSiloAI Cloud). */
+  /** Selected AI provider (defaults to IncogniAI Cloud). */
   provider: string;
   setProvider: (id: string) => void;
-  /** API key for the selected provider (empty for VectoSiloAI Cloud / local). */
+  /** API key for the selected provider (empty for IncogniAI Cloud / local). */
   providerApiKey: string;
   setProviderApiKey: (key: string) => void;
+  openaiApiKey: string;
+  setOpenaiApiKey: (key: string) => void;
+  anthropicApiKey: string;
+  setAnthropicApiKey: (key: string) => void;
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
+  openrouterApiKey: string;
+  setOpenrouterApiKey: (key: string) => void;
   /** Custom base URL override for the selected provider. */
   providerBaseUrl: string;
   setProviderBaseUrl: (url: string) => void;
@@ -101,7 +112,7 @@ interface VectoSiloState {
   /** Hands-free voice conversation overlay. */
   voiceOpen: boolean;
   setVoiceOpen: (v: boolean) => void;
-  /** Require a "Hey VectoSilo" wake phrase before acting on speech. */
+  /** Require a "Hey Incogni" wake phrase before acting on speech. */
   wakeWordEnabled: boolean;
   setWakeWordEnabled: (v: boolean) => void;
 
@@ -140,7 +151,7 @@ interface VectoSiloState {
   chessFen: string;
   setChessFen: (fen: string) => void;
 
-  // ─── VectoSilo's Computer (sandboxed project workspace) ──────────
+  // ─── Incogni's Computer (sandboxed project workspace) ──────────
   // Transient only: never persisted, never written to thread history, so a
   // sandbox can't be shared into or leak across other chats.
   computer: ComputerProject | null;
@@ -217,9 +228,13 @@ interface VectoSiloState {
   deleteMessagesFrom: (threadId: string, messageId: string) => void;
   getThread: (id: string) => Thread | undefined;
 
-  // ─── Incognito ──────────────────────────────────────────
+  // ─── Incognito (Temporary Chat) ──────────────────────────
   incognito: boolean;
   setIncognito: (v: boolean) => void;
+
+  // ─── Developer Mode (Third-Party Models Switcher) ───────────
+  developerMode: boolean;
+  setDeveloperMode: (v: boolean) => void;
 
   // ─── Custom AIs ─────────────────────────────────────────
   customAIs: CustomAI[];
@@ -232,22 +247,34 @@ interface VectoSiloState {
   deleteCustomAI: (id: string) => void;
 }
 
-export const useVectoSiloStore = create<VectoSiloState>()(
+export const useIncogniStore = create<IncogniState>()(
   persist(
     (set, get) => ({
       selectedModel: "",
       availableModels: [],
+      customModels: [],
       setSelectedModel: (m) => set({ selectedModel: m }),
       setAvailableModels: (models) =>
         set((s) => ({
           availableModels: models,
-          // Keep the current selection if it's still valid (or the "auto"
-          // sentinel); otherwise auto-pick the first available model.
           selectedModel:
             s.selectedModel === "auto" ||
-            (s.selectedModel && models.includes(s.selectedModel))
+            (s.selectedModel && (models.includes(s.selectedModel) || s.customModels.includes(s.selectedModel)))
               ? s.selectedModel
               : models[0] ?? s.selectedModel,
+        })),
+      addCustomModel: (model) => {
+        const m = model.trim();
+        if (!m) return;
+        set((s) => ({
+          customModels: s.customModels.includes(m) ? s.customModels : [...s.customModels, m],
+          selectedModel: m,
+        }));
+      },
+      removeCustomModel: (model) =>
+        set((s) => ({
+          customModels: s.customModels.filter((c) => c !== model),
+          selectedModel: s.selectedModel === model ? "" : s.selectedModel,
         })),
 
       focusMode: "all",
@@ -271,10 +298,18 @@ export const useVectoSiloStore = create<VectoSiloState>()(
       chessDifficulty: 5,
       setChessDifficulty: (n) =>
         set({ chessDifficulty: Math.max(1, Math.min(10, Math.round(n))) }),
-      provider: "vectosiloai",
+      provider: "incogni-ai",
       setProvider: (id) => set({ provider: id }),
       providerApiKey: "",
       setProviderApiKey: (key) => set({ providerApiKey: key }),
+      openaiApiKey: "",
+      setOpenaiApiKey: (key) => set({ openaiApiKey: key }),
+      anthropicApiKey: "",
+      setAnthropicApiKey: (key) => set({ anthropicApiKey: key }),
+      geminiApiKey: "",
+      setGeminiApiKey: (key) => set({ geminiApiKey: key }),
+      openrouterApiKey: "",
+      setOpenrouterApiKey: (key) => set({ openrouterApiKey: key }),
       providerBaseUrl: "",
       setProviderBaseUrl: (url) => set({ providerBaseUrl: url }),
       settingsOpen: false,
@@ -477,13 +512,15 @@ export const useVectoSiloStore = create<VectoSiloState>()(
       createThread: (query) => {
         const id = uid();
         const now = Date.now();
-        const thread: Thread = {
+        const isTemp = get().incognito;
+        const thread: Thread & { isTemporary?: boolean } = {
           id,
           title: titleFromQuery(query),
           messages: [],
           createdAt: now,
           updatedAt: now,
           customAIId: get().activeCustomAIId || undefined,
+          ...(isTemp ? { isTemporary: true } : {}),
         };
         set((s) => ({
           threads: [thread, ...s.threads],
@@ -492,9 +529,13 @@ export const useVectoSiloStore = create<VectoSiloState>()(
         return id;
       },
 
-      // ─── Incognito ───────────────────────────────────────
+      // ─── Incognito (Temporary Chat) ───────────────────────
       incognito: false,
       setIncognito: (v) => set({ incognito: v }),
+
+      // ─── Developer Mode ──────────────────────────────────
+      developerMode: false,
+      setDeveloperMode: (v) => set({ developerMode: v }),
 
       // ─── Custom AIs ──────────────────────────────────────
       customAIs: [],
@@ -585,7 +626,7 @@ export const useVectoSiloStore = create<VectoSiloState>()(
       getThread: (id) => get().threads.find((t) => t.id === id),
     }),
     {
-      name: "vectosiloai-store",
+      name: "incogni-ai-store",
       // Bump when the persisted shape changes; `migrate` scrubs old data.
       version: 1,
       // Don't persist transient/server-derived state.
@@ -618,9 +659,9 @@ export const useVectoSiloStore = create<VectoSiloState>()(
           const p = persisted as Record<string, unknown>;
           delete p.threads;
           delete p.activeThreadId;
-          return p as unknown as VectoSiloState;
+          return p as unknown as IncogniState;
         }
-        return persisted as VectoSiloState;
+        return persisted as IncogniState;
       },
     }
   )

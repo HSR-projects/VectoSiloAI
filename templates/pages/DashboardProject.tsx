@@ -51,7 +51,7 @@ const projectMilestones = [
     date: "2024-02-28",
     title: "Sprint 1 Launch",
     description: "First development sprint initiated with core features.",
-    color: "bg-vectosilo-accent",
+    color: "bg-incogni-accent",
   },
   {
     date: "2024-03-15",
@@ -69,10 +69,10 @@ const projectMilestones = [
 
 const taskList = [
   { id: "1", icon: <CheckCircle2 size={16} className="text-green-500" />, title: "Set up CI/CD pipeline", description: "DevOps • High Priority", action: <Badge variant="error" size="sm">High</Badge> },
-  { id: "2", icon: <Circle size={16} className="text-vectosilo-muted" />, title: "Design landing page mockups", description: "Design • Medium Priority", action: <Badge variant="warning" size="sm">Medium</Badge> },
-  { id: "3", icon: <Circle size={16} className="text-vectosilo-muted" />, title: "Implement user authentication", description: "Backend • High Priority", action: <Badge variant="error" size="sm">High</Badge> },
+  { id: "2", icon: <Circle size={16} className="text-incogni-muted" />, title: "Design landing page mockups", description: "Design • Medium Priority", action: <Badge variant="warning" size="sm">Medium</Badge> },
+  { id: "3", icon: <Circle size={16} className="text-incogni-muted" />, title: "Implement user authentication", description: "Backend • High Priority", action: <Badge variant="error" size="sm">High</Badge> },
   { id: "4", icon: <CheckCircle2 size={16} className="text-green-500" />, title: "Write API documentation", description: "Docs • Low Priority", action: <Badge variant="default" size="sm">Low</Badge> },
-  { id: "5", icon: <Circle size={16} className="text-vectosilo-muted" />, title: "Set up monitoring & alerts", description: "DevOps • Medium Priority", action: <Badge variant="warning" size="sm">Medium</Badge> },
+  { id: "5", icon: <Circle size={16} className="text-incogni-muted" />, title: "Set up monitoring & alerts", description: "DevOps • Medium Priority", action: <Badge variant="warning" size="sm">Medium</Badge> },
 ];
 
 const sprintStats = [
@@ -122,18 +122,18 @@ function KanbanCard({ item }: { item: any }) {
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg border border-vectosilo-border bg-vectosilo-surface p-3"
+      className="rounded-lg border border-incogni-border bg-incogni-surface p-3"
     >
       <div className="mb-2 flex items-center justify-between">
         <Badge variant="default" size="sm" className={cn("border-0", priorityColors[item.priority])}>
           {item.priority}
         </Badge>
-        <button className="text-vectosilo-muted hover:text-vectosilo-text">
+        <button className="text-incogni-muted hover:text-incogni-text">
           <MoreHorizontal size={14} />
         </button>
       </div>
-      <p className="mb-3 text-sm font-medium text-vectosilo-text">{item.title}</p>
-      <div className="flex items-center justify-between text-xs text-vectosilo-muted">
+      <p className="mb-3 text-sm font-medium text-incogni-text">{item.title}</p>
+      <div className="flex items-center justify-between text-xs text-incogni-muted">
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1">
             <MessageSquare size={12} /> {item.comments}
@@ -142,7 +142,7 @@ function KanbanCard({ item }: { item: any }) {
             <Paperclip size={12} /> {item.attachments}
           </span>
         </div>
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-vectosilo-accent/20 text-[10px] font-medium text-vectosilo-accent">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-incogni-accent/20 text-[10px] font-medium text-incogni-accent">
           {item.assignee}
         </div>
       </div>
@@ -154,11 +154,11 @@ export function DashboardProject() {
   const [activeTab, setActiveTab] = useState("kanban");
 
   return (
-    <div className="flex min-h-screen bg-vectosilo-bg">
-      <aside className="hidden w-60 flex-col border-r border-vectosilo-border bg-vectosilo-surface/50 lg:flex">
-        <div className="flex items-center gap-2 border-b border-vectosilo-border px-5 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vectosilo-accent text-sm font-bold text-white">K</div>
-          <span className="text-lg font-bold text-vectosilo-text">VectoSiloAI</span>
+    <div className="flex min-h-screen bg-incogni-bg">
+      <aside className="hidden w-60 flex-col border-r border-incogni-border bg-incogni-surface/50 lg:flex">
+        <div className="flex items-center gap-2 border-b border-incogni-border px-5 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-incogni-accent text-sm font-bold text-white">K</div>
+          <span className="text-lg font-bold text-incogni-text">IncogniAI</span>
         </div>
 
         <nav className="flex-1 space-y-1 p-3">
@@ -169,8 +169,8 @@ export function DashboardProject() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 item.active
-                  ? "bg-vectosilo-accent/10 text-vectosilo-accent"
-                  : "text-vectosilo-muted hover:bg-vectosilo-surface hover:text-vectosilo-text"
+                  ? "bg-incogni-accent/10 text-incogni-accent"
+                  : "text-incogni-muted hover:bg-incogni-surface hover:text-incogni-text"
               )}
             >
               <item.icon size={18} />
@@ -179,19 +179,19 @@ export function DashboardProject() {
           ))}
         </nav>
 
-        <div className="border-t border-vectosilo-border p-3">
+        <div className="border-t border-incogni-border p-3">
           <div className="flex items-center gap-2 px-3 py-2">
             <Progress value={68} size="sm" className="flex-1" />
-            <span className="text-xs text-vectosilo-muted">68%</span>
+            <span className="text-xs text-incogni-muted">68%</span>
           </div>
         </div>
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-vectosilo-border bg-vectosilo-surface/50 px-6 py-3">
+        <header className="flex items-center justify-between border-b border-incogni-border bg-incogni-surface/50 px-6 py-3">
           <div>
-            <h1 className="text-lg font-bold text-vectosilo-text">Project Phoenix</h1>
-            <p className="text-xs text-vectosilo-muted">Q1 2024 Release • v2.0.0</p>
+            <h1 className="text-lg font-bold text-incogni-text">Project Phoenix</h1>
+            <p className="text-xs text-incogni-muted">Q1 2024 Release • v2.0.0</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
@@ -199,7 +199,7 @@ export function DashboardProject() {
                 <div
                   key={member.initials}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full border-2 border-vectosilo-bg text-[10px] font-medium text-white",
+                    "flex h-8 w-8 items-center justify-center rounded-full border-2 border-incogni-bg text-[10px] font-medium text-white",
                     member.color
                   )}
                   title={member.name}
@@ -208,12 +208,12 @@ export function DashboardProject() {
                 </div>
               ))}
               {teamMembers.length > 5 && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-vectosilo-bg bg-vectosilo-surface-2 text-[10px] font-medium text-vectosilo-muted">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-incogni-bg bg-incogni-surface-2 text-[10px] font-medium text-incogni-muted">
                   +{teamMembers.length - 5}
                 </div>
               )}
             </div>
-            <button className="flex items-center gap-1.5 rounded-lg bg-vectosilo-accent px-3 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90">
+            <button className="flex items-center gap-1.5 rounded-lg bg-incogni-accent px-3 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90">
               <Plus size={14} />
               New Task
             </button>
@@ -222,32 +222,32 @@ export function DashboardProject() {
 
         <main className="flex-1 overflow-auto p-6">
           <div className="mx-auto max-w-7xl space-y-6">
-            <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
+            <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-vectosilo-text">Project Progress</h3>
-                <span className="text-xs text-vectosilo-muted">42 of 62 tasks</span>
+                <h3 className="text-sm font-semibold text-incogni-text">Project Progress</h3>
+                <span className="text-xs text-incogni-muted">42 of 62 tasks</span>
               </div>
               <Progress value={68} variant="default" size="md" showValue />
             </div>
 
-            <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
-              <h3 className="mb-4 text-sm font-semibold text-vectosilo-text">Sprint Metrics</h3>
+            <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
+              <h3 className="mb-4 text-sm font-semibold text-incogni-text">Sprint Metrics</h3>
               <Stats items={sprintStats} columns={4} />
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-              <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
-                <h3 className="mb-4 text-sm font-semibold text-vectosilo-text">Project Timeline</h3>
+              <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
+                <h3 className="mb-4 text-sm font-semibold text-incogni-text">Project Timeline</h3>
                 <Timeline items={projectMilestones} />
               </div>
 
-              <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
-                <h3 className="mb-4 text-sm font-semibold text-vectosilo-text">Recent Tasks</h3>
+              <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
+                <h3 className="mb-4 text-sm font-semibold text-incogni-text">Recent Tasks</h3>
                 <List items={taskList} variant="compact" />
               </div>
 
-              <div className="rounded-xl border border-vectosilo-border bg-vectosilo-surface p-5">
-                <h3 className="mb-4 text-sm font-semibold text-vectosilo-text">Team Members</h3>
+              <div className="rounded-xl border border-incogni-border bg-incogni-surface p-5">
+                <h3 className="mb-4 text-sm font-semibold text-incogni-text">Team Members</h3>
                 <div className="space-y-3">
                   {teamMembers.map((member) => (
                     <div key={member.initials} className="flex items-center gap-3">
@@ -255,8 +255,8 @@ export function DashboardProject() {
                         {member.initials}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-vectosilo-text">{member.name}</p>
-                        <p className="text-xs text-vectosilo-muted">{member.role}</p>
+                        <p className="text-sm font-medium text-incogni-text">{member.name}</p>
+                        <p className="text-xs text-incogni-muted">{member.role}</p>
                       </div>
                     </div>
                   ))}
@@ -270,7 +270,7 @@ export function DashboardProject() {
                   onClick={() => setActiveTab("kanban")}
                   className={cn(
                     "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                    activeTab === "kanban" ? "bg-vectosilo-accent text-white" : "text-vectosilo-muted hover:text-vectosilo-text"
+                    activeTab === "kanban" ? "bg-incogni-accent text-white" : "text-incogni-muted hover:text-incogni-text"
                   )}
                 >
                   Kanban Board
@@ -279,7 +279,7 @@ export function DashboardProject() {
                   onClick={() => setActiveTab("list")}
                   className={cn(
                     "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                    activeTab === "list" ? "bg-vectosilo-accent text-white" : "text-vectosilo-muted hover:text-vectosilo-text"
+                    activeTab === "list" ? "bg-incogni-accent text-white" : "text-incogni-muted hover:text-incogni-text"
                   )}
                 >
                   List View
@@ -295,10 +295,10 @@ export function DashboardProject() {
                   ].map((col) => (
                     <div
                       key={col.title}
-                      className={cn("rounded-xl border border-vectosilo-border border-t-2 bg-vectosilo-surface/50 p-4", col.color)}
+                      className={cn("rounded-xl border border-incogni-border border-t-2 bg-incogni-surface/50 p-4", col.color)}
                     >
                       <div className="mb-3 flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-vectosilo-text">{col.title}</h4>
+                        <h4 className="text-sm font-semibold text-incogni-text">{col.title}</h4>
                         <Badge variant="default" size="sm">{col.items.length}</Badge>
                       </div>
                       <div className="space-y-3">

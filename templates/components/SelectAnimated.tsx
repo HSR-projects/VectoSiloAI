@@ -83,12 +83,12 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
           }}
           onClick={() => setOpen((p) => !p)}
           className={cn(
-            "relative flex cursor-pointer items-center rounded-lg border bg-vectosilo-surface px-3 py-3 transition-all duration-200",
+            "relative flex cursor-pointer items-center rounded-lg border bg-incogni-surface px-3 py-3 transition-all duration-200",
             error
               ? "border-red-500"
               : open
-                ? "border-vectosilo-accent shadow-glow"
-                : "border-vectosilo-border hover:border-vectosilo-muted"
+                ? "border-incogni-accent shadow-glow"
+                : "border-incogni-border hover:border-incogni-muted"
           )}
         >
           <div className="flex-1">
@@ -102,8 +102,8 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
                   error
                     ? "text-red-400"
                     : open
-                      ? "text-vectosilo-accent"
-                      : "text-vectosilo-muted"
+                      ? "text-incogni-accent"
+                      : "text-incogni-muted"
                 )}
               >
                 {label}
@@ -113,7 +113,7 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
               className={cn(
                 "block truncate transition-colors",
                 float ? "pt-1 text-sm" : "",
-                selected ? "text-vectosilo-text" : "text-vectosilo-muted"
+                selected ? "text-incogni-text" : "text-incogni-muted"
               )}
             >
               {selected ? selected.label : placeholder}
@@ -127,7 +127,7 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
               size={18}
               className={cn(
                 "transition-colors",
-                open ? "text-vectosilo-accent" : "text-vectosilo-muted"
+                open ? "text-incogni-accent" : "text-incogni-muted"
               )}
             />
           </motion.div>
@@ -140,7 +140,7 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
               animate={{ opacity: 1, y: 4, scaleY: 1 }}
               exit={{ opacity: 0, y: -8, scaleY: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute z-50 w-full origin-top overflow-hidden rounded-lg border border-vectosilo-border bg-vectosilo-surface-2 shadow-xl"
+              className="absolute z-50 w-full origin-top overflow-hidden rounded-lg border border-incogni-border bg-incogni-surface-2 shadow-xl"
               style={{ transformOrigin: "top" }}
             >
               {options.map((opt, i) => (
@@ -159,8 +159,8 @@ export const SelectAnimated = forwardRef<HTMLDivElement, SelectAnimatedProps>(
                     className={cn(
                       "flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors",
                       opt.value === value
-                        ? "bg-vectosilo-accent/10 text-vectosilo-accent"
-                        : "text-vectosilo-text hover:bg-vectosilo-surface"
+                        ? "bg-incogni-accent/10 text-incogni-accent"
+                        : "text-incogni-text hover:bg-incogni-surface"
                     )}
                   >
                     <span className="h-4 w-4 shrink-0">

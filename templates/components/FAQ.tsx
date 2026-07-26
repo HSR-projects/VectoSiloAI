@@ -61,11 +61,11 @@ export function FAQ({
           viewport={{ once: true }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-incogni-text sm:text-4xl">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-4 text-lg text-vectosilo-muted">{subtitle}</p>
+            <p className="mt-4 text-lg text-incogni-muted">{subtitle}</p>
           )}
         </motion.div>
 
@@ -78,19 +78,19 @@ export function FAQ({
           >
             <Search
               size={18}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-vectosilo-muted"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-incogni-muted"
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search questions..."
-              className="w-full rounded-xl border border-vectosilo-border bg-vectosilo-surface py-3.5 pl-11 pr-10 text-sm text-vectosilo-text placeholder:text-vectosilo-muted outline-none transition-colors focus:border-vectosilo-accent"
+              className="w-full rounded-xl border border-incogni-border bg-incogni-surface py-3.5 pl-11 pr-10 text-sm text-incogni-text placeholder:text-incogni-muted outline-none transition-colors focus:border-incogni-accent"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-vectosilo-muted hover:text-vectosilo-text"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-incogni-muted hover:text-incogni-text"
               >
                 <X size={16} />
               </button>
@@ -105,8 +105,8 @@ export function FAQ({
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-medium transition-colors",
                 !activeCategory
-                  ? "bg-vectosilo-accent text-white"
-                  : "border border-vectosilo-border text-vectosilo-muted hover:border-vectosilo-accent hover:text-vectosilo-accent",
+                  ? "bg-incogni-accent text-white"
+                  : "border border-incogni-border text-incogni-muted hover:border-incogni-accent hover:text-incogni-accent",
               )}
             >
               All
@@ -120,8 +120,8 @@ export function FAQ({
                 className={cn(
                   "rounded-full px-4 py-1.5 text-xs font-medium transition-colors",
                   activeCategory === cat
-                    ? "bg-vectosilo-accent text-white"
-                    : "border border-vectosilo-border text-vectosilo-muted hover:border-vectosilo-accent hover:text-vectosilo-accent",
+                    ? "bg-incogni-accent text-white"
+                    : "border border-incogni-border text-incogni-muted hover:border-incogni-accent hover:text-incogni-accent",
                 )}
               >
                 {cat}
@@ -144,15 +144,15 @@ export function FAQ({
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="overflow-hidden rounded-xl border border-vectosilo-border bg-vectosilo-surface"
+                  className="overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface"
                 >
                   <button
                     onClick={() =>
                       setOpenIndex(openIndex === i ? null : i)
                     }
-                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-vectosilo-surface-2"
+                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-incogni-surface-2"
                   >
-                    <span className="text-sm font-medium text-vectosilo-text">
+                    <span className="text-sm font-medium text-incogni-text">
                       {item.question}
                     </span>
                     <motion.div
@@ -163,7 +163,7 @@ export function FAQ({
                     >
                       <ChevronDown
                         size={18}
-                        className="text-vectosilo-muted shrink-0"
+                        className="text-incogni-muted shrink-0"
                       />
                     </motion.div>
                   </button>
@@ -176,7 +176,7 @@ export function FAQ({
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
-                        <p className="px-4 pb-4 text-sm leading-relaxed text-vectosilo-muted">
+                        <p className="px-4 pb-4 text-sm leading-relaxed text-incogni-muted">
                           {item.answer}
                         </p>
                       </motion.div>
@@ -188,7 +188,7 @@ export function FAQ({
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="py-12 text-center text-sm text-vectosilo-muted"
+                className="py-12 text-center text-sm text-incogni-muted"
               >
                 No results found for &ldquo;{search}&rdquo;
               </motion.p>

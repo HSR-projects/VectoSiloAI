@@ -53,17 +53,17 @@ export function PricingTable({
     <section className={cn("py-16 px-4", className)}>
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-incogni-text sm:text-4xl">
             Pricing
           </h2>
-          <p className="mt-4 text-lg text-vectosilo-muted">
+          <p className="mt-4 text-lg text-incogni-muted">
             Choose the plan that fits your needs
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <span
               className={cn(
                 "text-sm transition-colors",
-                !isYearly ? "text-vectosilo-text" : "text-vectosilo-muted",
+                !isYearly ? "text-incogni-text" : "text-incogni-muted",
               )}
             >
               Monthly
@@ -76,11 +76,11 @@ export function PricingTable({
             <span
               className={cn(
                 "text-sm transition-colors",
-                isYearly ? "text-vectosilo-text" : "text-vectosilo-muted",
+                isYearly ? "text-incogni-text" : "text-incogni-muted",
               )}
             >
               Yearly
-              <span className="ml-1.5 rounded-full bg-vectosilo-accent/20 px-2 py-0.5 text-xs text-vectosilo-accent">
+              <span className="ml-1.5 rounded-full bg-incogni-accent/20 px-2 py-0.5 text-xs text-incogni-accent">
                 Save 20%
               </span>
             </span>
@@ -105,32 +105,32 @@ export function PricingTable({
               className={cn(
                 "relative flex flex-col rounded-xl border p-6 transition-shadow",
                 plan.popular
-                  ? "border-vectosilo-accent bg-vectosilo-surface shadow-[0_0_30px_rgba(16,163,127,0.12)] scale-105 lg:scale-110"
+                  ? "border-incogni-accent bg-incogni-surface shadow-[0_0_30px_rgba(16,163,127,0.12)] scale-105 lg:scale-110"
                   : plan.highlighted
-                    ? "border-vectosilo-accent/40 bg-vectosilo-surface"
-                    : "border-vectosilo-border bg-vectosilo-surface",
+                    ? "border-incogni-accent/40 bg-incogni-surface"
+                    : "border-incogni-border bg-incogni-surface",
               )}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-vectosilo-accent px-3 py-1 text-xs font-semibold text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-incogni-accent px-3 py-1 text-xs font-semibold text-white">
                   Most Popular
                 </span>
               )}
-              <h3 className="text-xl font-bold text-vectosilo-text">
+              <h3 className="text-xl font-bold text-incogni-text">
                 {plan.name}
               </h3>
-              <p className="mt-1 text-sm text-vectosilo-muted">{plan.description}</p>
+              <p className="mt-1 text-sm text-incogni-muted">{plan.description}</p>
               <div className="mt-6 flex items-baseline gap-1">
                 <motion.span
                   key={isYearly ? "yearly" : "monthly"}
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-4xl font-bold text-vectosilo-text"
+                  className="text-4xl font-bold text-incogni-text"
                 >
                   {isYearly ? plan.price.yearly : plan.price.monthly}
                 </motion.span>
-                <span className="text-sm text-vectosilo-muted">
+                <span className="text-sm text-incogni-muted">
                   /{plan.period ?? (isYearly ? "year" : "month")}
                 </span>
               </div>
@@ -138,11 +138,11 @@ export function PricingTable({
                 {plan.features.map((feature, j) => (
                   <li
                     key={j}
-                    className="flex items-start gap-2 text-sm text-vectosilo-muted"
+                    className="flex items-start gap-2 text-sm text-incogni-muted"
                   >
                     <Check
                       size={16}
-                      className="mt-0.5 shrink-0 text-vectosilo-accent"
+                      className="mt-0.5 shrink-0 text-incogni-accent"
                     />
                     <span>{feature}</span>
                   </li>
@@ -153,8 +153,8 @@ export function PricingTable({
                 className={cn(
                   "mt-8 block w-full text-center rounded-lg py-2.5 text-sm font-semibold transition-colors",
                   plan.popular
-                    ? "bg-vectosilo-accent text-white hover:bg-vectosilo-accent/90"
-                    : "border border-vectosilo-border text-vectosilo-text hover:bg-vectosilo-surface-2",
+                    ? "bg-incogni-accent text-white hover:bg-incogni-accent/90"
+                    : "border border-incogni-border text-incogni-text hover:bg-incogni-surface-2",
                 )}
               >
                 {plan.cta.label}

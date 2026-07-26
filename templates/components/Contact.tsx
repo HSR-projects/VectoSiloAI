@@ -76,11 +76,11 @@ export function Contact({
           viewport={{ once: true }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold text-vectosilo-text sm:text-4xl">
+          <h2 className="text-3xl font-bold text-incogni-text sm:text-4xl">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-4 text-lg text-vectosilo-muted">{subtitle}</p>
+            <p className="mt-4 text-lg text-incogni-muted">{subtitle}</p>
           )}
         </motion.div>
 
@@ -99,14 +99,14 @@ export function Contact({
                   key={i}
                   className="flex items-start gap-4"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-vectosilo-accent/10">
-                    <Icon size={18} className="text-vectosilo-accent" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-incogni-accent/10">
+                    <Icon size={18} className="text-incogni-accent" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-vectosilo-muted">
+                    <p className="text-xs font-medium uppercase tracking-wider text-incogni-muted">
                       {item.label}
                     </p>
-                    <p className="mt-1 text-sm text-vectosilo-text">{item.value}</p>
+                    <p className="mt-1 text-sm text-incogni-text">{item.value}</p>
                   </div>
                 </div>
               );
@@ -166,8 +166,8 @@ export function Contact({
               className={cn(
                 "flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-colors",
                 loading
-                  ? "bg-vectosilo-accent/70 cursor-not-allowed"
-                  : "bg-vectosilo-accent hover:bg-vectosilo-accent/90",
+                  ? "bg-incogni-accent/70 cursor-not-allowed"
+                  : "bg-incogni-accent hover:bg-incogni-accent/90",
               )}
             >
               {loading ? (
