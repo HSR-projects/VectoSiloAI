@@ -41,6 +41,7 @@
     "framer-motion": "^11.3.0",
     "highlight.js": "^11.10.0",
     "html2canvas": "^1.4.1",
+    "idb": "^8.0.3",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",

@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUp, Search, Loader2, Bot, Lock, Network, Plus, Link, X, Square, Mic,
-  Paperclip, FileText, Music, Image as ImageIcon, Brain,
+  Paperclip, FileText, Music, Image as ImageIcon, Brain, Sparkles, Clock,
 } from "lucide-react";
 import type { Attachment, FocusMode } from "@/types";
 import { FocusModes } from "./FocusModes";
 import { useIncogniStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useAutocomplete } from "@/hooks/useAutocomplete";
+import { useLocalSearchHistory } from "@/hooks/useLocalSearchHistory";
 
 import {
   ACCEPT_ATTACHMENTS, MAX_ATTACHMENTS, fileToAttachment, humanSize,
@@ -127,6 +129,10 @@ export function SearchBar({
   onVoiceModeToggle,
 }: SearchBarProps) {
   const [value, setValue] = useState("");
+  const [autoOpen, setAutoOpen] = useState(false);
+  const [autoIndex, setAutoIndex] = useState(-1);
+  const { add: addHistory } = useLocalSearchHistory();
+  const { suggestions, isLoading: autoLoading, isDegraded } = useAutocomplete(value);
   const [urlOpen, setUrlOpen] = useState(false);
   const [urlDraft, setUrlDraft] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -196,8 +202,10 @@ export function SearchBar({
       try { recognitionRef.current?.stop(); } catch { /* noop */ }
       setListening(false);
     }
+    addHistory(q);
     onSubmit(q, attachments.length ? attachments : undefined);
     setValue("");
+    setAutoOpen(false);
     setAttachments([]);
     setAttachError(null);
   };
@@ -205,6 +213,12 @@ export function SearchBar({
   const onChange = (val: string) => {
     setValue(val);
     onSlashChange(val);
+    if (!val.startsWith("/")) {
+      setAutoOpen(true);
+      setAutoIndex(-1);
+    } else {
+      setAutoOpen(false);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -225,6 +239,31 @@ export function SearchBar({
         setSlashQuery("");
       }
       return;
+    }
+    if (autoOpen && suggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setAutoIndex(Math.min(autoIndex + 1, suggestions.length - 1));
+        return;
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setAutoIndex(Math.max(autoIndex - 1, -1));
+        return;
+      } else if (e.key === "Enter" && !e.shiftKey && autoIndex >= 0) {
+        e.preventDefault();
+        const text = suggestions[autoIndex].text;
+        addHistory(text);
+        onSubmit(text, attachments.length ? attachments : undefined);
+        setValue("");
+        setAutoOpen(false);
+        return;
+      } else if (e.key === "Escape") {
+        setAutoOpen(false);
+        setAutoIndex(-1);
+        return;
+      } else if (e.key === "Tab") {
+        setAutoOpen(false);
+      }
     }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -500,6 +539,50 @@ export function SearchBar({
                     <div className="font-medium">{cmd.label}</div>
                     <div className="text-xs text-incogni-muted truncate">{cmd.desc}</div>
                   </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {autoOpen && !slashOpen && value.trim().length > 0 && suggestions.length > 0 && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface shadow-xl">
+              {suggestions.map((suggestion, i) => (
+                <button
+                  key={suggestion.text}
+                  type="button"
+                  className={cn(
+                    "flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors",
+                    i === autoIndex
+                      ? "bg-incogni-accent/15 text-incogni-accent"
+                      : "text-incogni-text hover:bg-incogni-surface-2"
+                  )}
+                  onMouseEnter={() => setAutoIndex(i)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    addHistory(suggestion.text);
+                    onSubmit(suggestion.text, attachments.length ? attachments : undefined);
+                    setValue("");
+                    setAutoOpen(false);
+                  }}
+                >
+                  {suggestion.category === "ai" ? (
+                    <Sparkles className="h-4 w-4 shrink-0 text-[#10a37f]" />
+                  ) : (
+                    <Clock className="h-4 w-4 shrink-0" />
+                  )}
+                  <span className="flex-1 truncate">
+                    {suggestion.highlightRanges.length > 0 ? (
+                      <span>
+                        {suggestion.text.slice(0, suggestion.highlightRanges[0][0])}
+                        <span className="font-semibold text-incogni-text">
+                          {suggestion.text.slice(suggestion.highlightRanges[0][0], suggestion.highlightRanges[0][1])}
+                        </span>
+                        {suggestion.text.slice(suggestion.highlightRanges[0][1])}
+                      </span>
+                    ) : (
+                      suggestion.text
+                    )}
+                  </span>
                 </button>
               ))}
             </div>

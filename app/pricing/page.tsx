@@ -17,7 +17,8 @@ const CUSTOMIZABLE_PRO_FEATURES = [
   { id: "swarm", name: "Agent Swarm — 3 parallel AI specialists", price: 40 },
   { id: "image", name: "AI image generation (text-to-image)", price: 20 },
   { id: "computer", name: "Incogni's Computer — build, preview & download live apps", price: 20 },
-  { id: "priority", name: "Priority answer streaming", price: 10 }
+  { id: "priority", name: "Priority answer streaming", price: 10 },
+  { id: "autocomplete", name: "Perplexity-style AI Search Autocomplete", price: 20 }
 ];
 
 export default function PricingPage() {
