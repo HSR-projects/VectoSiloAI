@@ -494,7 +494,7 @@ export function useChat(threadId: string | null) {
                 currentHistory = currentHistory.slice(-2);
                 
                 // Replace long chat with a compacted system message in the UI
-                store.getState().setThreadMessages(id, [
+                store.getState().setThreadMessages(threadId, [
                   { 
                     id: crypto.randomUUID(), 
                     role: "system", 
