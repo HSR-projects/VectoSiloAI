@@ -14,14 +14,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
-  const { plan } = (await req.json()) as { plan?: Plan };
+  const { plan, customAmount, customFeatures } = (await req.json()) as { plan?: Plan, customAmount?: number, customFeatures?: string[] };
   if (!plan || !PAID_PLANS.includes(plan)) {
     return NextResponse.json({ error: "Invalid plan." }, { status: 400 });
   }
 
   const origin =
     process.env.APP_URL || req.headers.get("origin") || "http://localhost:3000";
-  const amount = PLAN_PRICES[plan];
+  
+  // customAmount is passed in dollars, multiply by 100 for cents if provided
+  const amount = customAmount ? customAmount * 100 : PLAN_PRICES[plan];
 
   const order = await razorpayInstance.orders.create({
     amount,
@@ -31,6 +33,7 @@ export async function POST(req: Request) {
       userId: current.id,
       plan,
       kind: "subscription",
+      ...(customFeatures ? { customFeatures: customFeatures.join(",") } : {})
     },
   });
 

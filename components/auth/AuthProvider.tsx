@@ -31,7 +31,7 @@ interface AuthContextValue {
     gender?: string;
   }) => Promise<void>;
   /** Opens Razorpay Checkout for the given paid plan. Navigates away. */
-  upgrade: (plan: Plan) => Promise<void>;
+  upgrade: (plan: Plan, customFeatures?: string[], customAmount?: number) => Promise<void>;
   /** Cancel the subscription + refund the latest payment, returning to Free. */
   downgrade: () => Promise<{ refunded: boolean; canceled: boolean }>;
   deleteAccount: () => Promise<void>;
@@ -177,9 +177,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const upgrade = useCallback(async (plan: Plan) => {
+  const upgrade = useCallback(async (plan: Plan, customFeatures?: string[], customAmount?: number) => {
     if (plan === "free") return;
-    const order = await postJSON("/api/razorpay/checkout", { plan });
+    const payload: any = { plan };
+    if (customFeatures) payload.customFeatures = customFeatures;
+    if (customAmount) payload.customAmount = customAmount;
+    
+    const order = await postJSON("/api/razorpay/checkout", payload);
     if (order.id) {
       const params = new URLSearchParams({
         order_id: order.id,

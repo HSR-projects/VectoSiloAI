@@ -3,13 +3,22 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Check, Loader2, ArrowLeft, Gift, Zap
+  Check, Loader2, ArrowLeft, Gift, Zap, Settings
 } from "lucide-react";
 import type { Plan } from "@/types";
 import { PLANS } from "@/lib/plans";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 import { GiftModal } from "@/components/billing/GiftModal";
+
+const CUSTOMIZABLE_PRO_FEATURES = [
+  { id: "models", name: "All models — choose any IncogniAI model", price: 30 },
+  { id: "agent", name: "Autonomous task agent (multi-step research)", price: 30 },
+  { id: "swarm", name: "Agent Swarm — 3 parallel AI specialists", price: 40 },
+  { id: "image", name: "AI image generation (text-to-image)", price: 20 },
+  { id: "computer", name: "Incogni's Computer — build, preview & download live apps", price: 20 },
+  { id: "priority", name: "Priority answer streaming", price: 10 }
+];
 
 export default function PricingPage() {
   return (
@@ -32,6 +41,17 @@ function PricingPageInner() {
   const [downgrading, setDowngrading] = useState(false);
   const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
+  const [customizingPro, setCustomizingPro] = useState(false);
+  const [selectedProFeatures, setSelectedProFeatures] = useState<Set<string>>(new Set(CUSTOMIZABLE_PRO_FEATURES.map(f => f.id)));
+
+  const toggleProFeature = (id: string) => {
+    const next = new Set(selectedProFeatures);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedProFeatures(next);
+  };
+  
+  const customProPrice = 50 + CUSTOMIZABLE_PRO_FEATURES.filter(f => selectedProFeatures.has(f.id)).reduce((acc, f) => acc + f.price, 0);
 
   useEffect(() => {
     if (searchParams.get("tab") === "org") { 
@@ -39,13 +59,17 @@ function PricingPageInner() {
     }
   }, [searchParams]);
 
-  const choose = async (plan: Plan) => {
+  const choose = async (plan: Plan, isCustomPro: boolean = false) => {
     if (plan === current || plan === "free") return;
     if (!user) { router.push("/"); return; }
     setBusy(plan);
     setStatus(null);
     try {
-      await upgrade(plan);
+      if (isCustomPro) {
+        await upgrade(plan, Array.from(selectedProFeatures), customProPrice);
+      } else {
+        await upgrade(plan);
+      }
     } catch (e) {
       setStatus({
         kind: "error",
@@ -142,7 +166,7 @@ function PricingPageInner() {
                 <div className="mb-4">
                   <h3 className="text-2xl font-semibold mb-2">{p.name}</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-xl font-medium">{p.price}</span>
+                    <span className="text-xl font-medium">{p.id === "pro" && customizingPro ? `$${customProPrice}` : p.price}</span>
                     <span className="text-sm text-incogni-muted">{p.period}</span>
                   </div>
                   
@@ -157,7 +181,7 @@ function PricingPageInner() {
                   ) : (
                     <button
                       disabled={isCurrent || busy === p.id || p.id === "free"}
-                      onClick={() => choose(p.id)}
+                      onClick={() => choose(p.id, p.id === "pro" && customizingPro)}
                       className={cn(
                         "w-full rounded-full py-2.5 text-sm font-semibold transition-all mt-2",
                         isCurrent || p.id === "free"
@@ -167,7 +191,7 @@ function PricingPageInner() {
                             : "bg-incogni-text text-incogni-bg hover:opacity-90"
                       )}
                     >
-                      {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : isCurrent ? "Current plan" : p.id === "free" ? "Your current plan" : p.cta}
+                      {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : isCurrent ? "Current plan" : p.id === "free" ? "Your current plan" : p.id === "pro" && customizingPro ? "Checkout Custom Plan" : p.cta}
                     </button>
                   )}
                 </div>
@@ -176,17 +200,58 @@ function PricingPageInner() {
 
                 <div className="flex-1">
                   <ul className="space-y-3">
-                    {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-incogni-text/90">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
+                    {p.id === "pro" && customizingPro ? (
+                      <>
+                        <li className="flex items-start gap-3 text-sm text-incogni-text/90 opacity-70">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
+                          <span>Everything in Free (Base: $50)</span>
+                        </li>
+                        {CUSTOMIZABLE_PRO_FEATURES.map((f) => {
+                          const isSelected = selectedProFeatures.has(f.id);
+                          return (
+                            <li key={f.id} className="flex items-start gap-3 text-sm text-incogni-text/90">
+                              <button
+                                onClick={() => toggleProFeature(f.id)}
+                                className={cn(
+                                  "mt-0.5 h-4 w-4 shrink-0 rounded flex items-center justify-center border transition-colors",
+                                  isSelected ? "bg-[#10a37f] border-[#10a37f] text-white" : "border-incogni-muted hover:border-incogni-text"
+                                )}
+                              >
+                                {isSelected && <Check className="h-3 w-3" />}
+                              </button>
+                              <div className="flex flex-col text-left">
+                                <span>{f.name}</span>
+                                <span className="text-xs text-incogni-muted">+${f.price}/mo</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      p.features.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm text-incogni-text/90">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
+                          <span>{f}</span>
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </div>
 
                 {(p.id === "pro" || p.id === "max") && (
-                  <div className="mt-6 pt-6 border-t border-incogni-border">
+                  <div className="mt-6 pt-6 border-t border-incogni-border space-y-3">
+                    {p.id === "pro" && (
+                      <button
+                        onClick={() => setCustomizingPro(!customizingPro)}
+                        className={cn(
+                          "w-full inline-flex items-center justify-center gap-2 rounded-full border border-dashed px-4 py-2.5 text-sm font-medium transition-all",
+                          customizingPro ? "bg-incogni-surface-2 border-incogni-text text-incogni-text" : "border-incogni-border text-incogni-muted hover:text-incogni-text hover:border-incogni-text"
+                        )}
+                      >
+                        <Settings className="h-4 w-4" />
+                        {customizingPro ? "Cancel Customization" : "Customize Plan"}
+                      </button>
+                    )}
                     <button
                       onClick={() => setGiftPlan(p.id)}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-dashed border-incogni-border px-4 py-2.5 text-sm font-medium text-incogni-muted hover:text-incogni-text hover:border-incogni-text transition-all"
