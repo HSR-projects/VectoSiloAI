@@ -72,7 +72,7 @@ export async function GET(req: Request) {
     let parsed: string[] = [];
     try {
       // Sometimes models wrap JSON in markdown block even if told not to
-      const match = content.match(/\[.*\]/s);
+      const match = content.match(/\[[\s\S]*\]/);
       if (match) {
         parsed = JSON.parse(match[0]);
       } else {
