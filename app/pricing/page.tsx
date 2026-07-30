@@ -41,7 +41,6 @@ function PricingPageInner() {
   const [downgrading, setDowngrading] = useState(false);
   const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
-  const [customizingPro, setCustomizingPro] = useState(false);
   const [selectedProFeatures, setSelectedProFeatures] = useState<Set<string>>(new Set(CUSTOMIZABLE_PRO_FEATURES.map(f => f.id)));
 
   const toggleProFeature = (id: string) => {
@@ -100,7 +99,20 @@ function PricingPageInner() {
   };
 
   const displayedPlans = pane === "personal" 
-    ? PLANS.filter(p => ["free", "go", "pro", "max"].includes(p.id))
+    ? [
+        ...PLANS.filter(p => ["free", "go", "pro"].includes(p.id)),
+        {
+          id: "custom",
+          name: "Custom",
+          price: `$${customProPrice}`,
+          period: "/month",
+          tagline: "Build your perfect plan à la carte.",
+          features: [],
+          cta: "Checkout Custom Plan",
+          highlight: false
+        } as any,
+        ...PLANS.filter(p => ["max"].includes(p.id))
+      ]
     : PLANS.filter(p => ["free", "ultra"].includes(p.id));
 
   return (
@@ -115,7 +127,7 @@ function PricingPageInner() {
         </button>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 pb-20 pt-4">
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-4">
         
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold mb-6">Upgrade your plan</h1>
@@ -151,7 +163,7 @@ function PricingPageInner() {
           </div>
         )}
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 justify-center items-start">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 justify-center items-start">
           {displayedPlans.map((p) => {
             const isCurrent = current === p.id;
 
@@ -166,7 +178,7 @@ function PricingPageInner() {
                 <div className="mb-4">
                   <h3 className="text-2xl font-semibold mb-2">{p.name}</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-xl font-medium">{p.id === "pro" && customizingPro ? `$${customProPrice}` : p.price}</span>
+                    <span className="text-xl font-medium">{p.price}</span>
                     <span className="text-sm text-incogni-muted">{p.period}</span>
                   </div>
                   
@@ -178,10 +190,17 @@ function PricingPageInner() {
                     >
                       {downgrading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Downgrade & refund"}
                     </button>
+                  ) : p.id === "custom" ? (
+                    <button
+                      onClick={() => choose("pro", true)}
+                      className="w-full rounded-full py-2.5 text-sm font-semibold transition-all mt-2 bg-incogni-text text-incogni-bg hover:opacity-90"
+                    >
+                      {busy === "pro" ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : p.cta}
+                    </button>
                   ) : (
                     <button
                       disabled={isCurrent || busy === p.id || p.id === "free"}
-                      onClick={() => choose(p.id, p.id === "pro" && customizingPro)}
+                      onClick={() => choose(p.id)}
                       className={cn(
                         "w-full rounded-full py-2.5 text-sm font-semibold transition-all mt-2",
                         isCurrent || p.id === "free"
@@ -191,7 +210,7 @@ function PricingPageInner() {
                             : "bg-incogni-text text-incogni-bg hover:opacity-90"
                       )}
                     >
-                      {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : isCurrent ? "Current plan" : p.id === "free" ? "Your current plan" : p.id === "pro" && customizingPro ? "Checkout Custom Plan" : p.cta}
+                      {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : isCurrent ? "Current plan" : p.id === "free" ? "Your current plan" : p.cta}
                     </button>
                   )}
                 </div>
@@ -200,7 +219,7 @@ function PricingPageInner() {
 
                 <div className="flex-1">
                   <ul className="space-y-3">
-                    {p.id === "pro" && customizingPro ? (
+                    {p.id === "custom" ? (
                       <>
                         <li className="flex items-start gap-3 text-sm text-incogni-text/90 opacity-70">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
@@ -228,7 +247,7 @@ function PricingPageInner() {
                         })}
                       </>
                     ) : (
-                      p.features.map((f) => (
+                      p.features.map((f: string) => (
                         <li key={f} className="flex items-start gap-3 text-sm text-incogni-text/90">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-incogni-muted" />
                           <span>{f}</span>
@@ -240,18 +259,6 @@ function PricingPageInner() {
 
                 {(p.id === "pro" || p.id === "max") && (
                   <div className="mt-6 pt-6 border-t border-incogni-border space-y-3">
-                    {p.id === "pro" && (
-                      <button
-                        onClick={() => setCustomizingPro(!customizingPro)}
-                        className={cn(
-                          "w-full inline-flex items-center justify-center gap-2 rounded-full border border-dashed px-4 py-2.5 text-sm font-medium transition-all",
-                          customizingPro ? "bg-incogni-surface-2 border-incogni-text text-incogni-text" : "border-incogni-border text-incogni-muted hover:text-incogni-text hover:border-incogni-text"
-                        )}
-                      >
-                        <Settings className="h-4 w-4" />
-                        {customizingPro ? "Cancel Customization" : "Customize Plan"}
-                      </button>
-                    )}
                     <button
                       onClick={() => setGiftPlan(p.id)}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-dashed border-incogni-border px-4 py-2.5 text-sm font-medium text-incogni-muted hover:text-incogni-text hover:border-incogni-text transition-all"
