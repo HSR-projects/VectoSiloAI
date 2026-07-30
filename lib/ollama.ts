@@ -34,7 +34,7 @@ export const FORCE_MODEL = process.env.OLLAMA_FORCE_MODEL || "";
  * Configurable via OLLAMA_BLOCKED_MODELS (comma-separated); falls back to a
  * sane default that excludes known data-retaining preview models.
  */
-const DEFAULT_BLOCKED: string[] = [];
+const DEFAULT_BLOCKED: string[] = ["deepseek", "glm", "qwen", "kimi", "mistral"];
 const BLOCK_LIST = (process.env.OLLAMA_BLOCKED_MODELS || "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
@@ -160,7 +160,21 @@ export async function* chatStreamRich(
         headers: authHeaders(),
         body: JSON.stringify({
           model: resolveModel(opts.model),
-          messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
+          messages: opts.messages.map(m => {
+            if (m.images && m.images.length > 0) {
+              return {
+                role: m.role,
+                content: [
+                  { type: "text", text: m.content },
+                  ...m.images.map(img => ({
+                    type: "image_url",
+                    image_url: { url: `data:image/jpeg;base64,${img}` }
+                  }))
+                ]
+              };
+            }
+            return { role: m.role, content: m.content };
+          }),
           stream: true,
           // OpenAI equivalent logic if needed, think is not standard OpenAI but might be supported by NIM
         }),

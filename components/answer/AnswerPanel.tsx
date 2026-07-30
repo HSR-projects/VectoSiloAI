@@ -297,32 +297,7 @@ export function AnswerPanel({ message, voiceAutoPlay, onVoiceEnd }: AnswerPanelP
           {parsedMapPlaces && parsedMapPlaces.length > 0 && (
             <MapCard places={parsedMapPlaces} />
           )}
-          {message.searchImages && message.searchImages.length > 0 && (
-            <div className="mb-5 flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-incogni-border [&::-webkit-scrollbar-track]:bg-transparent">
-              {message.searchImages.map((img, i) => (
-                <a
-                  key={i}
-                  href={img.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface transition-all hover:border-incogni-accent/50 sm:h-28 sm:w-28"
-                  title={img.title}
-                >
-                  <img
-                    src={img.thumbnailSrc || img.imgSrc}
-                    alt={img.title || "Search image"}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-2 pt-8">
-                    <p className="truncate text-[10px] font-medium text-white shadow-sm">
-                      {img.title || "View Source"}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+
           <div className="prose dark:prose-invert max-w-none prose-headings:text-incogni-text prose-p:text-incogni-text prose-li:text-incogni-text prose-strong:text-incogni-text prose-a:text-incogni-accent-soft prose-code:text-incogni-accent-soft prose-code:before:content-none prose-code:after:content-none break-words [overflow-wrap:anywhere]">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}

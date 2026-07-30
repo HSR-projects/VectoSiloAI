@@ -65,11 +65,11 @@ const PREFERENCES: Record<TaskKind, RegExp[]> = {
   // Code-tuned models first, then the strongest generalists.
   code: [/coder/, /code/, /deepseek/, /qwen3/, /qwen/, /glm/, /120b/, /70b/],
   // Deep reasoners / largest models for hard thinking.
-  reasoning: [/deepseek/, /\br1\b/, /think|reason/, /671b|480b|405b/, /120b/, /70b/, /qwen3/, /glm/],
+  reasoning: [/deepseek/, /\br1\b/, /think|reason/, /671b|480b|405b/, /120b/, /70b/, /nemotron/, /minimax/, /qwen3/, /glm/],
   // Smallest/fastest for trivial turns.
   light: [/\b(8|7|3|1)b\b/, /:(?:8|7|3|1)b/, /20b/, /mini|small|flash|fast|lite/],
   // Balanced default — capable but not the heaviest.
-  general: [/120b/, /70b/, /deepseek/, /qwen3/, /glm/, /20b/],
+  general: [/120b/, /70b/, /nemotron/, /minimax/, /deepseek/, /qwen3/, /glm/, /20b/],
 };
 
 /** Extract the largest parameter count (in billions) hinted by a model id. */

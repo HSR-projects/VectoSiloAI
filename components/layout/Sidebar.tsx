@@ -50,7 +50,12 @@ interface ThreadGroup {
 function groupThreads(threads: Thread[]): ThreadGroup[] {
   const map = new Map<string, Thread[]>();
   const order: string[] = [];
+  const seenIds = new Set<string>();
+
   for (const t of threads) {
+    if (seenIds.has(t.id)) continue;
+    seenIds.add(t.id);
+
     const label = groupLabel(t.updatedAt);
     if (!map.has(label)) {
       map.set(label, []);

@@ -53,7 +53,42 @@ function sse(event: ChatStreamEvent): string {
   return `data: ${JSON.stringify(event)}\n\n`;
 }
 
+/** Quick magic-byte check that a base64 string decodes to a known image format. */
+const IMAGE_MAGIC: ((b: Uint8Array) => boolean)[] = [
+  (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
+  (b) => b.length >= 12 && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50,
+  (b) => b[0] === 0x42 && b[1] === 0x4d,
+  (b) => b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2a && b[3] === 0x00,
+  (b) => b[0] === 0x4d && b[1] === 0x4d && b[2] === 0x00 && b[3] === 0x2a,
+];
+
+function isValidImageB64(s: string): boolean {
+  if (!s) return false;
+  try {
+    const buf = Buffer.from(s, "base64");
+    const view = new Uint8Array(buf);
+    if (view.length < 4) return false;
+    return IMAGE_MAGIC.some((check) => check(view));
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    const msg = e instanceof OllamaError ? e.message : "Unexpected error reaching the IncogniAI model service.";
+    console.error("[chat] Unhandled error:", e);
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+
+async function handlePost(req: Request): Promise<Response> {
   let body: ChatRequestBody;
   try {
     body = await req.json();
@@ -99,9 +134,14 @@ export async function POST(req: Request) {
     enableSearch = false,
   } = body;
 
+  // ── Sanitise image payloads ──────────────────────────────────
+  // Some images scraped from the web may have a valid Content-Type header but
+  // non-image magic bytes, causing Ollama to reject the whole request with
+  // "invalid image: expected image mime type, got application/octet-stream".
+  const validImages = Array.isArray(images) ? images.filter(isValidImageB64) : [];
+  const hasImageAttachments = validImages.length > 0;
+
   // ── Free-tier usage limit (rolling window) ──────────────────
-  // Real user turns from Free accounts are metered; once exhausted they must
-  // upgrade or wait for the window to reset. Internal/utility calls are exempt.
   if (currentUser && userPlan === "free" && !internal) {
     const usage = await consumeMessage(currentUser.id);
     if (!usage.allowed) {
@@ -114,11 +154,9 @@ export async function POST(req: Request) {
     }
   }
 
-  // When images are attached, strictly use gemma4:31b so text-only models (like gpt-oss:120b) never get confused.
-  const hasImageAttachments = Array.isArray(images) && images.length > 0;
   const caps = effectiveCaps(userPlan);
   const model = hasImageAttachments
-    ? "meta/llama-3.2-90b-vision-instruct"
+    ? "gemma4:31b"
     : caps.allModels
       ? (requestedModel === "auto" ? DEFAULT_MODEL : requestedModel)
       : DEFAULT_MODEL;
@@ -246,12 +284,6 @@ export async function POST(req: Request) {
           .then((imgResults) => {
             if (imgResults.length) {
               fetchedSearchImages = imgResults;
-              imageContext = "\n\n<Images from image search — you can embed these in your reply using standard markdown image syntax>\n";
-              for (const img of imgResults) {
-                const label = img.title || img.description || "Image";
-                imageContext += `- ![${label}](${encodeURI(img.imgSrc)}) — ${img.description || img.title || ""} [source](${img.url})\n`;
-              }
-              imageContext += "</Images>";
             }
           })
           .catch(() => {})
@@ -276,7 +308,7 @@ export async function POST(req: Request) {
     role: "user",
     content: userContent,
     // Forward base64 images to vision-capable models (ignored by text models).
-    ...(Array.isArray(images) && images.length ? { images } : {}),
+    ...(hasImageAttachments ? { images: validImages } : {}),
   });
 
   const encoder = new TextEncoder();

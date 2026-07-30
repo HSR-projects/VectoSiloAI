@@ -16,32 +16,28 @@ const ACTIONS = [
     id: "ask",
     label: "Ask Incogni AI",
     icon: Sparkles,
-    build: (text: string) =>
-      `${text
-        .split("\n")
-        .map((l) => `> ${l}`)
-        .join("\n")}\n\n`,
+    build: (text: string) => `\n\n↳ "${text.trim()}"\n\n`,
     primary: true,
   },
   {
     id: "explain",
     label: "Explain",
     icon: BookOpen,
-    build: (text: string) => `Explain this in simple terms:\n\n> ${text.trim()}\n\n`,
+    build: (text: string) => `Explain this in simple terms:\n\n↳ "${text.trim()}"\n\n`,
     primary: false,
   },
   {
     id: "summarize",
     label: "Summarize",
     icon: FileText,
-    build: (text: string) => `Summarize the key points of:\n\n> ${text.trim()}\n\n`,
+    build: (text: string) => `Summarize the key points of:\n\n↳ "${text.trim()}"\n\n`,
     primary: false,
   },
   {
     id: "translate",
     label: "Translate",
     icon: Languages,
-    build: (text: string) => `Translate the following to English:\n\n> ${text.trim()}\n\n`,
+    build: (text: string) => `Translate the following to English:\n\n↳ "${text.trim()}"\n\n`,
     primary: false,
   },
 ] as const;

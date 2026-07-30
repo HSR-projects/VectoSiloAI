@@ -63,6 +63,10 @@ export interface IncogniState {
   pendingAttachments: Attachment[];
   setPendingAttachments: (a: Attachment[]) => void;
 
+  /** Search vs AI Chat UI mode */
+  engineMode: "ai" | "search";
+  setEngineMode: (mode: "ai" | "search") => void;
+
   /**
    * Text to seed the composer with (e.g. from the "Ask Incogni AI" selection
    * popover). SearchBar picks it up, fills the input, and clears it.
@@ -223,6 +227,7 @@ export interface IncogniState {
     messageId: string,
     patch: Partial<Message>
   ) => void;
+  setThreadMessages: (threadId: string, messages: Message[]) => void;
   deleteThread: (id: string) => void;
   /** Remove a message and everything after it (for edit / regenerate). */
   deleteMessagesFrom: (threadId: string, messageId: string) => void;
@@ -291,6 +296,9 @@ export const useIncogniStore = create<IncogniState>()(
 
       pendingAttachments: [],
       setPendingAttachments: (a) => set({ pendingAttachments: a }),
+
+      engineMode: "ai",
+      setEngineMode: (m) => set({ engineMode: m }),
 
       composerDraft: "",
       setComposerDraft: (text) => set({ composerDraft: text }),
@@ -603,6 +611,15 @@ export const useIncogniStore = create<IncogniState>()(
                   ),
                   updatedAt: Date.now(),
                 }
+              : t
+          ),
+        })),
+
+      setThreadMessages: (threadId, messages) =>
+        set((s) => ({
+          threads: s.threads.map((t) =>
+            t.id === threadId
+              ? { ...t, messages, updatedAt: Date.now() }
               : t
           ),
         })),

@@ -6,8 +6,13 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   let query = "";
+  let category = "";
+  let pageno = 1;
   try {
-    ({ query } = await req.json());
+    const body = await req.json();
+    query = body.query;
+    category = body.category || "";
+    pageno = body.pageno || 1;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
@@ -17,7 +22,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await searchWeb(query, 15);
+    // Search the web using the existing SearXNG integration
+    const results = await searchWeb(query, 15, category, pageno);
     return NextResponse.json({ results });
   } catch (e) {
     const unavailable = e instanceof SearchUnavailableError;
@@ -25,7 +31,7 @@ export async function POST(req: Request) {
       {
         results: [],
         error: unavailable
-          ? "Search backend unavailable. Falling back to No Search mode."
+          ? "Search backend unavailable."
           : "Search failed.",
         unavailable,
       },

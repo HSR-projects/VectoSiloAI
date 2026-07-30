@@ -46,7 +46,9 @@ export function ModelSwitcher() {
   }
 
   // Filter models
-  const safeModels = Array.isArray(availableModels) ? availableModels : [];
+  const safeModels = Array.isArray(availableModels) ? [...availableModels] : [];
+  if (!safeModels.includes(AUTO_MODEL)) safeModels.unshift(AUTO_MODEL);
+  
   const validModels = safeModels.filter(m => m === AUTO_MODEL || !m.includes("embed"));
   
   // Ensure selected model is in the list

@@ -107,6 +107,7 @@ export interface User {
    */
   credits: number;
   /** Whether two-factor authentication is enabled for this account. */
+  /** Whether the user has two-factor authentication enabled. */
   twoFactorEnabled?: boolean;
   /** Whether auto-recharge is enabled for this user. */
   autoRechargeEnabled?: boolean;
@@ -114,6 +115,18 @@ export interface User {
   autoRechargeAmountCents?: number;
   /** The threshold in cents below which auto-recharge is triggered. */
   autoRechargeThresholdCents?: number;
+  /** Whether this is a child account under parental controls. */
+  isChild?: boolean;
+  /** The ID of the parent account if this is a child account. */
+  parentId?: string;
+  /** Date of Birth for age verification (YYYY-MM-DD) */
+  dateOfBirth?: string;
+  /** Gender of the user */
+  gender?: string;
+  /** Forum posting tokens (for free users). */
+  forumTokens?: number;
+  /** When forum tokens will be replenished for free users. */
+  forumTokensResetAt?: number;
 }
 
 // ─── API keys & credits ───────────────────────────────────────

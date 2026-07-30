@@ -114,7 +114,7 @@ export async function fileToAttachment(file: File): Promise<AttachResult> {
       return { error: `${file.name} is too large (max ${humanSize(MAX_IMAGE_BYTES)}).` };
     const dataUrl = await readAsDataURL(file);
     const thumbUrl = await makeThumb(dataUrl, 320, 0.7);       // small JPEG for UI display
-    const modelDataUrl = await makeThumb(dataUrl, 1280, 0.92); // JPEG ≤1280px for vision model
+    const modelDataUrl = await makeThumb(dataUrl, 512, 0.85); // JPEG ≤512px for vision model
     return {
       attachment: {
         ...base,

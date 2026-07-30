@@ -17,12 +17,14 @@ import { AUTO_MODEL } from "@/lib/autoModel";
 import { FocusModes } from "@/components/search/FocusModes";
 import { IntegrationsPanel } from "@/components/layout/IntegrationsPanel";
 import { WhatsAppSettings } from "./WhatsAppSettings";
+import { ParentalControlsPanel } from "./ParentalControlsPanel";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const AVATAR_COLORS = [
   { label: "Violet", value: "#475569" }, { label: "Blue", value: "#2563eb" },
@@ -54,7 +56,7 @@ function difficultyLabel(n: number): string {
 
 const PLAN_LABEL: Record<string, string> = { free: "Free", pro: "Pro", max: "Max" };
 
-type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "whatsapp" | "data" | "account";
+type TabId = "general" | "personalization" | "model" | "game" | "integrations" | "whatsapp" | "data" | "account" | "parental";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "general", label: "General", icon: <SlidersHorizontal className="h-4 w-4" /> },
@@ -64,6 +66,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "integrations", label: "Integrations", icon: <Blocks className="h-4 w-4" /> },
   { id: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-4 w-4" /> },
   { id: "data", label: "Data controls", icon: <Database className="h-4 w-4" /> },
+  { id: "parental", label: "Parental Controls", icon: <ShieldCheck className="h-4 w-4" /> },
   { id: "account", label: "Account", icon: <UserRound className="h-4 w-4" /> },
 ];
 
@@ -490,6 +493,29 @@ export function SettingsModal() {
               </div>
             </div>
           )}
+
+          {tab === "data" && user && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-foreground">Data controls</h3>
+                <p className="text-sm text-muted-foreground">Manage your privacy and history.</p>
+              </div>
+              <div className="p-4 bg-card border rounded-lg flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-foreground">Clear all history</div>
+                  <div className="text-sm text-muted-foreground">Permanently delete all chats.</div>
+                </div>
+                <Button className="bg-red-500 text-white hover:bg-red-600" onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}>
+                  Clear All
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {tab === "parental" && user && <ParentalControlsPanel />}
 
           {tab === "account" && user && (
             <div className="pt-2">

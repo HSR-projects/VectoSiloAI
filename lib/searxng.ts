@@ -9,7 +9,7 @@ const SEARXNG_BASE_URL = (
 // Track consecutive failures to trigger container restart
 let consecutiveFailures = 0;
 let lastRestartAt = 0;
-const MAX_CONSECUTIVE_FAILURES = 3;
+const MAX_CONSECUTIVE_FAILURES = 1;
 const MIN_RESTART_INTERVAL_MS = 60_000; // don't restart more than once per minute
 
 export class SearchUnavailableError extends Error {
@@ -54,24 +54,28 @@ async function restartSearxngContainer(): Promise<boolean> {
  */
 export async function searchWeb(
   query: string,
-  limit = 5
+  limit = 15,
+  category?: string,
+  pageno = 1
 ): Promise<SearchResult[]> {
   const errors: string[] = [];
 
   // Attempt 1: MCP search
-  try {
-    const r = await searchSearxngMCP(query, limit);
-    if (r.length) {
-      consecutiveFailures = 0;
-      return r;
+  if (!category) {
+    try {
+      const r = await searchSearxngMCP(query, limit);
+      if (r.length) {
+        consecutiveFailures = 0;
+        return r;
+      }
+    } catch (e) {
+      errors.push(`mcp: ${(e as Error).message}`);
     }
-  } catch (e) {
-    errors.push(`mcp: ${(e as Error).message}`);
   }
 
   // Attempt 2: Direct HTTP (bypasses MCP)
   try {
-    const r = await searchSearxngDirect(query, limit);
+    const r = await searchSearxngDirect(query, limit, category, pageno);
     if (r.length) {
       consecutiveFailures = 0;
       return r;
@@ -123,11 +127,14 @@ export async function searchWeb(
  */
 export async function searchDuckDuckGoFallback(query: string, limit: number): Promise<SearchResult[]> {
   try {
-    const res = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+    const res = await fetch(`https://lite.duckduckgo.com/lite/`, {
+      method: 'POST',
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded",
         "Accept-Language": "en-US,en;q=0.9",
       },
+      body: `q=${encodeURIComponent(query)}&s=0&dc=&v=1`,
       signal: AbortSignal.timeout(7000),
       cache: "no-store",
     });
@@ -135,29 +142,33 @@ export async function searchDuckDuckGoFallback(query: string, limit: number): Pr
     const html = await res.text();
     const results: SearchResult[] = [];
 
-    const resultBlocks = html.split(/<div[^>]*class="[^"]*result[^"]*"[^>]*>/i).slice(1);
-    for (const block of resultBlocks) {
+    // Parse DuckDuckGo Lite table rows
+    const trMatches = html.match(/<tr[^>]*>([\s\S]*?)<\/tr>/ig) || [];
+    let currentTitle = "";
+    let currentUrl = "";
+
+    for (const tr of trMatches) {
       if (results.length >= limit) break;
-      const titleMatch = block.match(/<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-      const snippetMatch = block.match(/<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/i) ||
-                           block.match(/<td[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/td>/i);
-
+      
+      const titleMatch = tr.match(/<a[^>]*class="result-snippet"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+      const snippetMatch = tr.match(/<td[^>]*class="result-snippet"[^>]*>([\s\S]*?)<\/td>/i);
+      
       if (titleMatch) {
-        let rawUrl = titleMatch[1];
-        if (rawUrl.includes("uddg=")) {
+        currentUrl = titleMatch[1];
+        if (currentUrl.includes("uddg=")) {
           try {
-            const u = new URL("https://duckduckgo.com" + rawUrl);
-            rawUrl = decodeURIComponent(u.searchParams.get("uddg") || rawUrl);
-          } catch {
-            // keep rawUrl
-          }
+            const u = new URL("https://duckduckgo.com" + currentUrl);
+            currentUrl = decodeURIComponent(u.searchParams.get("uddg") || currentUrl);
+          } catch { }
         }
-        const title = titleMatch[2].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim();
-        const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim() : "";
-
-        if (rawUrl.startsWith("http") && title) {
-          results.push({ title, url: rawUrl, snippet });
+        currentTitle = titleMatch[2].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim();
+      } else if (snippetMatch && currentTitle) {
+        const snippet = snippetMatch[1].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim();
+        if (currentUrl.startsWith("http")) {
+          results.push({ title: currentTitle, url: currentUrl, snippet });
         }
+        currentTitle = "";
+        currentUrl = "";
       }
     }
     return results;
@@ -184,10 +195,10 @@ async function searchSearxngMCP(query: string, limit: number): Promise<SearchRes
  * Search via SearXNG direct HTTP API.
  * Increased timeout and retry logic for resilience.
  */
-async function searchSearxngDirect(query: string, limit: number): Promise<SearchResult[]> {
+async function searchSearxngDirect(query: string, limit: number, category?: string, pageno = 1): Promise<SearchResult[]> {
   const url = `${SEARXNG_BASE_URL}/search?q=${encodeURIComponent(
     query
-  )}&format=json&safesearch=1`;
+  )}&safesearch=1${category ? `&categories=${category}` : ''}&pageno=${pageno}`;
 
   // Try with increasing timeouts
   const timeouts = [8000, 12000, 15000];
@@ -198,37 +209,50 @@ async function searchSearxngDirect(query: string, limit: number): Promise<Search
     const timer = setTimeout(() => controller.abort(), timeout);
     try {
       const res = await fetch(url, {
-        headers: { Accept: "application/json" },
+        headers: { Accept: "text/html" },
         signal: controller.signal,
         cache: "no-store",
       });
+      clearTimeout(timer);
       if (!res.ok) {
         if (res.status === 429) {
-          throw new Error(`HTTP 429 (rate limited) — engine may be suspended`);
+          throw new Error(`HTTP 429 (rate limited)`);
         }
         throw new Error(`HTTP ${res.status}`);
       }
-      const json = await res.json();
-      const results = Array.isArray(json?.results) ? json.results : [];
-      return results.slice(0, limit).map(
-        (r: { title?: string; url?: string; content?: string }): SearchResult => ({
-          title: r.title || r.url || "Untitled",
-          url: r.url || "",
-          snippet: r.content || "",
-        })
-      );
-    } catch (e) {
-      lastErr = e as Error;
-      // If the error is not a timeout, don't retry with longer timeout
-      if (!(e instanceof DOMException && (e as DOMException).name === "AbortError")) {
-        break;
+
+      const html = await res.text();
+      const results: SearchResult[] = [];
+      
+      const articles = html.split(/<article[^>]*class="[^"]*result[^"]*"[^>]*>/i).slice(1);
+      for (const article of articles) {
+        if (results.length >= limit) break;
+        
+        const titleMatch = article.match(/<h[34][^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h[34]>/i);
+        const contentMatch = article.match(/<p[^>]*class="content"[^>]*>([\s\S]*?)<\/p>/i);
+        
+        if (titleMatch) {
+          const url = titleMatch[1];
+          const decodeEntities = (s: string) => s.replace(/<[^>]+>/g, "").replace(/&#39;/g, "'").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+          
+          const title = decodeEntities(titleMatch[2]);
+          const snippet = contentMatch ? decodeEntities(contentMatch[1]) : "";
+          
+          if (url.startsWith("http")) {
+            results.push({ url, title, snippet });
+          }
+        }
       }
-    } finally {
+      
+      return results;
+    } catch (e) {
       clearTimeout(timer);
+      lastErr = e as Error;
+      console.error(`[searxng] direct attempt failed (${timeout}ms):`, (e as Error).message);
     }
   }
 
-  throw lastErr || new Error("Search request failed");
+  throw lastErr || new Error("All timeout attempts failed");
 }
 
 /**
@@ -240,7 +264,7 @@ export async function searchImages(
 ): Promise<ImageResult[]> {
   const url = `${SEARXNG_BASE_URL}/search?q=${encodeURIComponent(
     query
-  )}&category_images=1&format=json&safesearch=1`;
+  )}&category_images=1&safesearch=1`;
 
   const timeouts = [6000, 10000];
   let lastErr: Error | null = null;
@@ -250,39 +274,48 @@ export async function searchImages(
     const timer = setTimeout(() => controller.abort(), timeout);
     try {
       const res = await fetch(url, {
-        headers: { Accept: "application/json" },
+        headers: { Accept: "text/html" },
         signal: controller.signal,
         cache: "no-store",
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      const results = Array.isArray(json?.results) ? json.results : [];
-      return results.slice(0, limit).map(
-        (r: {
-          title?: string;
-          url?: string;
-          img_src?: string;
-          thumbnail_src?: string;
-          content?: string;
-        }): ImageResult => ({
-          title: r.title || "",
-          url: r.url || "",
-          imgSrc: r.img_src || r.thumbnail_src || "",
-          thumbnailSrc: r.thumbnail_src || r.img_src || "",
-          description: r.content || "",
-        })
-      );
-    } catch (e) {
-      lastErr = e as Error;
-      if (!(e instanceof DOMException && (e as DOMException).name === "AbortError")) {
-        break;
-      }
-    } finally {
       clearTimeout(timer);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
+      const html = await res.text();
+      const results: ImageResult[] = [];
+      
+      const articles = html.split(/<article[^>]*class="[^"]*result-images[^"]*"[^>]*>/i).slice(1);
+      for (const article of articles) {
+        if (results.length >= limit) break;
+        
+        const aMatch = article.match(/<a[^>]*href="([^"]+)"[^>]*>/i);
+        const imgMatch = article.match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+        const titleMatch = article.match(/<span[^>]*class="title"[^>]*>([\s\S]*?)<\/span>/i);
+        
+        if (aMatch && imgMatch) {
+          let src = imgMatch[1];
+          if (src.startsWith("/image_proxy")) {
+            src = SEARXNG_BASE_URL + src;
+          }
+          const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, "").trim() : "Image";
+          
+          results.push({
+            title,
+            url: aMatch[1],
+            imgSrc: src,
+            thumbnailSrc: src,
+            description: title
+          });
+        }
+      }
+      return results;
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = e as Error;
     }
   }
 
-  throw lastErr || new Error("Image search failed");
+  throw lastErr || new Error("All timeout attempts failed");
 }
 
 /**

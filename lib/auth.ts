@@ -100,6 +100,7 @@ export interface MemoryItem {
 }
 
 export interface UserMemory {
+  name?: string;
   memoryEnabled: boolean;
   aboutYou: string;
   responsePrefs: string;
@@ -152,6 +153,12 @@ function publicUser(u: StoredUser): any {
     autoRechargeAmountCents: u.autoRechargeAmountCents,
     autoRechargeThresholdCents: u.autoRechargeThresholdCents,
     hasSavedCard: !!(u.razorpayCustomerId && u.razorpayTokenId),
+    isChild: u.isChild,
+    parentId: u.parentId,
+    dateOfBirth: u.dateOfBirth,
+    gender: u.gender,
+    forumTokens: u.forumTokens,
+    forumTokensResetAt: u.forumTokensResetAt,
   };
 }
 
@@ -872,6 +879,7 @@ export async function getUserMemory(userId: string): Promise<UserMemory> {
   const db = await readDB();
   const user = db.users.find((u) => u.id === userId);
   return {
+    name: user?.name,
     memoryEnabled: user?.memoryEnabled ?? true,
     aboutYou: user?.aboutYou ?? "",
     responsePrefs: user?.responsePrefs ?? "",
@@ -927,6 +935,7 @@ export async function buildMemoryContext(userId: string): Promise<string> {
   const mem = await getUserMemory(userId);
   if (!mem.memoryEnabled) return "";
   const parts: string[] = [];
+  if (mem.name) parts.push(`The user's name is: ${mem.name}`);
   if (mem.aboutYou.trim()) parts.push(`About the user:\n${mem.aboutYou.trim()}`);
   if (mem.responsePrefs.trim()) parts.push(`How the user wants you to respond:\n${mem.responsePrefs.trim()}`);
   if (mem.memories.length) {

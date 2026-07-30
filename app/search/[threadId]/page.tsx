@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { AlertTriangle, FileText, Music, Loader2 } from "lucide-react";
+import { AlertTriangle, FileText, Music, Loader2, Bot, Globe, Image as ImageIcon } from "lucide-react";
 import type { Attachment } from "@/types";
 import type { Message } from "@/types";
 import { useIncogniStore } from "@/lib/store";
 import { useModels } from "@/hooks/useModels";
-import { uid } from "@/lib/utils";
+import { uid, cn } from "@/lib/utils";
 import { useThread } from "@/hooks/useThread";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -18,6 +18,7 @@ import { SearchBar } from "@/components/search/SearchBar";
 import { AnswerPanel } from "@/components/answer/AnswerPanel";
 
 
+import { AIAvatar } from "@/components/answer/AIAvatar";
 import { SourceCards } from "@/components/answer/SourceCards";
 import { FollowUpChips } from "@/components/answer/FollowUpChips";
 import { MessageActions } from "@/components/answer/MessageActions";
@@ -79,9 +80,32 @@ export default function ThreadPage() {
   // Sidebar must not coexist with an open artifact panel — force it hidden.
   const effectiveSidebarOpen = sidebarOpen && !artifact;
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"answer" | "links" | "images">("answer");
+  const [linksPage, setLinksPage] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const sentInitial = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
+
+  const allSources = useMemo(() => {
+    const s = [];
+    for (const m of messages) {
+      if (m.role === "assistant" && m.sources) {
+        s.push(...m.sources);
+      }
+    }
+    return s;
+  }, [messages]);
+
+  const allImages = useMemo(() => {
+    const imgs = [];
+    for (const m of messages) {
+      if (m.role === "assistant" && m.searchImages) {
+        imgs.push(...m.searchImages);
+      }
+    }
+    return imgs;
+  }, [messages]);
 
   // Re-send from a given user message (edit) or redo an answer (regenerate):
   // drop that turn and everything after it, then send the (edited) text fresh.
@@ -230,7 +254,7 @@ export default function ThreadPage() {
         <IncognitoBanner />
 
         <main id="chat-scroll-container" ref={mainRef} className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-3xl px-4 py-6 pb-40 sm:pb-44">
+          <div className="mx-auto max-w-3xl px-4 pt-20 pb-40 sm:pb-44">
             {searchWarning && (
               <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-200">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -242,66 +266,241 @@ export default function ThreadPage() {
               <EmptyThread onHome={() => router.push("/")} />
             ) : (
               <div className="space-y-8">
-                {pairMessages(messages).map((pair, i) => (
-                  <section key={pair.user?.id ?? i} className="space-y-4">
-                    {pair.user && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <UserMessage
-                          message={pair.user}
-                          disabled={loading}
-                          onEdit={(text) => resendFrom(pair.user!.id, text)}
-                          attachmentsSlot={
-                            pair.user.attachments && pair.user.attachments.length > 0 ? (
-                              <MessageAttachments attachments={pair.user.attachments} />
-                            ) : null
-                          }
-                        />
-                      </motion.div>
+                <div className="flex items-center gap-4 border-b border-incogni-border pb-2 mb-6 overflow-x-auto">
+                  <button
+                    onClick={() => setActiveTab("answer")}
+                    className={cn(
+                      "flex items-center gap-1.5 pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                      activeTab === "answer"
+                        ? "border-white text-incogni-text"
+                        : "border-transparent text-incogni-muted hover:text-incogni-text"
                     )}
-                    {pair.assistant && (
-                      <div className="space-y-3">
+                  >
+                    <Bot className="h-4 w-4" /> Answer
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("links")}
+                    className={cn(
+                      "flex items-center gap-1.5 pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                      activeTab === "links"
+                        ? "border-white text-incogni-text"
+                        : "border-transparent text-incogni-muted hover:text-incogni-text"
+                    )}
+                  >
+                    <Globe className="h-4 w-4" /> Links
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("images")}
+                    className={cn(
+                      "flex items-center gap-1.5 pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                      activeTab === "images"
+                        ? "border-white text-incogni-text"
+                        : "border-transparent text-incogni-muted hover:text-incogni-text"
+                    )}
+                  >
+                    <ImageIcon className="h-4 w-4" /> Images
+                  </button>
+                </div>
 
-                        {pair.assistant.sources &&
-                          pair.assistant.sources.length > 0 && (
-                            <SourceCards sources={pair.assistant.sources} />
-                          )}
-                        <AnswerPanel
-                          message={pair.assistant}
-                          voiceAutoPlay={voiceMode && pair.assistant.id === lastAssistantWithVoice}
-                          onVoiceEnd={handleVoiceEnd}
-                        />
-                        {!pair.assistant.streaming && !pair.assistant.error && (
-                          <MessageActions
-                            threadId={threadId}
-                            message={pair.assistant}
-                            onRegenerate={
-                              pair.user
-                                ? () => resendFrom(pair.user!.id, pair.user!.content)
-                                : undefined
-                            }
-                          />
-                        )}
-                        {!pair.assistant.streaming &&
-                          pair.assistant.followups &&
-                          pair.assistant.followups.length > 0 && (
-                            <FollowUpChips
-                              questions={pair.assistant.followups}
-                              onSelect={(q) => send(q, sendOpts)}
+                {activeTab === "answer" && (
+                  <>
+                    {pairMessages(messages).map((pair, i) => (
+                      <section key={pair.user?.id ?? i} className="space-y-4">
+                        {pair.user && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                          >
+                            <UserMessage
+                              message={pair.user}
                               disabled={loading}
+                              onEdit={(text) => resendFrom(pair.user!.id, text)}
+                              attachmentsSlot={
+                                pair.user.attachments && pair.user.attachments.length > 0 ? (
+                                  <MessageAttachments attachments={pair.user.attachments} />
+                                ) : null
+                              }
                             />
-                          )}
-                      </div>
+                          </motion.div>
+                        )}
+                        {pair.assistant && (
+                          <div className="flex gap-4">
+                            <div className="shrink-0 mt-1">
+                              <AIAvatar />
+                            </div>
+                            <div className="space-y-3 flex-1 min-w-0">
+                              <AnswerPanel
+                              message={pair.assistant}
+                              voiceAutoPlay={voiceMode && pair.assistant.id === lastAssistantWithVoice}
+                              onVoiceEnd={handleVoiceEnd}
+                            />
+                            {!pair.assistant.streaming && !pair.assistant.error && (
+                              <MessageActions
+                                threadId={threadId}
+                                message={pair.assistant}
+                                onRegenerate={
+                                  pair.user
+                                    ? () => resendFrom(pair.user!.id, pair.user!.content)
+                                    : undefined
+                                }
+                              />
+                            )}
+                            {!pair.assistant.streaming &&
+                              pair.assistant.followups &&
+                              pair.assistant.followups.length > 0 && (
+                                <FollowUpChips
+                                  questions={pair.assistant.followups}
+                                  onSelect={(q) => send(q, sendOpts)}
+                                  disabled={loading}
+                                />
+                              )}
+                          </div>
+                          </div>
+                        )}
+                      </section>
+                    ))}
+                  </>
+                )}
+
+                {activeTab === "links" && (
+                  <div className="space-y-6">
+                    {allSources.length > 0 ? (
+                      <>
+                        {allSources.slice((linksPage - 1) * 5, linksPage * 5).map((source, i) => {
+                          const domain = new URL(source.url).hostname;
+                          return (
+                            <div key={i} className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2 text-sm text-incogni-muted">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-incogni-surface">
+                                  <Globe className="h-3.5 w-3.5" />
+                                </div>
+                                <span>{domain}</span>
+                              </div>
+                              <a
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-lg font-medium text-blue-500 hover:underline line-clamp-1"
+                              >
+                                {source.title}
+                              </a>
+                              {source.snippet && (
+                                <p className="text-sm text-incogni-muted line-clamp-2">
+                                  {source.snippet}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {Math.ceil(allSources.length / 5) > 1 && (
+                          <div className="flex items-center justify-center gap-2 pt-4">
+                            {Array.from({ length: Math.ceil(allSources.length / 5) }).map((_, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setLinksPage(idx + 1)}
+                                className={cn(
+                                  "h-8 w-8 rounded-full text-sm font-medium transition-colors",
+                                  linksPage === idx + 1
+                                    ? "bg-incogni-text text-incogni-bg"
+                                    : "bg-incogni-surface hover:bg-incogni-surface-2 text-incogni-muted"
+                                )}
+                              >
+                                {idx + 1}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-sm text-incogni-muted text-center py-8">No links available for this conversation.</div>
                     )}
-                  </section>
-                ))}
+                  </div>
+                )}
+
+                {activeTab === "images" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {allImages.length > 0 ? (
+                      allImages.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImageIndex(i)}
+                          className="group relative block aspect-square overflow-hidden rounded-xl border border-incogni-border bg-incogni-surface transition-all hover:border-incogni-accent/50 text-left"
+                          title={img.title}
+                        >
+                          <img
+                            src={img.thumbnailSrc || img.imgSrc}
+                            alt={img.title || "Search image"}
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 pt-12">
+                            <p className="truncate text-xs font-medium text-white shadow-sm">
+                              {img.title || "View Source"}
+                            </p>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-sm text-incogni-muted text-center py-8">No images available for this conversation.</div>
+                    )}
+                  </div>
+                )}
+
                 <div ref={bottomRef} />
               </div>
             )}
           </div>
         </main>
+
+        {selectedImageIndex !== null && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm">
+            <button
+              onClick={() => setSelectedImageIndex(null)}
+              className="absolute right-6 top-6 text-white/70 hover:text-white"
+            >
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="relative flex h-full w-full max-w-6xl items-center justify-center p-8">
+              {selectedImageIndex > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(selectedImageIndex - 1); }}
+                  className="absolute left-6 rounded-full bg-white/10 p-3 text-white/70 hover:bg-white/20 hover:text-white"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+              <div className="flex flex-col items-center gap-4">
+                <img
+                  src={allImages[selectedImageIndex].imgSrc || allImages[selectedImageIndex].thumbnailSrc}
+                  alt={allImages[selectedImageIndex].title}
+                  className="max-h-[80vh] max-w-full object-contain"
+                />
+                <a
+                  href={allImages[selectedImageIndex].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg font-medium text-white hover:underline"
+                >
+                  {allImages[selectedImageIndex].title || "View Source"}
+                </a>
+              </div>
+              {selectedImageIndex < allImages.length - 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(selectedImageIndex + 1); }}
+                  className="absolute right-6 rounded-full bg-white/10 p-3 text-white/70 hover:bg-white/20 hover:text-white"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Sticky follow-up input — scoped to the main column so the artifact
             panel never overlaps it. */}

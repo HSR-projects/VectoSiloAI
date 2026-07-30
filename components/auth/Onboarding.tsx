@@ -37,6 +37,8 @@ export function Onboarding() {
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState(user?.name ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [agent, setAgent] = useState("balanced");
   const [busy, setBusy] = useState(false);
 
@@ -45,7 +47,7 @@ export function Onboarding() {
     const chosen = AGENTS.find((a) => a.id === agent);
     if (chosen) setFocusMode(chosen.focus);
     try {
-      await updateAccount({ name: name.trim() || user?.name, onboarded: true, defaultAgent: agent });
+      await updateAccount({ name: name.trim() || user?.name, dateOfBirth, gender, onboarded: true, defaultAgent: agent });
     } catch {
       setBusy(false);
     }
@@ -86,16 +88,49 @@ export function Onboarding() {
             title={`Welcome${user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋`}
             subtitle="Let's set up Incogni AI in a few seconds."
           >
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-incogni-muted">
-              Display name
-            </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-sm text-incogni-text placeholder:text-incogni-muted/60 focus:border-incogni-accent/50 focus:outline-none"
-            />
-            <NextButton onClick={() => setStep(1)}>Continue</NextButton>
+            <div className="space-y-4 mb-4">
+              <div>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-incogni-muted">
+                  Display name
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-sm text-incogni-text placeholder:text-incogni-muted/60 focus:border-incogni-accent/50 focus:outline-none"
+                />
+              </div>
+              
+              <div>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-incogni-muted">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-sm text-incogni-text placeholder:text-incogni-muted/60 focus:border-incogni-accent/50 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-incogni-muted">
+                  Gender
+                </label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="w-full rounded-lg border border-incogni-border bg-incogni-bg px-3 py-2.5 text-sm text-incogni-text focus:border-incogni-accent/50 focus:outline-none"
+                >
+                  <option value="" disabled>Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+            <NextButton onClick={() => setStep(1)} disabled={!name || !dateOfBirth || !gender}>Continue</NextButton>
           </Step>
         )}
 
@@ -219,15 +254,18 @@ function Step({
 
 function NextButton({
   onClick,
+  disabled,
   children,
 }: {
   onClick: () => void;
+  disabled?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
-      className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft"
+      disabled={disabled}
+      className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-incogni-accent px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-incogni-accent-soft disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {children}
       <ChevronRight className="h-4 w-4" />

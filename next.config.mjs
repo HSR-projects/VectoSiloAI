@@ -8,28 +8,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    return [
-      {
-        source: "/app-inventor/:path*",
-        destination: "http://localhost:8888/:path*",
-      },
-      {
-        source: "/app-inventor",
-        destination: "http://localhost:8888/",
-      },
-      {
-        source: "/ode/:path*",
-        destination: "http://localhost:8888/ode/:path*",
-      },
-      {
-        source: "/login",
-        destination: "http://localhost:8888/login",
-      },
-      {
-        source: "/login/:path*",
-        destination: "http://localhost:8888/login/:path*",
-      },
-    ];
+    return [];
   },
   async headers() {
     return [

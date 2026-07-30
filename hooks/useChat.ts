@@ -433,45 +433,96 @@ export function useChat(threadId: string | null) {
         ? s.customAIs.find(ai => ai.id === currentThread.customAIId)
         : null;
 
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: effectiveQuery,
-            threadHistory: history,
-            model,
-            focusMode: githubInvoke ? "nosearch" : focusMode,
-            githubInvoke,
-            sources,
-            images: (() => {
-              // Merge user-uploaded images with images crawled from pages.
-              const all = [...(built.images || []), ...(pageImages || [])].slice(0, 8);
-              return all.length ? all : undefined;
-            })(),
-            provider: store.getState().provider,
-            providerApiKey: store.getState().providerApiKey,
-            providerBaseUrl: store.getState().providerBaseUrl,
-            customInstructions: customAI?.instructions,
-          }),
-          signal: controller.signal,
-        });
+      let currentSources = sources;
+      let currentHistory = history;
+      let res: Response | null = null;
+      let attempt = 0;
+      let shouldRetry = true;
 
-        if (!res.ok || !res.body) {
-          // Free-tier usage limit (429) returns a JSON message; nudge to upgrade.
-          if (res.status === 429) {
-            const data = await res.json().catch(() => null);
-            update({
-              streaming: false,
-              error: data?.error || "You've reached your free usage limit. Upgrade to continue.",
-            });
-            if (typeof window !== "undefined") window.location.href = "/pricing";
+      while (shouldRetry && attempt < 2) {
+        attempt++;
+        shouldRetry = false;
+        try {
+          res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: effectiveQuery,
+              threadHistory: currentHistory,
+              model,
+              focusMode: githubInvoke ? "nosearch" : focusMode,
+              githubInvoke,
+              sources: currentSources,
+              images: (() => {
+                // Merge user-uploaded images with images crawled from pages.
+                const all = [...(built.images || []), ...(pageImages || [])].slice(0, 8);
+                return all.length ? all : undefined;
+              })(),
+              provider: store.getState().provider,
+              providerApiKey: store.getState().providerApiKey,
+              providerBaseUrl: store.getState().providerBaseUrl,
+              customInstructions: customAI?.instructions,
+            }),
+            signal: controller.signal,
+          });
+
+          if (!res.ok || !res.body) {
+            // Free-tier usage limit (429) returns a JSON message; nudge to upgrade.
+            if (res.status === 429) {
+              const data = await res.json().catch(() => null);
+              update({
+                streaming: false,
+                error: data?.error || "You've reached your free usage limit. Upgrade to continue.",
+              });
+              if (typeof window !== "undefined") window.location.href = "/pricing";
+              return;
+            }
+            const text = await res.text().catch(() => "");
+            
+            const isContextError = text.toLowerCase().includes("prompt too long") || text.toLowerCase().includes("exceeded max context length") || text.toLowerCase().includes("context length");
+            if (isContextError && attempt < 2) {
+              shouldRetry = true;
+              const compactionDelaySeconds = 3; // x = variable for delay
+              const compactStep = pushStep("compacting.....", "active");
+              
+              currentSources = currentSources.map(s => ({
+                ...s,
+                content: s.content ? s.content.substring(0, 400) + "..." : s.content
+              }));
+              
+              if (currentHistory.length > 2) {
+                currentHistory = currentHistory.slice(-2);
+                
+                // Replace long chat with a compacted system message in the UI
+                store.getState().setThreadMessages(id, [
+                  { 
+                    id: crypto.randomUUID(), 
+                    role: "system", 
+                    content: "🧠 Chat history compacted to free up memory.", 
+                    createdAt: Date.now() 
+                  },
+                  ...currentHistory
+                ]);
+              }
+              
+              await new Promise(r => setTimeout(r, compactionDelaySeconds * 1000));
+              setStep(compactStep, "done", "Context compacted");
+              continue;
+            }
+            
+            update({ streaming: false, error: text || "Chat request failed." });
             return;
           }
-          const text = await res.text().catch(() => "");
-          update({ streaming: false, error: text || "Chat request failed." });
+        } catch (e: any) {
+          if (e.name === "AbortError") return;
+          update({ streaming: false, error: "Network error during chat request." });
           return;
         }
+      }
+
+      if (!res || !res.body) return;
+
+      try {
 
         // If the user attached an image this turn, use it as the basis for
         // image-to-image; otherwise it's plain text-to-image.

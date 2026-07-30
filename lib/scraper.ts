@@ -69,7 +69,26 @@ async function scrapeYouTube(url: string): Promise<{ source: Source; images: str
 
 // ─── Image fetching ────────────────────────────────────────────
 
-/** Fetch an image and return it as a data URI (includes MIME type for Ollama Cloud compat). */
+/** Magic-byte checks for image formats Ollama vision models can decode. */
+const IMAGE_MAGIC: ((b: Uint8Array) => boolean)[] = [
+  // JPEG: FF D8 FF
+  (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  // PNG: 89 50 4E 47
+  (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
+  // WebP: RIFF .... WEBP at offset 8
+  (b) =>
+    b.length >= 12 &&
+    b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+    b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50,
+  // BMP: BM
+  (b) => b[0] === 0x42 && b[1] === 0x4d,
+  // TIFF little-endian: II 2A 00
+  (b) => b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2a && b[3] === 0x00,
+  // TIFF big-endian: MM 00 2A
+  (b) => b[0] === 0x4d && b[1] === 0x4d && b[2] === 0x00 && b[3] === 0x2a,
+];
+
+/** Fetch an image and return it as raw base64 (no data: prefix). */
 async function fetchImageBase64(imgUrl: string): Promise<string | null> {
   if (!imgUrl || imgUrl.startsWith("data:")) return null;
   const controller = new AbortController();
@@ -80,15 +99,13 @@ async function fetchImageBase64(imgUrl: string): Promise<string | null> {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; IncogniAI/1.0)" },
     });
     if (!res.ok) return null;
-    const ctype = res.headers.get("content-type") ?? "";
-    if (!ctype.startsWith("image/")) return null;
-    // Only forward formats vision models reliably support
-    const mime = ctype.split(";")[0].trim(); // strip "; charset=..." suffixes
-    if (mime === "image/svg+xml" || mime === "image/gif") return null;
     const buf = await res.arrayBuffer();
-    if (buf.byteLength > 4 * 1024 * 1024) return null; // Skip images >4 MB
-    // Return raw base64 — Ollama Cloud decodes the string directly and detects
-    // format from magic bytes. Data URIs cause a base64 decode error.
+    if (buf.byteLength > 4 * 1024 * 1024) return null;
+    const view = new Uint8Array(buf);
+    if (view.length < 4) return null;
+    // Guard: confirm actual bytes match a known image format. Some CDNs lie
+    // about Content-Type and serve error pages / placeholders as "image/*".
+    if (!IMAGE_MAGIC.some((check) => check(view))) return null;
     return Buffer.from(buf).toString("base64");
   } catch {
     return null;

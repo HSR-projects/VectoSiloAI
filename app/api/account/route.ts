@@ -20,6 +20,9 @@ export async function POST(req: Request) {
       onboarded?: boolean;
       defaultAgent?: string;
       avatarColor?: string;
+      dateOfBirth?: string;
+      gender?: string;
+      isChild?: boolean;
     } = {};
     if (typeof body.name === "string" && body.name.trim())
       patch.name = body.name.trim();
@@ -28,6 +31,18 @@ export async function POST(req: Request) {
       patch.defaultAgent = body.defaultAgent;
     if (typeof body.avatarColor === "string")
       patch.avatarColor = body.avatarColor;
+    if (typeof body.gender === "string") patch.gender = body.gender;
+    if (typeof body.dateOfBirth === "string" && body.dateOfBirth.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      patch.dateOfBirth = body.dateOfBirth;
+      const dob = new Date(body.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      patch.isChild = age <= 17;
+    }
 
     const user = await updateUser(current.id, patch);
     return NextResponse.json({ user });

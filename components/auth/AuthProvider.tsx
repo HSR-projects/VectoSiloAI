@@ -27,6 +27,8 @@ interface AuthContextValue {
     onboarded?: boolean;
     defaultAgent?: string;
     avatarColor?: string;
+    dateOfBirth?: string;
+    gender?: string;
   }) => Promise<void>;
   /** Opens Razorpay Checkout for the given paid plan. Navigates away. */
   upgrade: (plan: Plan) => Promise<void>;
@@ -168,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateAccount = useCallback(
-    async (patch: { name?: string; onboarded?: boolean; defaultAgent?: string; avatarColor?: string }) => {
+    async (patch: { name?: string; onboarded?: boolean; defaultAgent?: string; avatarColor?: string; dateOfBirth?: string; gender?: string; }) => {
       const { user: u } = await postJSON("/api/account", patch);
       setUser(u);
     },
