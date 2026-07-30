@@ -160,21 +160,7 @@ export async function* chatStreamRich(
         headers: authHeaders(),
         body: JSON.stringify({
           model: resolveModel(opts.model),
-          messages: opts.messages.map(m => {
-            if (m.images && m.images.length > 0) {
-              return {
-                role: m.role,
-                content: [
-                  { type: "text", text: m.content },
-                  ...m.images.map(img => ({
-                    type: "image_url",
-                    image_url: { url: `data:image/jpeg;base64,${img}` }
-                  }))
-                ]
-              };
-            }
-            return { role: m.role, content: m.content };
-          }),
+          messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
           stream: true,
           // OpenAI equivalent logic if needed, think is not standard OpenAI but might be supported by NIM
         }),

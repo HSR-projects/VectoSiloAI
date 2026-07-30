@@ -274,7 +274,7 @@ async function handlePost(req: Request): Promise<Response> {
               mapContext += "</SearXNG Maps>";
             }
           })
-          .catch(() => {})
+          .catch(() => { })
       );
     }
 
@@ -286,7 +286,7 @@ async function handlePost(req: Request): Promise<Response> {
               fetchedSearchImages = imgResults;
             }
           })
-          .catch(() => {})
+          .catch(() => { })
       );
     }
 

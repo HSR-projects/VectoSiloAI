@@ -114,7 +114,7 @@ export async function fileToAttachment(file: File): Promise<AttachResult> {
       return { error: `${file.name} is too large (max ${humanSize(MAX_IMAGE_BYTES)}).` };
     const dataUrl = await readAsDataURL(file);
     const thumbUrl = await makeThumb(dataUrl, 320, 0.7);       // small JPEG for UI display
-    const modelDataUrl = await makeThumb(dataUrl, 512, 0.85); // JPEG ≤512px for vision model
+    const modelDataUrl = await makeThumb(dataUrl, 1280, 0.92); // JPEG ≤1280px for vision model
     return {
       attachment: {
         ...base,
@@ -139,11 +139,11 @@ export async function fileToAttachment(file: File): Promise<AttachResult> {
     try {
       const pdfjs = await import("pdfjs-dist");
       pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-      
+
       const arrayBuffer = await file.arrayBuffer();
       const loadingTask = pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) });
       const pdf = await loadingTask.promise;
-      
+
       let fullText = "";
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
