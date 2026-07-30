@@ -30,36 +30,52 @@ export function AIAvatar() {
           
           {/* Robot Eyes */}
           <div className="relative z-10 flex gap-[3px] mt-0.5">
-            <motion.div 
-              className="h-2 w-1.5 rounded-full bg-white"
-              animate={{ 
-                scaleY: isAngry ? [1, 0.8, 1] : [1, 0.2, 1], 
-                opacity: [1, 0.8, 1],
-                rotate: isAngry ? 15 : 0
-              }}
-              transition={{ 
-                duration: isAngry ? 2 : 4, 
-                repeat: Infinity, 
-                repeatType: "loop", 
-                ease: "easeInOut", 
-                times: [0, 0.02, 0.04] // Quick blink
-              }}
-            />
-            <motion.div 
-              className="h-2 w-1.5 rounded-full bg-white"
-              animate={{ 
-                scaleY: isAngry ? [1, 0.8, 1] : [1, 0.2, 1], 
-                opacity: [1, 0.8, 1],
-                rotate: isAngry ? -15 : 0
-              }}
-              transition={{ 
-                duration: isAngry ? 2 : 4, 
-                repeat: Infinity, 
-                repeatType: "loop", 
-                ease: "easeInOut", 
-                times: [0, 0.02, 0.04]
-              }}
-            />
+            <div className="relative flex flex-col items-center">
+              {isAngry && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -2 }}
+                  animate={{ opacity: 1, y: 0.5 }}
+                  className="absolute -top-0.5 -left-[1px] h-[2px] w-[8px] bg-white rounded-full z-20 rotate-[35deg]"
+                />
+              )}
+              <motion.div 
+                className="h-2 w-1.5 rounded-full bg-white"
+                animate={{ 
+                  scaleY: isAngry ? [1, 0.8, 1] : [1, 0.2, 1], 
+                  opacity: [1, 0.8, 1],
+                }}
+                transition={{ 
+                  duration: isAngry ? 2 : 4, 
+                  repeat: Infinity, 
+                  repeatType: "loop", 
+                  ease: "easeInOut", 
+                  times: [0, 0.02, 0.04] // Quick blink
+                }}
+              />
+            </div>
+            <div className="relative flex flex-col items-center">
+              {isAngry && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -2 }}
+                  animate={{ opacity: 1, y: 0.5 }}
+                  className="absolute -top-0.5 -right-[1px] h-[2px] w-[8px] bg-white rounded-full z-20 -rotate-[35deg]"
+                />
+              )}
+              <motion.div 
+                className="h-2 w-1.5 rounded-full bg-white"
+                animate={{ 
+                  scaleY: isAngry ? [1, 0.8, 1] : [1, 0.2, 1], 
+                  opacity: [1, 0.8, 1],
+                }}
+                transition={{ 
+                  duration: isAngry ? 2 : 4, 
+                  repeat: Infinity, 
+                  repeatType: "loop", 
+                  ease: "easeInOut", 
+                  times: [0, 0.02, 0.04]
+                }}
+              />
+            </div>
           </div>
         </motion.div>
       </TooltipTrigger>
