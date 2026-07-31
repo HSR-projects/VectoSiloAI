@@ -16,6 +16,25 @@ export const OLLAMA_BASE_URL = (
 
 export const OLLAMA_API_KEY = process.env.VECTOSILO_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "";
 
+let currentKeyIndex = 0;
+const rawFallbackKeys = process.env.OLLAMA_FALLBACK_KEYS || "";
+const FALLBACK_KEYS = [
+  process.env.VECTOSILO_CLOUD_API_KEY || process.env.OLLAMA_API_KEY || "",
+  ...rawFallbackKeys.split(",").map(k => k.trim()).filter(Boolean)
+].filter(Boolean);
+
+export function getActiveApiKey(): string {
+  if (FALLBACK_KEYS.length === 0) return "";
+  return FALLBACK_KEYS[currentKeyIndex % FALLBACK_KEYS.length];
+}
+
+export function rotateApiKey() {
+  if (FALLBACK_KEYS.length > 0) {
+    currentKeyIndex++;
+    console.log(`[ollama] Rotated to API key index ${currentKeyIndex % FALLBACK_KEYS.length}`);
+  }
+}
+
 export const DEFAULT_MODEL = process.env.VECTOSILO_DEFAULT_MODEL || process.env.OLLAMA_DEFAULT_MODEL || "gpt-oss:120b";
 
 export const IS_OPENAI_COMPAT = OLLAMA_BASE_URL.includes("/v1") || OLLAMA_BASE_URL.includes("api.nvidia.com");
@@ -57,7 +76,8 @@ export function resolveModel(requested?: string): string {
 
 function authHeaders(): Record<string, string> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (OLLAMA_API_KEY) headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`;
+  const key = getActiveApiKey();
+  if (key) headers["Authorization"] = `Bearer ${key}`;
   return headers;
 }
 
@@ -120,15 +140,27 @@ interface ChatOptions {
   format?: "json" | object;
 }
 
-/** Wrapper around fetch that retries after 60s if NVIDIA workers are maxed out. */
+/** Wrapper around fetch that retries after 60s if NVIDIA workers are maxed out, OR rotates keys on quota exhaustion. */
 async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 1): Promise<Response> {
   let attempt = 0;
   while (true) {
-    const res = await fetch(url, options);
+    const headers = { ...options.headers, ...authHeaders() };
+    const res = await fetch(url, { ...options, headers });
     if (!res.ok) {
       const cloned = res.clone();
       const text = await cloned.text().catch(() => "");
-      if (text.toLowerCase().includes("nvidia workers reached") && attempt < maxRetries) {
+      const lower = text.toLowerCase();
+      
+      // Rotate API key on exhaustion
+      if (res.status === 429 || res.status === 402 || res.status === 403 || lower.includes("quota") || lower.includes("limit") || lower.includes("insufficient") || lower.includes("credit")) {
+        if (attempt < FALLBACK_KEYS.length) {
+          rotateApiKey();
+          attempt++;
+          continue; // immediately retry with new key
+        }
+      }
+
+      if (lower.includes("nvidia workers reached") && attempt < maxRetries) {
         attempt++;
         await new Promise(resolve => setTimeout(resolve, 60000));
         continue;

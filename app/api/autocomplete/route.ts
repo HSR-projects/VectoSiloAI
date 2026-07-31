@@ -1,14 +1,37 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { OLLAMA_BASE_URL, OLLAMA_API_KEY, IS_OPENAI_COMPAT, OllamaError } from "@/lib/ollama";
+import { OLLAMA_BASE_URL, getActiveApiKey, IS_OPENAI_COMPAT, OllamaError } from "@/lib/ollama";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim();
   const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "8", 10), 1), 8);
+
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+  const now = Date.now();
+  const record = rateLimitMap.get(ip) || { count: 0, windowStart: now };
+  if (now - record.windowStart > 10000) {
+    record.count = 0;
+    record.windowStart = now;
+  }
+  record.count++;
+  rateLimitMap.set(ip, record);
+
+  // Clean up occasionally
+  if (Math.random() < 0.05) {
+    for (const [key, value] of rateLimitMap.entries()) {
+      if (now - value.windowStart > 10000) rateLimitMap.delete(key);
+    }
+  }
+
+  if (record.count > 30) {
+    return NextResponse.json({ query: q || "", suggestions: [], latencyMs: 0, degraded: true }, { status: 429 });
+  }
 
   if (!q || q.length < 2 || q.length > 100) {
     return NextResponse.json({ query: q || "", suggestions: [], latencyMs: 0, degraded: false });
@@ -32,7 +55,8 @@ export async function GET(req: Request) {
     const prompt = `You are a search autocomplete engine. The user has typed the prefix: "${q}". Generate ${limit} short, likely search queries that start with or logically complete this prefix. Return ONLY a valid JSON array of strings, e.g. ["query 1", "query 2"]. Do not include markdown, explanations, or prose.`;
 
     const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (OLLAMA_API_KEY) headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`;
+    const activeKey = getActiveApiKey();
+    if (activeKey) headers["Authorization"] = `Bearer ${activeKey}`;
 
     const body = IS_OPENAI_COMPAT 
       ? {
