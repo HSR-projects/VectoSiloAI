@@ -180,17 +180,17 @@ export function CodeBlock({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="group relative my-4 overflow-hidden rounded-xl border border-incogni-border bg-[#141416]">
-      {/* Toolbar — wraps on narrow screens so no action gets clipped. */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-incogni-border/70 bg-incogni-surface/40 px-2 py-1.5">
+    <div className="group relative my-4 overflow-hidden rounded-md bg-black">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between bg-[#2f2f2f] px-4 py-2 text-xs text-[#b4b4b4]">
         {lang && (
-          <span className="mr-1 px-1.5 text-[11px] font-medium uppercase tracking-wide text-incogni-muted">
+          <span className="font-sans font-medium">
             {lang}
           </span>
         )}
 
         {canPreview && !editMode && (
-          <div className="flex items-center rounded-md bg-incogni-surface-2 p-0.5">
+          <div className="flex items-center rounded-md p-0.5">
             <TabButton
               active={tab === "code"}
               onClick={() => setTab("code")}
@@ -206,15 +206,15 @@ export function CodeBlock({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-3">
           {canPreview && tab === "preview" && !editMode && (
             <button
               type="button"
               onClick={() => setRunKey((k) => k + 1)}
               aria-label="Re-run preview"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
             >
-              <RefreshCw className="h-3 w-3" /> Rerun
+              <RefreshCw className="h-3.5 w-3.5" /> Rerun
             </button>
           )}
 
@@ -223,18 +223,18 @@ export function CodeBlock({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={exitEdit}
-              className="inline-flex items-center gap-1 rounded-md border border-incogni-accent/40 bg-incogni-accent/10 px-2 py-1 text-xs font-medium text-incogni-accent-soft transition-colors hover:bg-incogni-accent/20"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
             >
-              <Check className="h-3 w-3" /> Done
+              <Check className="h-3.5 w-3.5" /> Done
             </button>
           ) : (
             <button
               type="button"
               onClick={enterEdit}
               aria-label="Edit code"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
             >
-              <PencilLine className="h-3 w-3" /> Edit
+              <PencilLine className="h-3.5 w-3.5" /> Edit
             </button>
           )}
 
@@ -244,9 +244,9 @@ export function CodeBlock({ children }: { children: ReactNode }) {
               type="button"
               onClick={reset}
               aria-label="Reset to original"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-red-400"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-red-400"
             >
-              <RotateCcw className="h-3 w-3" /> Reset
+              <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
           )}
 
@@ -254,23 +254,23 @@ export function CodeBlock({ children }: { children: ReactNode }) {
             type="button"
             onClick={download}
             aria-label="Download file"
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
           >
-            <Download className="h-3 w-3" /> Download
+            <Download className="h-3.5 w-3.5" /> Download
           </button>
           <button
             type="button"
             onClick={copy}
             aria-label="Copy code"
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-incogni-muted transition-colors hover:text-incogni-text"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
           >
             {copied ? (
               <>
-                <Check className="h-3 w-3 text-incogni-accent" /> Copied
+                <Check className="h-3.5 w-3.5" /> Copied!
               </>
             ) : (
               <>
-                <Copy className="h-3 w-3" /> Copy
+                <Copy className="h-3.5 w-3.5" /> Copy code
               </>
             )}
           </button>
@@ -296,7 +296,7 @@ export function CodeBlock({ children }: { children: ReactNode }) {
           srcDoc={srcDoc}
         />
       ) : (
-        <pre className="overflow-x-auto p-4 text-sm [&_code]:bg-transparent">
+        <pre className="overflow-x-auto p-4 text-sm text-gray-200 [&_code]:bg-transparent">
           {children}
         </pre>
       )}
@@ -320,10 +320,8 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors",
-        active
-          ? "bg-incogni-accent/20 text-incogni-accent-soft"
-          : "text-incogni-muted hover:text-incogni-text"
+        "inline-flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:text-white",
+        active ? "text-white" : ""
       )}
     >
       {icon}
