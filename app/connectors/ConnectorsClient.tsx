@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const CONNECTORS_DATA = [
   {
     id: "google-drive",
-    name: "Google Drive",
+    name: "Google Drive & Docs",
     description: "Search, read, and create documents directly from your Google Drive.",
     logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg",
     verified: true,
@@ -30,100 +30,7 @@ const CONNECTORS_DATA = [
       { id: "read_doc", name: "Read documents", description: "Read contents of Google Docs and sheets.", type: "read" },
       { id: "create_doc", name: "Create document", description: "Create a new Google Doc.", type: "write" },
     ] as any[],
-  },
-  {
-    id: "gmail",
-    name: "Gmail with Calendar",
-    description: "Search, create, and manage your emails and calendar events",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg",
-    verified: true,
-    overview: [
-      "Search across your Gmail inbox, threads, and labels",
-      "Read messages and attachments to ground answers in your email history",
-      "Search calendar events, find availability, and view meeting details",
-      "Create, update, and cancel calendar events with attendees and conferencing",
-      "Send emails and replies, manage drafts, and organize labels"
-    ],
-    developer: "Google",
-    links: [
-      { label: "Website", url: "https://mail.google.com" },
-      { label: "Documentation", url: "https://developers.google.com/gmail/api" },
-      { label: "Support", url: "https://support.google.com/mail" },
-    ],
-    tools: [
-      { id: "search_events", name: "Search calendar events", description: "Search Google Calendar events.", type: "read" },
-      { id: "search_emails", name: "Search emails", description: "Search and read emails in Gmail.", type: "read" },
-      { id: "draft_reply", name: "Draft a reply", description: "Draft a reply to an email thread.", type: "write" },
-      { id: "send_email", name: "Send an email", description: "Send or forward an email.", type: "write" },
-      { id: "update_events", name: "Update calendar events", description: "Create, update, or delete Google Calendar events.", type: "write" },
-    ] as any[],
-  },
-  {
-    id: "outlook",
-    name: "Outlook",
-    description: "Search your emails and calendar events",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg",
-    verified: true,
-    overview: ["Search your Outlook emails and calendar events"],
-    developer: "Microsoft",
-    links: [{ label: "Website", url: "https://outlook.com" }],
-    tools: [],
-  },
-  {
-    id: "hubspot",
-    name: "HubSpot",
-    description: "Retrieve, create, and update CRM objects; manage contacts, companies, deals",
-    logoUrl: "https://cdn.worldvectorlogo.com/logos/hubspot.svg",
-    verified: true,
-    overview: ["Manage your HubSpot CRM data directly from chats"],
-    developer: "HubSpot",
-    links: [{ label: "Website", url: "https://hubspot.com" }],
-    tools: [],
-  },
-  {
-    id: "monday",
-    name: "Monday.com",
-    description: "Manage boards, items, and groups; create updates and sub-items",
-    logoUrl: "https://cdn.worldvectorlogo.com/logos/monday-1.svg",
-    verified: true,
-    overview: ["Manage your monday.com boards and items"],
-    developer: "Monday.com",
-    links: [{ label: "Website", url: "https://monday.com" }],
-    tools: [],
-  },
-  {
-    id: "supabase",
-    name: "Supabase",
-    description: "Build and manage your app's database, auth, and storage",
-    logoUrl: "https://cdn.worldvectorlogo.com/logos/supabase.svg",
-    verified: true,
-    overview: ["Manage your Supabase projects"],
-    developer: "Supabase",
-    links: [{ label: "Website", url: "https://supabase.com" }],
-    tools: [],
-  },
-  {
-    id: "vercel",
-    name: "Vercel",
-    description: "Manage teams, projects, and deployments; search documentation",
-    logoUrl: "https://cdn.worldvectorlogo.com/logos/vercel.svg",
-    verified: true,
-    overview: ["Manage your Vercel deployments"],
-    developer: "Vercel",
-    links: [{ label: "Website", url: "https://vercel.com" }],
-    tools: [],
-  },
-  {
-    id: "figma",
-    name: "Figma",
-    description: "Comprehensive Figma connector for managing files, projects, teams",
-    logoUrl: "https://cdn.worldvectorlogo.com/logos/figma-5.svg",
-    verified: true,
-    overview: ["Read Figma files and components"],
-    developer: "Figma",
-    links: [{ label: "Website", url: "https://figma.com" }],
-    tools: [],
-  },
+  }
 ];
 
 export function ConnectorsClient({ isGoogleConnected }: { isGoogleConnected: boolean }) {
@@ -230,29 +137,11 @@ export function ConnectorsClient({ isGoogleConnected }: { isGoogleConnected: boo
                 <button className="text-sm text-incogni-muted hover:text-incogni-text">View all &gt;</button>
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {CONNECTORS_DATA.slice(0, 6).map((c) => (
+                {CONNECTORS_DATA.map((c) => (
                   <ConnectorCard
                     key={c.id}
                     {...c}
                     connected={c.id === "google-drive" ? isGoogleConnected : false}
-                    onClick={() => setSelectedConnectorId(c.id)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-incogni-muted">
-                  <span className="text-lg">✨</span> New
-                </h2>
-                <button className="text-sm text-incogni-muted hover:text-incogni-text">View all &gt;</button>
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {CONNECTORS_DATA.slice(6).map((c) => (
-                  <ConnectorCard
-                    key={c.id}
-                    {...c}
                     onClick={() => setSelectedConnectorId(c.id)}
                   />
                 ))}
