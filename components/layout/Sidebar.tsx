@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, MessageSquare, Trash2, X, Search, Library as LibraryIcon, Image as ImageIcon,
-  Blocks, Folder, PanelLeft, Pencil, Download, MoreHorizontal, Bot,
+  Blocks, Folder, PanelLeft, Pencil, Download, MoreHorizontal, Bot, Plug,
 } from "lucide-react";
 import { useIncogniStore } from "@/lib/store";
 import { useNewChat } from "@/hooks/useNewChat";
@@ -208,6 +208,13 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           >
             <Blocks className="h-4 w-4 text-incogni-muted" />
             <span className="flex-1 text-left">Plugins</span>
+          </button>
+          <button
+            onClick={() => { router.push("/connectors"); onClose(); }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-incogni-text transition-colors hover:bg-incogni-surface-2"
+          >
+            <Plug className="h-4 w-4 text-incogni-muted" />
+            <span className="flex-1 text-left">Connectors</span>
           </button>
           <button
             onClick={() => { router.push("/projects"); onClose(); }}

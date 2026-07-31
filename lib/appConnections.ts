@@ -22,8 +22,19 @@ export interface GithubConnection {
   connectedAt: number;
 }
 
+export interface GoogleConnection {
+  accessToken: string;
+  refreshToken?: string;
+  scope: string;
+  email: string;
+  name?: string;
+  avatarUrl?: string;
+  connectedAt: number;
+}
+
 interface ConnRecord {
   github?: GithubConnection;
+  google?: GoogleConnection;
 }
 
 interface DB {
@@ -65,6 +76,30 @@ export async function clearGithubConnection(userId: string): Promise<void> {
   const db = await readDB();
   if (db[userId]) {
     delete db[userId].github;
+    await writeDB(db);
+  }
+}
+
+export async function getGoogleConnection(
+  userId: string
+): Promise<GoogleConnection | null> {
+  const db = await readDB();
+  return db[userId]?.google ?? null;
+}
+
+export async function setGoogleConnection(
+  userId: string,
+  conn: GoogleConnection
+): Promise<void> {
+  const db = await readDB();
+  db[userId] = { ...db[userId], google: conn };
+  await writeDB(db);
+}
+
+export async function clearGoogleConnection(userId: string): Promise<void> {
+  const db = await readDB();
+  if (db[userId]) {
+    delete db[userId].google;
     await writeDB(db);
   }
 }
